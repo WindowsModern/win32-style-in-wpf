@@ -1,0 +1,49 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - 'v*'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build (Release / AnyCPU)
+    runs-on: windows-2022
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build and self-test
+        shell: pwsh
+        run: |
+          powershell -NoProfile -ExecutionPolicy Bypass `
+            -File .\build.ps1 -Configuration Release -SelfTest
+
+      - name: Upload build and self-test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PresentationFramework.Theme-${{ github.sha }}
+          if-no-files-found: warn
+          path: |
+            ThemeDemo/bin/Release/
+            NativeComparison/bin/Release/
+            WpfApplicationTest/bin/Release/
+            artifacts/selftest-plain/
+            artifacts/selftest-transition/
