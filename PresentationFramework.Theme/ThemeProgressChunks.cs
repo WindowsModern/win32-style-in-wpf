@@ -133,16 +133,15 @@ namespace System.Windows.Controls
             double track = Orientation == Orientation.Vertical ? ActualHeight : ActualWidth;
             if (_patternLength > 0)
             {
-                // Walk the full track.  A pattern-only loop only moves the
-                // chunks by one pattern width and never reaches the end.
-                double span = track + _patternLength;
-                if (_offset >= span)
-                    _offset = 0.0;
+                // Start completely before the head and stop only after the
+                // last chunk has completely left the tail.
+                if (_offset >= track)
+                    _offset = -_patternLength;
             }
             else
             {
                 if (_offset > track + 160.0)
-                    _offset = 0.0;
+                    _offset = -160.0;
             }
             InvalidateArrange();
         }
@@ -188,8 +187,8 @@ namespace System.Windows.Controls
             // mode simply has no chunk image.  Smooth fill is a separate template.
             System.Drawing.Color background = ThemeImageProvider.GetBackgroundColor(this);
             _chunkData = ThemeImageProvider.GetNatural("Progress", PartId, StateId, hwnd, SubClass, background);
-            _offset = 0.0;
             RebuildChildren();
+            _offset = Animate ? -_patternLength : 0.0;
         }
 
         private void RebuildChildren()
