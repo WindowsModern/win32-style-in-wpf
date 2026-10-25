@@ -51,6 +51,7 @@
     <Compile Include="ThemeDibRenderer.cs" />
     <Compile Include="ThemeHackImage.cs" />
     <Compile Include="ThemeImage.cs" />
+    <Compile Include="ScrollBarThumbLengthConverter.cs" />
     <Compile Include="ThemePart.cs" />
     <Compile Include="ThemeProgress.cs" />
     <Compile Include="ProgressBarVerticalHeightConverter.cs" />
