@@ -549,11 +549,14 @@ namespace Microsoft.Windows.Themes
                 if (image == null)
                     return null;
 
-                return new ThemeImageData(image,
-                    new Thickness(margins.Left, margins.Top, margins.Right, margins.Bottom),
-                    new Thickness(margins.Left, margins.Top, margins.Right, margins.Bottom),
-                    new Thickness(contentMargins.Left, contentMargins.Top, contentMargins.Right, contentMargins.Bottom),
-                    hasContentMargins);
+                Thickness contentThickness = new Thickness(contentMargins.Left, contentMargins.Top,
+                    contentMargins.Right, contentMargins.Bottom);
+                Thickness sizingThickness = new Thickness(margins.Left, margins.Top,
+                    margins.Right, margins.Bottom);
+                Thickness nativeMargins = hasContentMargins ? contentThickness : sizingThickness;
+
+                return new ThemeImageData(image, nativeMargins, sizingThickness,
+                    contentThickness, hasContentMargins);
             }
         }
 
@@ -594,10 +597,14 @@ namespace Microsoft.Windows.Themes
                 if (!TryGetSizingMargins(style, actualPart, state, out sizingMargins))
                     sizingMargins = new ThemeMargins(0, 0, 0, 0);
 
-                return new ThemeImageData(image, new Thickness(0),
-                    new Thickness(sizingMargins.Left, sizingMargins.Top, sizingMargins.Right, sizingMargins.Bottom),
-                    new Thickness(contentMargins.Left, contentMargins.Top, contentMargins.Right, contentMargins.Bottom),
-                    hasContentMargins);
+                Thickness contentThickness = new Thickness(contentMargins.Left, contentMargins.Top,
+                    contentMargins.Right, contentMargins.Bottom);
+                Thickness sizingThickness = new Thickness(sizingMargins.Left, sizingMargins.Top,
+                    sizingMargins.Right, sizingMargins.Bottom);
+                Thickness nativeMargins = hasContentMargins ? contentThickness : sizingThickness;
+
+                return new ThemeImageData(image, nativeMargins, sizingThickness,
+                    contentThickness, hasContentMargins);
             }
         }
 
