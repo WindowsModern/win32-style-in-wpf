@@ -188,7 +188,7 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1 -Configuration Release -Sel
 
 ## 兼容性与限制
 
-- .NET Framework 4.0、C# 6、AnyCPU；Windows XP 起（WPF 4.0 + UXTHEME）。
+- .NET Framework 4.0 及以上、C# 6、AnyCPU；Windows XP 及以上（WPF 4.0 + UXTHEME）。
 - 使用 `VisualStyle.Open(className)` 的零窗口模式，不需要 `HwndHost`/隐藏窗口。
 - XP 上没有 `TMT_SIZINGMARGINS` 的类使用边框宽度或保守默认值做九宫格切片。
 - 主题在运行中改变时，已加载的控件不会自动换肤；新加载的控件会使用新主题（缓存键包含主题

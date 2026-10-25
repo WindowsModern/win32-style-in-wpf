@@ -207,7 +207,7 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1 -Configuration Release -Sel
 
 ## Compatibility and limitations
 
-- .NET Framework 4.0, C# 6, AnyCPU; Windows XP and later (WPF 4.0 + UXTHEME).
+- .NET Framework 4.0 or later, C# 6, AnyCPU; Windows XP or later (WPF 4.0 + UXTHEME).
 - Uses `VisualStyle.Open(className)` with a zero-window mode; no `HwndHost`/hidden window needed.
 - On XP, classes without `TMT_SIZINGMARGINS` use border width or conservative defaults for
   nine-patch slicing.
