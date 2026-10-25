@@ -159,6 +159,18 @@ namespace Microsoft.Windows.Themes
             if (element == null) throw new ArgumentNullException(nameof(element));
             element.SetValue(ChunkMarginProperty, value);
         }
+        public static readonly DependencyProperty PreserveAlphaProperty = DependencyProperty.RegisterAttached(
+            "PreserveAlpha", typeof(bool), typeof(ThemeImage),
+            new FrameworkPropertyMetadata(false, OnDescriptorChanged));
+        public static bool GetPreserveAlpha(DependencyObject element)
+        {
+            return (bool)element.GetValue(PreserveAlphaProperty);
+        }
+
+        public static void SetPreserveAlpha(DependencyObject element, bool value)
+        {
+            element.SetValue(PreserveAlphaProperty, value);
+        }
         public static bool GetCropProgressSpace(DependencyObject element)
         {
             return (bool)element.GetValue(CropProgressSpaceProperty);

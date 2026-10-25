@@ -135,9 +135,13 @@ namespace Microsoft.Windows.Themes
             _pixelWidth = PixelWidth();
             _pixelHeight = PixelHeight();
             System.Drawing.Color background = ThemeImageProvider.GetBackgroundColor(_element);
-            ThemeImageData data = ThemeImage.GetRenderMode(_element) == ThemeImage.ThemeImageRenderMode.Natural
-                ? ThemeImageProvider.GetNatural(className, part, state, windowHandle, null, background)
-                : ThemeImageProvider.GetSized(className, part, state, windowHandle, _pixelWidth, _pixelHeight, background);
+            ThemeImageData data;
+            if (ThemeImage.GetPreserveAlpha(_element))
+                data = ThemeImageProvider.GetAlphaNatural(className, part, state, windowHandle);
+            else
+                data = ThemeImage.GetRenderMode(_element) == ThemeImage.ThemeImageRenderMode.Natural
+                    ? ThemeImageProvider.GetNatural(className, part, state, windowHandle, null, background)
+                    : ThemeImageProvider.GetSized(className, part, state, windowHandle, _pixelWidth, _pixelHeight, background);
             if (data == null)
             {
                 Release();
