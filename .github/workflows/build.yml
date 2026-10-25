@@ -64,6 +64,8 @@ jobs:
           }
           catch {
             $_ | Out-String | Add-Content $log
+            Get-Content $log | Select-Object -Last 40 |
+              ForEach-Object { Write-Output "::error title=Build failure::$_" }
             throw
           }
 
