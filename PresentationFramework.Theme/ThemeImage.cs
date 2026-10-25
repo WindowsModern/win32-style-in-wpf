@@ -32,6 +32,16 @@ namespace Microsoft.Windows.Themes
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnDescriptorChanged));
 
         /// <summary>
+        /// Rotates the loaded theme bitmap and its nine-patch margins in 90-degree
+        /// steps. This is image-space rotation, not a WPF element transform, so
+        /// adjacent slices cannot develop seams.
+        /// <para xml:lang="zh-CN">按 90 度步进旋转已加载的主题位图及其九宫格边距；这是图像空间旋转，不是 WPF 元素变换。</para>
+        /// </summary>
+        public static readonly DependencyProperty RotationProperty = DependencyProperty.RegisterAttached(
+            "Rotation", typeof(int), typeof(ThemeImage),
+            new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.AffectsRender, OnDescriptorChanged));
+
+        /// <summary>
         /// Theme part id (the <c>xxx_P_*</c> constant).
         /// <para xml:lang="zh-CN">主题部件 id（<c>xxx_P_*</c> 常量）。</para>
         /// </summary>
@@ -135,6 +145,26 @@ namespace Microsoft.Windows.Themes
         {
             if (element == null) throw new ArgumentNullException(nameof(element));
             element.SetValue(SubClassProperty, value);
+        }
+
+        /// <summary>
+        /// Gets the image-space rotation in degrees.
+        /// <para xml:lang="zh-CN">获取图像空间旋转角度。</para>
+        /// </summary>
+        public static int GetRotation(DependencyObject element)
+        {
+            if (element == null) throw new ArgumentNullException(nameof(element));
+            return (int)element.GetValue(RotationProperty);
+        }
+
+        /// <summary>
+        /// Sets the image-space rotation in degrees.
+        /// <para xml:lang="zh-CN">设置图像空间旋转角度。</para>
+        /// </summary>
+        public static void SetRotation(DependencyObject element, int value)
+        {
+            if (element == null) throw new ArgumentNullException(nameof(element));
+            element.SetValue(RotationProperty, value);
         }
 
         /// <summary>

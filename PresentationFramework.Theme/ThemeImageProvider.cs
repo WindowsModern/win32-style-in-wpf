@@ -288,7 +288,7 @@ namespace Microsoft.Windows.Themes
             }
         }
 
-        internal static ThemeImageData GetAlphaNatural(string className, int part, int state, IntPtr window, string subClass = null)
+        internal static ThemeImageData GetAlphaNatural(string className, int part, int state, IntPtr window, string subClass = null, bool ignoreIdentical = false)
         {
             if (string.IsNullOrEmpty(className) || !ThemeSystem.IsVisualStylesEnabled)
                 return null;
@@ -300,7 +300,7 @@ namespace Microsoft.Windows.Themes
                 state.ToString(CultureInfo.InvariantCulture), "|",
                 window.ToInt64().ToString(CultureInfo.InvariantCulture), "|",
                 DpiScale.ToString("R", CultureInfo.InvariantCulture), "|alpha|",
-                subClass ?? string.Empty);
+                subClass ?? string.Empty, "|ignore=", ignoreIdentical ? "1" : "0");
 
             lock (Gate)
             {
@@ -308,7 +308,7 @@ namespace Microsoft.Windows.Themes
                 if (Cache.TryGetValue(key, out reference) && reference.IsAlive)
                     return (ThemeImageData)reference.Target;
 
-                ThemeImageData data = RenderAlphaNatural(className, part, state, window, subClass);
+                ThemeImageData data = RenderAlphaNatural(className, part, state, window, subClass, ignoreIdentical);
                 if (data != null)
                 {
                     if (Cache.Count >= MaxCacheEntries)
@@ -320,7 +320,7 @@ namespace Microsoft.Windows.Themes
             }
         }
 
-        private static ThemeImageData RenderAlphaNatural(string className, int part, int state, IntPtr window, string subClass)
+        private static ThemeImageData RenderAlphaNatural(string className, int part, int state, IntPtr window, string subClass, bool ignoreIdentical)
         {
             using (VisualStyle style = OpenStyle(className, window, subClass))
             {
@@ -330,7 +330,7 @@ namespace Microsoft.Windows.Themes
                 int actualPart;
                 System.Drawing.Size natural;
                 TryGetPartSizeWithFallback(style, className, part, state, out actualPart, out natural);
-                return RenderReconstructedAlpha(style, actualPart, state, natural.Width, natural.Height);
+                return RenderReconstructedAlpha(style, actualPart, state, natural.Width, natural.Height, ignoreIdentical);
             }
         }
 
@@ -423,7 +423,7 @@ namespace Microsoft.Windows.Themes
         }
 
         private static ThemeImageData RenderReconstructedAlpha(VisualStyle style, int part, int state,
-            int width, int height)
+            int width, int height, bool ignoreIdentical)
         {
             if (width <= 0 || height <= 0)
                 return null;
@@ -463,14 +463,14 @@ namespace Microsoft.Windows.Themes
             catch (OutOfMemoryException)
             {
                 LowerAlphaProbeLimit(probeCount);
-                return RenderReconstructedAlpha(style, part, state, width, height);
+                return RenderReconstructedAlpha(style, part, state, width, height, ignoreIdentical);
             }
 
             watch.Stop();
             if (watch.ElapsedMilliseconds > 120 && probeCount > 2)
             {
                 LowerAlphaProbeLimit(probeCount);
-                return RenderReconstructedAlpha(style, part, state, width, height);
+                return RenderReconstructedAlpha(style, part, state, width, height, ignoreIdentical);
             }
 
             var output = new byte[stride * height];
@@ -505,10 +505,20 @@ namespace Microsoft.Windows.Themes
 
                             if (identical)
                             {
-                                row[i] = (byte)firstB;
-                                row[i + 1] = (byte)firstG;
-                                row[i + 2] = (byte)firstR;
-                                row[i + 3] = 255;
+                                if (ignoreIdentical)
+                                {
+                                    row[i] = 0;
+                                    row[i + 1] = 0;
+                                    row[i + 2] = 0;
+                                    row[i + 3] = 0;
+                                }
+                                else
+                                {
+                                    row[i] = (byte)firstB;
+                                    row[i + 1] = (byte)firstG;
+                                    row[i + 2] = (byte)firstR;
+                                    row[i + 3] = 255;
+                                }
                                 continue;
                             }
 

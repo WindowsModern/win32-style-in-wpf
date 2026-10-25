@@ -2,6 +2,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
@@ -137,12 +138,19 @@ namespace Microsoft.Windows.Themes
             _pixelHeight = PixelHeight();
             System.Drawing.Color background = ThemeImageProvider.GetBackgroundColor(_element);
             ThemeImageData data;
+            bool isAeroOrLater = Environment.OSVersion.Version.Major >= 6;
+            bool isShellBackground = string.Equals(className, "TaskBar", StringComparison.Ordinal) ||
+                string.Equals(className, "TrayNotify", StringComparison.Ordinal) ||
+                string.Equals(className, "Toolbar", StringComparison.Ordinal);
             bool useAlpha = ThemeImage.GetPreserveAlpha(_element)
+                && (isAeroOrLater || !isShellBackground)
                 && !(Environment.OSVersion.Version.Major < 6 &&
                      string.Equals(className, "Scrollbar", StringComparison.Ordinal));
 
+            bool ignoreIdentical = isAeroOrLater && isShellBackground;
+
             if (useAlpha)
-                data = ThemeImageProvider.GetAlphaNatural(className, part, state, windowHandle, subClass);
+                data = ThemeImageProvider.GetAlphaNatural(className, part, state, windowHandle, subClass, ignoreIdentical);
             else
                 data = null;
             if (data == null || !ThemeImageProvider.HasVisibleAlpha(data.Image))
@@ -167,6 +175,8 @@ namespace Microsoft.Windows.Themes
                 Release();
                 return;
             }
+
+            data = RotateDataIfNeeded(data);
 
             // Keep the data (not just the BitmapSource) alive while this element is
             // loaded: the weak cache stores the data object, and the element is what
@@ -283,6 +293,43 @@ namespace Microsoft.Windows.Themes
             if (ReferenceEquals(transition, _transition))
                 _transition = null;
             transition.Dispose();
+        }
+
+        private ThemeImageData RotateDataIfNeeded(ThemeImageData data)
+        {
+            int rotation = ThemeImage.GetRotation(_element);
+            if (rotation % 360 == 0)
+                return data;
+
+            int angle = ((rotation % 360) + 360) % 360;
+            if (angle % 90 != 0)
+                return data;
+
+            var bitmap = new TransformedBitmap(data.Image, new RotateTransform(angle));
+            if (bitmap.CanFreeze)
+                bitmap.Freeze();
+
+            return new ThemeImageData(
+                bitmap,
+                RotateThickness(data.Margins, angle),
+                RotateThickness(data.SizingMargins, angle),
+                RotateThickness(data.ContentMargins, angle),
+                data.HasContentMargins);
+        }
+
+        private static Thickness RotateThickness(Thickness value, int angle)
+        {
+            switch (angle)
+            {
+                case 90:
+                    return new Thickness(value.Bottom, value.Left, value.Top, value.Right);
+                case 180:
+                    return new Thickness(value.Right, value.Bottom, value.Left, value.Top);
+                case 270:
+                    return new Thickness(value.Top, value.Right, value.Bottom, value.Left);
+                default:
+                    return value;
+            }
         }
 
         private IntPtr GetWindowHandle()
