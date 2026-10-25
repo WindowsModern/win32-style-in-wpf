@@ -161,7 +161,7 @@
                 <Border BorderBrush="#FFB8B8B8" BorderThickness="1" Padding="12" Margin="0,0,0,14">
                     <StackPanel>
                         <TextBlock TextWrapping="Wrap" Foreground="Gray" Margin="0,0,0,10"
-                                   Text="Consumed from outside the theme assembly by resource key: ThemeResourceKeys.TaskbarBackgroundBottom / TaskbarBackgroundRight / TrayNotifyBackground. Each key is a ControlTemplate whose root is a single HackImage, stretched to fill its slot. ThemeResourceKeys.TaskbarForeground is a Brush read from the theme text color when available, otherwise derived by contrast from the taskbar fill color. The slot backdrop is tinted so you can tell a part that drew nothing from one that drew white: on Windows 10/11 the live Aero TaskBar parts are flat white (the real taskbar is composited by DWM) and the TrayNotify class no longer exists, so the third slot stays tinted. Against an XP/Longhorn-era visual style these render as the real taskbar art." />
+                                   Text="Consumed from outside the theme assembly by resource key: ThemeResourceKeys.TaskbarBackgroundBottom / TaskbarBackgroundRight / TrayNotifyBackground. Each key is a ControlTemplate whose root is a single HackImage, stretched to fill its slot. ThemeResourceKeys.TaskbarForeground and TrayNotifyForeground are Brushes read from Toolbar [TaskBar] and TrayNotify [TrayNotifyHoriz] TMT_TEXTCOLOR. The slot backdrop is tinted so you can tell a part that drew nothing from one that drew white: on Windows 10/11 the live Aero TaskBar parts are flat white (the real taskbar is composited by DWM) and the TrayNotify class no longer exists, so the third slot stays tinted. Against an XP/Longhorn-era visual style these render as the real taskbar art." />
                         <WrapPanel>
                             <StackPanel Margin="0,0,16,10">
                                 <TextBlock Text="TaskBar part 1 &#8212; TBP_BACKGROUNDBOTTOM" FontWeight="SemiBold" />
@@ -192,7 +192,12 @@
                                            Foreground="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarForeground}}"
                                            Margin="8,0,0,0" VerticalAlignment="Center" />
                             </Border>
-                            <TextBlock Text="ThemeTaskbarForegroundBrush" Foreground="Gray" FontSize="10" VerticalAlignment="Center" Margin="10,0,0,0" />
+                            <Border Width="220" Height="28" BorderBrush="#FF808080" BorderThickness="1" Background="#FF303342" Margin="16,0,0,0">
+                                <TextBlock Text="TrayNotify foreground"
+                                           Foreground="{DynamicResource {x:Static th:ThemeResourceKeys.TrayNotifyForeground}}"
+                                           Margin="8,0,0,0" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="ThemeTaskbarForegroundBrush / ThemeTrayNotifyForegroundBrush" Foreground="Gray" FontSize="10" VerticalAlignment="Center" Margin="10,0,0,0" />
                         </StackPanel>
                     </StackPanel>
                 </Border>

@@ -68,6 +68,12 @@ namespace Microsoft.Windows.Themes
         /// </summary>
         public const string TaskbarForeground = "ThemeTaskbarForegroundBrush";
 
+        /// <summary>
+        /// Notification-area foreground brush, from <c>TrayNotify [TrayNotifyHoriz]</c>.
+        /// <para xml:lang="zh-CN">通知区域前景色画刷，来自 <c>TrayNotify [TrayNotifyHoriz]</c>。</para>
+        /// </summary>
+        public const string TrayNotifyForeground = "ThemeTrayNotifyForegroundBrush";
+
         // Array, not a read-only collection: IReadOnlyList<T> arrived in .NET 4.5 and this
         // assembly targets 4.0.
         private static readonly string[] AllKeys = new string[]
