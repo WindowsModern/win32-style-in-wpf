@@ -130,16 +130,19 @@ namespace System.Windows.Controls
                 return;
 
             _offset += 2.0;
+            double track = Orientation == Orientation.Vertical ? ActualHeight : ActualWidth;
             if (_patternLength > 0)
             {
-                if (_offset >= _patternLength)
+                // Walk the full track.  A pattern-only loop only moves the
+                // chunks by one pattern width and never reaches the end.
+                double span = track + _patternLength;
+                if (_offset >= span)
                     _offset = 0.0;
             }
             else
             {
-                double span = (Orientation == Orientation.Vertical ? ActualHeight : ActualWidth) + 160.0;
-                if (_offset > span)
-                    _offset = -160.0;
+                if (_offset > track + 160.0)
+                    _offset = 0.0;
             }
             InvalidateArrange();
         }
