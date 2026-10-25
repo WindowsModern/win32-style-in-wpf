@@ -221,6 +221,44 @@ namespace ThemeDemo
             return null;
         }
 
+        private static void LogProgressMargins(List<string> log)
+        {
+            if (Application.Current == null || Application.Current.MainWindow == null)
+                return;
+
+            foreach (System.Windows.Controls.ProgressBar bar in FindVisualChildren<System.Windows.Controls.ProgressBar>(Application.Current.MainWindow))
+            {
+                FrameworkElement host = bar.Template == null ? null : bar.Template.FindName("Bar", bar) as FrameworkElement;
+                if (host == null)
+                    continue;
+
+                FrameworkElement container = host.Parent as FrameworkElement;
+                Thickness margin = ThemeImage.GetChunkMargin(host);
+                log.Add("progress-chunk-margin=" + margin.Left.ToString("R", CultureInfo.InvariantCulture) + "," +
+                    margin.Top.ToString("R", CultureInfo.InvariantCulture) + "," +
+                    margin.Right.ToString("R", CultureInfo.InvariantCulture) + "," +
+                    margin.Bottom.ToString("R", CultureInfo.InvariantCulture) +
+                    ";container=" + (container == null ? "null" :
+                        container.Margin.Left.ToString("R", CultureInfo.InvariantCulture) + "," +
+                        container.Margin.Top.ToString("R", CultureInfo.InvariantCulture) + "," +
+                        container.Margin.Right.ToString("R", CultureInfo.InvariantCulture) + "," +
+                        container.Margin.Bottom.ToString("R", CultureInfo.InvariantCulture)));
+            }
+        }
+
+        private static IEnumerable<T> FindVisualChildren<T>(DependencyObject root) where T : DependencyObject
+        {
+            int count = VisualTreeHelper.GetChildrenCount(root);
+            for (int i = 0; i < count; i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(root, i);
+                T typed = child as T;
+                if (typed != null)
+                    yield return typed;
+                foreach (T descendant in FindVisualChildren<T>(child))
+                    yield return descendant;
+            }
+        }
         private static void LogEnvironment(List<string> log)
         {
             log.Add("os=" + Environment.OSVersion.VersionString);
@@ -242,6 +280,7 @@ namespace ThemeDemo
 
         private static void LogWindowMetrics(Window window, List<string> log)
         {
+            LogProgressMargins(log);
             log.Add("window-dip=" + window.ActualWidth.ToString("R", CultureInfo.InvariantCulture)
                 + "x" + window.ActualHeight.ToString("R", CultureInfo.InvariantCulture));
 
