@@ -56,6 +56,12 @@ namespace Microsoft.Windows.Themes
         public const string TaskbarBackgroundRight = "ThemeTaskbarBackgroundRightTemplate";
 
         /// <summary>
+        /// Taskbar bottom background rotated 90 degrees counter-clockwise.
+        /// <para xml:lang="zh-CN">任务栏底边背景逆时针旋转 90 度后的结果。</para>
+        /// </summary>
+        public const string TaskbarBackgroundBottomRotated = "ThemeTaskbarBackgroundBottomRotatedTemplate";
+
+        /// <summary>
         /// Notification-area (tray) background, bottom edge. uxTheme <c>TrayNotify</c> part 1,
         /// <c>TNP_BACKGROUND</c>.
         /// <para xml:lang="zh-CN">通知区域（托盘）背景（底边）。uxTheme 类 <c>TrayNotify</c> 部件 1，<c>TNP_BACKGROUND</c>。</para>

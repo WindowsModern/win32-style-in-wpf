@@ -149,6 +149,19 @@ namespace Microsoft.Windows.Themes
                 data = ThemeImage.GetRenderMode(_element) == ThemeImage.ThemeImageRenderMode.Natural
                     ? ThemeImageProvider.GetNatural(className, part, state, windowHandle, subClass, background)
                     : ThemeImageProvider.GetSized(className, part, state, windowHandle, _pixelWidth, _pixelHeight, background, subClass);
+
+            // Aero reports 3x3 for the TaskBar background, which is a solid fill
+            // rather than a usable natural bitmap. Fall back to the sized render
+            // when the requested slot is larger than that sentinel.
+            if (data != null &&
+                ThemeImage.GetRenderMode(_element) == ThemeImage.ThemeImageRenderMode.Natural &&
+                data.Image.PixelWidth <= 3 && data.Image.PixelHeight <= 3 &&
+                _pixelWidth > 16 && _pixelHeight > 16)
+            {
+                data = ThemeImageProvider.GetSized(className, part, state, windowHandle,
+                    _pixelWidth, _pixelHeight, background, subClass);
+            }
+
             if (data == null)
             {
                 Release();
