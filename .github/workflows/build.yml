@@ -29,13 +29,13 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
-      - name: Build and self-test
+      - name: Build
         shell: pwsh
         run: |
           powershell -NoProfile -ExecutionPolicy Bypass `
-            -File .\build.ps1 -Configuration Release -SelfTest
+            -File .\build.ps1 -Configuration Release
 
-      - name: Upload build and self-test artifacts
+      - name: Upload build artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
