@@ -232,7 +232,20 @@ namespace ThemeDemo
                 if (host == null)
                     continue;
 
-                FrameworkElement container = host.Parent as FrameworkElement;
+                FrameworkElement container = null;
+                Panel root = host.Parent as Panel;
+                if (root != null)
+                {
+                    foreach (UIElement child in root.Children)
+                    {
+                        FrameworkElement candidate = child as FrameworkElement;
+                        if (candidate != null && string.Equals(candidate.Name, "ChunkContainer", StringComparison.Ordinal))
+                        {
+                            container = candidate;
+                            break;
+                        }
+                    }
+                }
                 Thickness margin = ThemeImage.GetChunkMargin(host);
                 log.Add("progress-chunk-margin=" + margin.Left.ToString("R", CultureInfo.InvariantCulture) + "," +
                     margin.Top.ToString("R", CultureInfo.InvariantCulture) + "," +

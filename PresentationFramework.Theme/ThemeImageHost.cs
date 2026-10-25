@@ -203,9 +203,19 @@ namespace Microsoft.Windows.Themes
             if (part != 1 && part != 2)
                 return;
 
-            FrameworkElement parent = _element.Parent as FrameworkElement;
-            if (parent != null)
-                parent.Margin = GetChunkMargin(data, part);
+            Panel root = _element.Parent as Panel;
+            if (root == null)
+                return;
+
+            foreach (UIElement child in root.Children)
+            {
+                FrameworkElement container = child as FrameworkElement;
+                if (container != null && string.Equals(container.Name, "ChunkContainer", StringComparison.Ordinal))
+                {
+                    container.Margin = GetChunkMargin(data, part);
+                    break;
+                }
+            }
         }
         private static Thickness GetChunkMargin(ThemeImageData data, int part)
         {
