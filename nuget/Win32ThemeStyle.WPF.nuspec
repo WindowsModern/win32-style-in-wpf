@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Win32ThemeStyle.WPF</id>
+    <version>$version$</version>
+    <authors>BruceWinter</authors>
+    <owners>BruceWinter</owners>
+    <title>Win32 Theme Style for WPF</title>
+    <description>WPF control styles built from real Win32 UXTHEME parts. Targets Windows XP.</description>
+    <summary>Use Win32 UXTHEME visual styles as WPF control templates.</summary>
+    <projectUrl>https://github.com/WindowsModern/win32-style-in-wpf</projectUrl>
+    <repository type="git" url="https://github.com/WindowsModern/win32-style-in-wpf" />
+    <license type="expression">MIT</license>
+    <readme>README.md</readme>
+    <tags>wpf win32 uxtheme xp theme windows-xp</tags>
+
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="PresentationFramework" targetFramework="net40" />
+      <frameworkAssembly assemblyName="PresentationCore" targetFramework="net40" />
+      <frameworkAssembly assemblyName="WindowsBase" targetFramework="net40" />
+      <frameworkAssembly assemblyName="System.Xaml" targetFramework="net40" />
+      <frameworkAssembly assemblyName="System.Drawing" targetFramework="net40" />
+    </frameworkAssemblies>
+  </metadata>
+
+  <files>
+    <file src="..\ThemeDemo\bin\Release\PresentationFramework.Theme.dll" target="lib\net40" />
+    <file src="..\ThemeDemo\bin\Release\ThemeExplorer.Core.dll" target="lib\net40" />
+    <file src="..\README.md" target="" />
+    <file src="..\LICENSE" target="" />
+  </files>
+</package>
