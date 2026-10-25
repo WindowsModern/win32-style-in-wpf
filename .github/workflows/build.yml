@@ -35,12 +35,15 @@ jobs:
       - name: Install .NET Framework 4.0 reference assemblies
         shell: pwsh
         run: |
+          $url = 'https://api.nuget.org/v3-flatcontainer/microsoft.netframework.referenceassemblies.net40/1.0.3/microsoft.netframework.referenceassemblies.net40.1.0.3.nupkg'
+          $nupkg = Join-Path $env:TEMP 'net40-reference-assemblies.nupkg'
+          $zip = Join-Path $env:TEMP 'net40-reference-assemblies.zip'
           $packageRoot = Join-Path $env:TEMP 'net40-reference-assemblies'
-          nuget install Microsoft.NETFramework.ReferenceAssemblies.net40 `
-            -Version 1.0.3 `
-            -OutputDirectory $packageRoot `
-            -NonInteractive
-          $source = Join-Path $packageRoot 'Microsoft.NETFramework.ReferenceAssemblies.net40.1.0.3\build\.NETFramework\v4.0'
+          Invoke-WebRequest -Uri $url -OutFile $nupkg
+          Copy-Item $nupkg $zip -Force
+          if (Test-Path $packageRoot) { Remove-Item $packageRoot -Recurse -Force }
+          Expand-Archive -Path $zip -DestinationPath $packageRoot -Force
+          $source = Join-Path $packageRoot 'build\.NETFramework\v4.0'
           $destination = 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0'
           if (-not (Test-Path $source)) {
             throw "Reference assemblies not found: $source"
@@ -91,12 +94,15 @@ jobs:
       - name: Install .NET Framework 4.0 reference assemblies
         shell: pwsh
         run: |
+          $url = 'https://api.nuget.org/v3-flatcontainer/microsoft.netframework.referenceassemblies.net40/1.0.3/microsoft.netframework.referenceassemblies.net40.1.0.3.nupkg'
+          $nupkg = Join-Path $env:TEMP 'net40-reference-assemblies.nupkg'
+          $zip = Join-Path $env:TEMP 'net40-reference-assemblies.zip'
           $packageRoot = Join-Path $env:TEMP 'net40-reference-assemblies'
-          nuget install Microsoft.NETFramework.ReferenceAssemblies.net40 `
-            -Version 1.0.3 `
-            -OutputDirectory $packageRoot `
-            -NonInteractive
-          $source = Join-Path $packageRoot 'Microsoft.NETFramework.ReferenceAssemblies.net40.1.0.3\build\.NETFramework\v4.0'
+          Invoke-WebRequest -Uri $url -OutFile $nupkg
+          Copy-Item $nupkg $zip -Force
+          if (Test-Path $packageRoot) { Remove-Item $packageRoot -Recurse -Force }
+          Expand-Archive -Path $zip -DestinationPath $packageRoot -Force
+          $source = Join-Path $packageRoot 'build\.NETFramework\v4.0'
           $destination = 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0'
           if (-not (Test-Path $source)) {
             throw "Reference assemblies not found: $source"
