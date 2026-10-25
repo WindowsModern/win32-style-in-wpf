@@ -204,15 +204,9 @@ namespace System.Windows.Controls
 
             System.Drawing.Color background = ThemeImageProvider.GetBackgroundColor(this);
 
-            // The Aero/Aero2 MoveOverlay is an opaque green block.  Running the
-            // two-background alpha reconstruction on it makes the green look
-            // like a composited Control background, so use the solid bitmap
-            // directly for the move overlay.
-            bool preserveAlpha = PreserveAlpha
-                && !(string.Equals(className, "Progress", StringComparison.Ordinal)
-                    && (PartId == 8 || PartId == 10));
-
-            _data = preserveAlpha
+            // Keep the two-background alpha reconstruction for the
+            // Progress/Indeterminate MoveOverlay as well.
+            _data = PreserveAlpha
                 ? ThemeImageProvider.GetAlphaNatural(className, PartId, StateId, hwnd, SubClass)
                 : ThemeImageProvider.GetSized(className, PartId, StateId, hwnd, width, height, background);
             _source = _data != null ? _data.Image : null;
