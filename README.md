@@ -271,4 +271,8 @@ NativeComparison/              纯 Win32/WinForms 对照窗口
 build.ps1                      编译 + 两套自检
 docs/                          两套主题截图
 ```
+## 参考和借用
 
+- **Theme Explorer**：用于查看 Win32 UxTheme class / part / state 与属性的参考项目。  
+  本项目的 part ID、state 映射以及 Theme Explorer 预览方式均参考了该项目。  
+  项目地址：https://github.com/mity/theme-explorer
