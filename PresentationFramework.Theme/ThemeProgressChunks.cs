@@ -2,7 +2,7 @@ using System;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
+using System.Windows.Media.Animation;
 using Microsoft.Windows.Themes;
 
 namespace System.Windows.Controls
@@ -21,8 +21,7 @@ namespace System.Windows.Controls
         private int _partId;
         private int _stateId;
         private string _subClass;
-        private readonly DispatcherTimer _timer;
-        private double _offset;
+        private Storyboard _storyboard;
         private double _chunkSize;
         private double _spaceSize;
         private double _patternLength;
@@ -34,9 +33,6 @@ namespace System.Windows.Controls
             Loaded += OnLoaded;
             Unloaded += OnUnloaded;
             SizeChanged += OnSizeChanged;
-            _timer = new DispatcherTimer(DispatcherPriority.Render);
-            _timer.Interval = TimeSpan.FromMilliseconds(30);
-            _timer.Tick += OnTick;
         }
 
         public static readonly DependencyProperty OrientationProperty = DependencyProperty.Register(
@@ -62,6 +58,10 @@ namespace System.Windows.Controls
         public static readonly DependencyProperty AnimateProperty = DependencyProperty.Register(
             nameof(Animate), typeof(bool), typeof(ThemeProgressChunks),
             new FrameworkPropertyMetadata(false, OnPropertyChanged));
+
+        public static readonly DependencyProperty OffsetProperty = DependencyProperty.Register(
+            nameof(Offset), typeof(double), typeof(ThemeProgressChunks),
+            new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.AffectsArrange));
 
         public Orientation Orientation
         {
@@ -99,6 +99,12 @@ namespace System.Windows.Controls
             set { SetValue(AnimateProperty, value); }
         }
 
+        public double Offset
+        {
+            get { return (double)GetValue(OffsetProperty); }
+            set { SetValue(OffsetProperty, value); }
+        }
+
         private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             ((ThemeProgressChunks)d).Update();
@@ -107,13 +113,12 @@ namespace System.Windows.Controls
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             Update();
-            if (Animate)
-                _timer.Start();
+            StartAnimation();
         }
 
         private void OnUnloaded(object sender, RoutedEventArgs e)
         {
-            _timer.Stop();
+            StopAnimation();
             _chunkData = null;
             Children.Clear();
         }
@@ -124,26 +129,38 @@ namespace System.Windows.Controls
                 Update();
         }
 
-        private void OnTick(object sender, EventArgs e)
+        private void StartAnimation()
         {
+            StopAnimation();
             if (!IsLoaded || !Animate)
                 return;
 
-            _offset += 2.0;
             double track = Orientation == Orientation.Vertical ? ActualHeight : ActualWidth;
-            if (_patternLength > 0)
+            if (track <= 0.0 || _patternLength <= 0.0)
+                return;
+
+            double duration = Math.Max(0.1, (track + _patternLength) / 66.7);
+            var animation = new DoubleAnimation(-_patternLength, track,
+                TimeSpan.FromSeconds(duration))
             {
-                // Start completely before the head and stop only after the
-                // last chunk has completely left the tail.
-                if (_offset >= track)
-                    _offset = -_patternLength;
-            }
-            else
+                RepeatBehavior = RepeatBehavior.Forever
+            };
+            Storyboard.SetTarget(animation, this);
+            Storyboard.SetTargetProperty(animation, new PropertyPath(OffsetProperty));
+
+            _storyboard = new Storyboard();
+            _storyboard.Children.Add(animation);
+            Offset = -_patternLength;
+            _storyboard.Begin(this, true);
+        }
+
+        private void StopAnimation()
+        {
+            if (_storyboard != null)
             {
-                if (_offset > track + 160.0)
-                    _offset = -160.0;
+                _storyboard.Stop(this);
+                _storyboard = null;
             }
-            InvalidateArrange();
         }
 
         private void Update()
@@ -188,7 +205,14 @@ namespace System.Windows.Controls
             System.Drawing.Color background = ThemeImageProvider.GetBackgroundColor(this);
             _chunkData = ThemeImageProvider.GetNatural("Progress", PartId, StateId, hwnd, SubClass, background);
             RebuildChildren();
-            _offset = Animate ? -_patternLength : 0.0;
+            Offset = Animate ? -_patternLength : 0.0;
+            if (IsLoaded)
+            {
+                if (Animate)
+                    StartAnimation();
+                else
+                    StopAnimation();
+            }
         }
 
         private void RebuildChildren()
@@ -277,8 +301,8 @@ namespace System.Windows.Controls
         protected override Size ArrangeOverride(Size finalSize)
         {
             double gap = _spaceSize;
-            double x = _offset;
-            double bottom = finalSize.Height - _offset;
+            double x = Offset;
+            double bottom = finalSize.Height - Offset;
             foreach (UIElement child in Children)
             {
                 if (Orientation == Orientation.Vertical)
