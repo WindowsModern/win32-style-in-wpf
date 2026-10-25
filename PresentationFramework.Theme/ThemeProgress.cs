@@ -23,10 +23,6 @@ namespace Microsoft.Windows.Themes
     /// </summary>
     public static class ThemeProgress
     {
-        static ThemeProgress()
-        {
-            ProgressBarAnimator.Initialize();
-        }
 
         /// <summary>True on Vista/Windows 7+; XP uses the legacy 5-chunk path.</summary>
         /// <summary>
