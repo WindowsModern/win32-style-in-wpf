@@ -318,97 +318,161 @@ namespace Microsoft.Windows.Themes
             }
         }
 
+        private static readonly System.Drawing.Color[] AlphaProbeColors =
+        {
+            System.Drawing.Color.Black,
+            System.Drawing.Color.White,
+            System.Drawing.Color.Red,
+            System.Drawing.Color.Lime,
+            System.Drawing.Color.Blue,
+            System.Drawing.Color.Cyan,
+            System.Drawing.Color.Magenta,
+            System.Drawing.Color.Yellow
+        };
+
         private static ThemeImageData RenderReconstructedAlpha(VisualStyle style, int part, int state,
             int width, int height)
         {
             if (width <= 0 || height <= 0)
                 return null;
 
-            System.Drawing.Color black = System.Drawing.Color.Black;
-            System.Drawing.Color control = System.Drawing.SystemColors.Control;
-
-            BitmapSource onBlack = ThemeDibRenderer.Render(width, height, DpiScale, black,
-                delegate(IntPtr hdc)
-                {
-                    ThemeRenderer.TryDrawBackground(hdc, style, part, state,
-                        new System.Drawing.Rectangle(0, 0, width, height));
-                });
-            BitmapSource onControl = ThemeDibRenderer.Render(width, height, DpiScale, control,
-                delegate(IntPtr hdc)
-                {
-                    ThemeRenderer.TryDrawBackground(hdc, style, part, state,
-                        new System.Drawing.Rectangle(0, 0, width, height));
-                });
-            if (onBlack == null || onControl == null)
-                return null;
-
             int stride = width * 4;
-            var blackPixels = new byte[stride * height];
-            var controlPixels = new byte[stride * height];
-            onBlack.CopyPixels(blackPixels, stride, 0);
-            onControl.CopyPixels(controlPixels, stride, 0);
+            int probeCount = AlphaProbeColors.Length;
+            var probes = new BitmapSource[probeCount];
+            var pixels = new byte[probeCount][];
+            for (int p = 0; p < probeCount; p++)
+            {
+                System.Drawing.Color background = AlphaProbeColors[p];
+                probes[p] = ThemeDibRenderer.Render(width, height, DpiScale, background,
+                    delegate(IntPtr hdc)
+                    {
+                        ThemeRenderer.TryDrawBackground(hdc, style, part, state,
+                            new System.Drawing.Rectangle(0, 0, width, height));
+                    });
+                if (probes[p] == null)
+                    return null;
 
-            int controlB = control.B;
-            int controlG = control.G;
-            int controlR = control.R;
+                pixels[p] = new byte[stride * height];
+                probes[p].CopyPixels(pixels[p], stride, 0);
+            }
 
             var output = new byte[stride * height];
-            for (int i = 0; i < blackPixels.Length; i += 4)
+            System.Runtime.InteropServices.GCHandle outputHandle =
+                System.Runtime.InteropServices.GCHandle.Alloc(output,
+                    System.Runtime.InteropServices.GCHandleType.Pinned);
+            try
             {
-                int c1b = blackPixels[i];
-                int c1g = blackPixels[i + 1];
-                int c1r = blackPixels[i + 2];
-                int c2b = controlPixels[i];
-                int c2g = controlPixels[i + 1];
-                int c2r = controlPixels[i + 2];
-
-                // If both backgrounds produced exactly the same pixel, the
-                // part did not blend with either background.  Keep the color
-                // opaque and do not run the alpha solve for this pixel.
-                if (c1b == c2b && c1g == c2g && c1r == c2r)
+                IntPtr outputBase = outputHandle.AddrOfPinnedObject();
+                System.Threading.Tasks.Parallel.For(0, height, y =>
                 {
-                    output[i] = (byte)c1b;
-                    output[i + 1] = (byte)c1g;
-                    output[i + 2] = (byte)c1r;
-                    output[i + 3] = 255;
-                    continue;
-                }
+                    unsafe
+                    {
+                        byte* row = (byte*)outputBase + y * stride;
+                        for (int x = 0; x < width; x++)
+                        {
+                            int i = x * 4;
+                            bool identical = true;
+                            int r0 = pixels[0][i + 2];
+                            int g0 = pixels[0][i + 1];
+                            int b0 = pixels[0][i];
+                            for (int p = 1; p < probeCount; p++)
+                            {
+                                if (pixels[p][i] != b0 || pixels[p][i + 1] != g0 || pixels[p][i + 2] != r0)
+                                {
+                                    identical = false;
+                                    break;
+                                }
+                            }
 
-                int alphaSum = 0;
-                int[] c1 = { c1b, c1g, c1r };
-                int[] c2 = { c2b, c2g, c2r };
-                int[] b2 = { controlB, controlG, controlR };
-                for (int c = 0; c < 3; c++)
-                {
-                    int denominator = b2[c];
-                    int a = denominator == 0 ? 255 : 255 - ((c2[c] - c1[c]) * 255) / denominator;
-                    if (a < 0) a = 0;
-                    if (a > 255) a = 255;
-                    alphaSum += a;
-                }
+                            if (identical)
+                            {
+                                row[i] = (byte)b0;
+                                row[i + 1] = (byte)g0;
+                                row[i + 2] = (byte)r0;
+                                row[i + 3] = 255;
+                                continue;
+                            }
 
-                int alpha = alphaSum / 3;
-                if (alpha < 3)
-                {
-                    output[i] = 0;
-                    output[i + 1] = 0;
-                    output[i + 2] = 0;
-                    output[i + 3] = 0;
-                    continue;
-                }
+                            int alphaSum = 0;
+                            int weightSum = 0;
+                            int avg0R = 0, avg0G = 0, avg0B = 0;
+                            int alphaWeightR = 0, alphaWeightG = 0, alphaWeightB = 0;
 
-                output[i + 3] = (byte)alpha;
-                output[i + 2] = (byte)Math.Max(0, Math.Min(255,
-                    (c1r - ((255 - alpha) * controlR) / 255) * 255 / alpha));
-                output[i + 1] = (byte)Math.Max(0, Math.Min(255,
-                    (c1g - ((255 - alpha) * controlG) / 255) * 255 / alpha));
-                output[i] = (byte)Math.Max(0, Math.Min(255,
-                    (c1b - ((255 - alpha) * controlB) / 255) * 255 / alpha));
+                            for (int c = 0; c < 3; c++)
+                            {
+                                int sum0 = 0, n0 = 0, sum1 = 0, n1 = 0;
+                                for (int p = 0; p < probeCount; p++)
+                                {
+                                    System.Drawing.Color background = AlphaProbeColors[p];
+                                    int bg = c == 0 ? background.B : c == 1 ? background.G : background.R;
+                                    int value = pixels[p][i + c];
+                                    if (bg == 0)
+                                    {
+                                        sum0 += value;
+                                        n0++;
+                                    }
+                                    else if (bg == 255)
+                                    {
+                                        sum1 += value;
+                                        n1++;
+                                    }
+                                }
+
+                                if (n0 == 0 || n1 == 0)
+                                    continue;
+
+                                int avg0 = sum0 / n0;
+                                int avg1 = sum1 / n1;
+                                int delta = avg1 - avg0;
+                                int a = 255 - delta;
+                                if (a < 0) a = 0;
+                                if (a > 255) a = 255;
+
+                                int weight = delta < 0 ? -delta : delta;
+                                alphaSum += a * weight;
+                                weightSum += weight;
+                                if (weight > 0)
+                                {
+                                    if (c == 0) { avg0B = avg0; alphaWeightB = weight; }
+                                    else if (c == 1) { avg0G = avg0; alphaWeightG = weight; }
+                                    else { avg0R = avg0; alphaWeightR = weight; }
+                                }
+                            }
+
+                            if (weightSum == 0)
+                            {
+                                row[i] = (byte)b0;
+                                row[i + 1] = (byte)g0;
+                                row[i + 2] = (byte)r0;
+                                row[i + 3] = 255;
+                                continue;
+                            }
+
+                            int alpha = alphaSum / weightSum;
+                            if (alpha < 3)
+                            {
+                                row[i] = 0;
+                                row[i + 1] = 0;
+                                row[i + 2] = 0;
+                                row[i + 3] = 0;
+                                continue;
+                            }
+
+                            row[i + 3] = (byte)alpha;
+                            row[i + 2] = (byte)Math.Max(0, Math.Min(255, avg0R * 255 / alpha));
+                            row[i + 1] = (byte)Math.Max(0, Math.Min(255, avg0G * 255 / alpha));
+                            row[i] = (byte)Math.Max(0, Math.Min(255, avg0B * 255 / alpha));
+                        }
+                    }
+                });
+            }
+            finally
+            {
+                outputHandle.Free();
             }
 
             BitmapSource image = BitmapSource.Create(width, height,
-                96.0 * DpiScale, 96.0 * DpiScale,
-                PixelFormats.Bgra32, null, output, stride);
+                96.0 * DpiScale, 96.0 * DpiScale, PixelFormats.Bgra32, null, output, stride);
             image.Freeze();
             return new ThemeImageData(image, new Thickness(0), new Thickness(0),
                 new Thickness(0), false);
