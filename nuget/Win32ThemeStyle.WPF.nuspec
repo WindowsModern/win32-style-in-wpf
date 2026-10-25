@@ -14,6 +14,9 @@
     <readme>README.md</readme>
     <tags>wpf win32 uxtheme xp theme windows-xp</tags>
 
+    <dependencies>
+      <group targetFramework="net40" />
+    </dependencies>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="PresentationFramework" targetFramework="net40" />
       <frameworkAssembly assemblyName="PresentationCore" targetFramework="net40" />
@@ -26,7 +29,7 @@
   <files>
     <file src="..\ThemeDemo\bin\Release\PresentationFramework.Theme.dll" target="lib\net40" />
     <file src="..\ThemeDemo\bin\Release\ThemeExplorer.Core.dll" target="lib\net40" />
-    <file src="..\README.md" target="" />
-    <file src="..\LICENSE" target="" />
+    <file src="..\README.md" target="README.md" />
+    <file src="..\LICENSE" target="LICENSE" />
   </files>
 </package>
