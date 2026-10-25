@@ -56,6 +56,13 @@ namespace Microsoft.Windows.Themes
         public const string TaskbarBackgroundRight = "ThemeTaskbarBackgroundRightTemplate";
 
         /// <summary>
+        /// Taskbar sizing bar, bottom edge. uxTheme <c>TaskBar</c> part 5,
+        /// <c>TBP_SIZINGBARBOTTOM</c>.
+        /// <para xml:lang="zh-CN">任务栏尺寸条（底边）。uxTheme 类 <c>TaskBar</c> 部件 5，<c>TBP_SIZINGBARBOTTOM</c>。</para>
+        /// </summary>
+        public const string TaskbarSizingBarBottom = "ThemeTaskbarSizingBarBottomTemplate";
+
+        /// <summary>
         /// Taskbar bottom background rotated 90 degrees counter-clockwise.
         /// <para xml:lang="zh-CN">任务栏底边背景逆时针旋转 90 度后的结果。</para>
         /// </summary>

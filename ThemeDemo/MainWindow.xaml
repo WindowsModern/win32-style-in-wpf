@@ -171,6 +171,13 @@
                                 </Border>
                             </StackPanel>
                             <StackPanel Margin="0,0,16,10">
+                                <TextBlock Text="TaskBar part 5 &#8212; TBP_SIZINGBARBOTTOM" FontWeight="SemiBold" />
+                                <TextBlock Text="sizing bar (bottom edge)" FontSize="10" Foreground="Gray" Margin="0,1,0,4" />
+                                <Border Width="330" Height="18" BorderBrush="#FF808080" BorderThickness="1" Background="#FFFFF0C0">
+                                    <ContentControl Template="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarSizingBarBottom}}" />
+                                </Border>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,16,10">
                                 <TextBlock Text="TaskBar part 2 &#8212; TBP_BACKGROUNDRIGHT" FontWeight="SemiBold" />
                                 <TextBlock Text="right edge (vertical bar)" FontSize="10" Foreground="Gray" Margin="0,1,0,4" />
                                 <Border Width="60" Height="120" BorderBrush="#FF808080" BorderThickness="1" Background="#FFFFF0C0">
