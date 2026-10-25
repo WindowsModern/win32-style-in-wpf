@@ -23,6 +23,11 @@ namespace Microsoft.Windows.Themes
     /// </summary>
     public static class ThemeProgress
     {
+        static ThemeProgress()
+        {
+            ProgressBarAnimator.Initialize();
+        }
+
         /// <summary>True on Vista/Windows 7+; XP uses the legacy 5-chunk path.</summary>
         /// <summary>
         /// True for Vista/7 and early Windows 8 builds that still use the
@@ -61,6 +66,33 @@ namespace Microsoft.Windows.Themes
         public static void SetIsVista(DependencyObject element, bool value)
         {
             element.SetValue(IsVistaProperty, value);
+        }
+        public static readonly DependencyProperty AnimateValueProperty = DependencyProperty.RegisterAttached(
+            "AnimateValue", typeof(bool), typeof(ThemeProgress),
+            new FrameworkPropertyMetadata(true));
+
+        public static readonly DependencyProperty ValueTransitionDurationProperty = DependencyProperty.RegisterAttached(
+            "ValueTransitionDuration", typeof(Duration), typeof(ThemeProgress),
+            new FrameworkPropertyMetadata(new Duration(TimeSpan.FromMilliseconds(220))));
+
+        public static bool GetAnimateValue(DependencyObject element)
+        {
+            return (bool)element.GetValue(AnimateValueProperty);
+        }
+
+        public static void SetAnimateValue(DependencyObject element, bool value)
+        {
+            element.SetValue(AnimateValueProperty, value);
+        }
+
+        public static Duration GetValueTransitionDuration(DependencyObject element)
+        {
+            return (Duration)element.GetValue(ValueTransitionDurationProperty);
+        }
+
+        public static void SetValueTransitionDuration(DependencyObject element, Duration value)
+        {
+            element.SetValue(ValueTransitionDurationProperty, value);
         }
         public static readonly DependencyProperty ModeProperty = DependencyProperty.RegisterAttached(
             "Mode", typeof(ThemeProgressMode), typeof(ThemeProgress),

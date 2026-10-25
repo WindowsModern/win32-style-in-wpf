@@ -54,6 +54,7 @@
     <Compile Include="ScrollBarThumbLengthConverter.cs" />
     <Compile Include="ThemePart.cs" />
     <Compile Include="ThemeProgress.cs" />
+    <Compile Include="ProgressBarAnimator.cs" />
     <Compile Include="ProgressBarVerticalHeightConverter.cs" />
     <Compile Include="ThemeProgressChunks.cs" />
     <Compile Include="ThemeProgressMarquee.cs" />
