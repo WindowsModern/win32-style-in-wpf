@@ -49,6 +49,7 @@
     <Compile Include="Interop\NativeGdi.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThemeDibRenderer.cs" />
+    <Compile Include="ThemeCalendar.cs" />
     <Compile Include="ThemeHackImage.cs" />
     <Compile Include="ThemeImage.cs" />
     <Compile Include="ScrollBarThumbLengthConverter.cs" />
