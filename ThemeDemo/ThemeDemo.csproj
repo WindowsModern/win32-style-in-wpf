@@ -66,7 +66,7 @@
     <None Include="app.manifest" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\theme-explorer-dotnet\src\ThemeExplorer.Core\ThemeExplorer.Core.csproj">
+    <ProjectReference Include="..\ThemeExplorer.Core\ThemeExplorer.Core.csproj">
       <Project>{1B9E7A4C-3D7F-4D0E-9C1A-6E5B2A8F0C11}</Project>
       <Name>ThemeExplorer.Core</Name>
     </ProjectReference>

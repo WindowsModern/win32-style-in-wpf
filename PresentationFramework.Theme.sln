@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThemeDemo", "ThemeDemo\Them
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApplicationTest", "WpfApplicationTest\WpfApplicationTest.csproj", "{A7DB28EA-8C86-40B8-AB3B-BBF65EAB999F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThemeExplorer.Core", "..\theme-explorer-dotnet\src\ThemeExplorer.Core\ThemeExplorer.Core.csproj", "{2E0D3A9C-6F1B-4A6E-9C3D-5B7A1C2D4E60}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThemeExplorer.Core", "ThemeExplorer.Core\ThemeExplorer.Core.csproj", "{2E0D3A9C-6F1B-4A6E-9C3D-5B7A1C2D4E60}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NativeComparison", "NativeComparison\NativeComparison.csproj", "{8C2E3F4A-6B1D-4C7E-9F20-1A5D7E8C9B42}"
 EndProject

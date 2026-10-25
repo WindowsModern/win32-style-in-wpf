@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -80,7 +80,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\theme-explorer-dotnet\src\ThemeExplorer.Core\ThemeExplorer.Core.csproj">
+    <ProjectReference Include="..\ThemeExplorer.Core\ThemeExplorer.Core.csproj">
       <Project>{2E0D3A9C-6F1B-4A6E-9C3D-5B7A1C2D4E60}</Project>
       <Name>ThemeExplorer.Core</Name>
     </ProjectReference>
