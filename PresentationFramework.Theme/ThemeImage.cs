@@ -23,6 +23,15 @@ namespace Microsoft.Windows.Themes
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnDescriptorChanged));
 
         /// <summary>
+        /// Optional window subclass passed to <c>SetWindowTheme</c> before
+        /// <c>OpenThemeData</c>, for example "TaskBar" or "TrayNotifyHoriz".
+        /// <para xml:lang="zh-CN">可选窗口子类，在 <c>OpenThemeData</c> 前传给 <c>SetWindowTheme</c>，例如 "TaskBar" 或 "TrayNotifyHoriz"。</para>
+        /// </summary>
+        public static readonly DependencyProperty SubClassProperty = DependencyProperty.RegisterAttached(
+            "SubClass", typeof(string), typeof(ThemeImage),
+            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnDescriptorChanged));
+
+        /// <summary>
         /// Theme part id (the <c>xxx_P_*</c> constant).
         /// <para xml:lang="zh-CN">主题部件 id（<c>xxx_P_*</c> 常量）。</para>
         /// </summary>
@@ -106,6 +115,26 @@ namespace Microsoft.Windows.Themes
         {
             if (element == null) throw new ArgumentNullException(nameof(element));
             element.SetValue(ClassProperty, value);
+        }
+
+        /// <summary>
+        /// Gets the optional theme window subclass.
+        /// <para xml:lang="zh-CN">获取可选的主题窗口子类。</para>
+        /// </summary>
+        public static string GetSubClass(DependencyObject element)
+        {
+            if (element == null) throw new ArgumentNullException(nameof(element));
+            return (string)element.GetValue(SubClassProperty);
+        }
+
+        /// <summary>
+        /// Sets the optional theme window subclass.
+        /// <para xml:lang="zh-CN">设置可选的主题窗口子类。</para>
+        /// </summary>
+        public static void SetSubClass(DependencyObject element, string value)
+        {
+            if (element == null) throw new ArgumentNullException(nameof(element));
+            element.SetValue(SubClassProperty, value);
         }
 
         /// <summary>

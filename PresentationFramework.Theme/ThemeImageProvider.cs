@@ -252,7 +252,7 @@ namespace Microsoft.Windows.Themes
         }
 
         internal static ThemeImageData GetSized(string className, int part, int state, IntPtr window,
-            int pixelWidth, int pixelHeight, System.Drawing.Color? background = null)
+            int pixelWidth, int pixelHeight, System.Drawing.Color? background = null, string subClass = null)
         {
             if (string.IsNullOrEmpty(className) || !ThemeSystem.IsVisualStylesEnabled)
                 return null;
@@ -267,7 +267,8 @@ namespace Microsoft.Windows.Themes
                 window.ToInt64().ToString(CultureInfo.InvariantCulture), "|",
                 DpiScale.ToString("R", CultureInfo.InvariantCulture), "|",
                 pixelWidth.ToString(CultureInfo.InvariantCulture), "x",
-                pixelHeight.ToString(CultureInfo.InvariantCulture), "|bg=", BackgroundKey(background));
+                pixelHeight.ToString(CultureInfo.InvariantCulture), "|bg=", BackgroundKey(background),
+                "|sub=", subClass ?? string.Empty);
 
             lock (Gate)
             {
@@ -275,7 +276,7 @@ namespace Microsoft.Windows.Themes
                 if (Cache.TryGetValue(key, out reference) && reference.IsAlive)
                     return (ThemeImageData)reference.Target;
 
-                ThemeImageData data = RenderSized(className, part, state, window, pixelWidth, pixelHeight, background);
+                ThemeImageData data = RenderSized(className, part, state, window, pixelWidth, pixelHeight, background, subClass);
                 if (data != null)
                 {
                     if (Cache.Count >= MaxCacheEntries)
@@ -785,9 +786,9 @@ namespace Microsoft.Windows.Themes
         }
 
         private static ThemeImageData RenderSized(string className, int part, int state, IntPtr window,
-            int pixelWidth, int pixelHeight, System.Drawing.Color? background)
+            int pixelWidth, int pixelHeight, System.Drawing.Color? background, string subClass)
         {
-            using (VisualStyle style = OpenStyle(className, window))
+            using (VisualStyle style = OpenStyle(className, window, subClass))
             {
                 if (style == null)
                     return null;

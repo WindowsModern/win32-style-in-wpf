@@ -178,7 +178,7 @@
                                 </Border>
                             </StackPanel>
                             <StackPanel Margin="0,0,16,10">
-                                <TextBlock Text="TrayNotify part 1 &#8212; TNP_BACKGROUND" FontWeight="SemiBold" />
+                                <TextBlock Text="TrayNotify [TrayNotifyHoriz] part 1 &#8212; TNP_BACKGROUND" FontWeight="SemiBold" />
                                 <TextBlock Text="bottom edge (notification area)" FontSize="10" Foreground="Gray" Margin="0,1,0,4" />
                                 <Border Width="200" Height="36" BorderBrush="#FF808080" BorderThickness="1" Background="#FFFFF0C0">
                                     <ContentControl Template="{DynamicResource {x:Static th:ThemeResourceKeys.TrayNotifyBackground}}" />

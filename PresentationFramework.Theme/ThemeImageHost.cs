@@ -115,6 +115,7 @@ namespace Microsoft.Windows.Themes
         private void Update()
         {
             string className = ThemeImage.GetClass(_element);
+            string subClass = ThemeImage.GetSubClass(_element);
             int part = ThemeImage.GetPart(_element);
             int state = ThemeImage.GetState(_element);
             if (string.IsNullOrEmpty(className) || part < 0 || state < 0)
@@ -141,13 +142,13 @@ namespace Microsoft.Windows.Themes
                      string.Equals(className, "Scrollbar", StringComparison.Ordinal));
 
             if (useAlpha)
-                data = ThemeImageProvider.GetAlphaNatural(className, part, state, windowHandle);
+                data = ThemeImageProvider.GetAlphaNatural(className, part, state, windowHandle, subClass);
             else
                 data = null;
             if (data == null || !ThemeImageProvider.HasVisibleAlpha(data.Image))
                 data = ThemeImage.GetRenderMode(_element) == ThemeImage.ThemeImageRenderMode.Natural
-                    ? ThemeImageProvider.GetNatural(className, part, state, windowHandle, null, background)
-                    : ThemeImageProvider.GetSized(className, part, state, windowHandle, _pixelWidth, _pixelHeight, background);
+                    ? ThemeImageProvider.GetNatural(className, part, state, windowHandle, subClass, background)
+                    : ThemeImageProvider.GetSized(className, part, state, windowHandle, _pixelWidth, _pixelHeight, background, subClass);
             if (data == null)
             {
                 Release();
