@@ -1,5 +1,7 @@
 # PresentationFramework.Theme
 
+> 本项目仅适用于 Windows XP；此项目由 AI (DeepSeek) 完成。
+
 在 WPF 中直接使用 **Win32 视觉样式（UXTHEME）** 的控件主题库。
 
 引入一个 `ResourceDictionary` 后，已映射的 WPF 控件会使用当前 Windows 主题的真实部件绘制，
@@ -9,161 +11,6 @@
 | --- | --- |
 | ![plain](docs/theme-demo.png) | ![transition](docs/theme-demo-transition.png) |
 
-## XP 上 plain 与 transition 外观不同的原因
-
-连续两次单独运行 plain，`images-created-after-show` 都是 38；transition 稳定是 54，
-native 是 Plex 蓝色。说明不是“第一次进程”问题，而是 plain/transition 的启动路径不同：
-
-- 原来 plain 主题是在 `App.xaml` 的 `Application.Resources` 里**静态合并**的；
-- transition 是在 `App.OnStartup` 里**清空后重新合并**的；
-- XP 上这两种加载顺序会让 WPF/UxTheme 的首次使用时机不同，plain 会拿到旧主题图。
-
-现在 `App.xaml` 只保留空 ResourceDictionary，plain/transition 都在 `App.OnStartup` 里走
-同一段代码、同一个时机加载。另外仍然保留：
-
-- 首次 `Loaded` 延迟、HWND 非 0 才取图；
-- 窗口显示后 `ThemeImageDiagnostics.RefreshAll()` 清缓存并重绘；
-- `Run-All.bat` 先跑 NativeComparison 预热。
-### XP Plex 验证结果
-
-在 XP + `Longhorn Slate Plex` 下确认：
-
-```text
-plain:      images-created-after-show=54
-transition: images-created-after-show=54
-native:     真实 Plex 控件
-```
-
-![XP Plex plain](docs/xp-plex-plain.png)
-
-plain/transition 现在只有 150 ms 过渡动画的差别；静态外观一致。同时给 Window 应用了
-`SystemFonts.MessageFontFamily/MessageFontSize`，XP 上使用 Tahoma 8.25pt 而不是 WPF 默认
-Segoe UI，文字尺寸更接近原生控件。
-### ComboBox 下拉按钮：直接使用 Win32 资源
-
-`Combobox` 的 `CP_DROPDOWNBUTTON(1)` 是一个**完整部件**：按钮面 + 箭头 glyph，不是两层。
-之前用系统色按钮面 + 矢量箭头拆分是错误方向；现在改回：
-
-```xml
-<pt:HackImage x:Name="ArrowButton"
-              th:ThemeImage.Class="Combobox"
-              th:ThemeImage.Part="1"
-              th:ThemeImage.State="1"
-              Width="18" VerticalAlignment="Stretch" />
-```
-
-- `State=1/2/3/4` 对应 normal/hot/pressed/disabled；
-- RTL 时切到 `CP_DROPDOWNBUTTONRIGHT(6)` 并靠左；
-- 不再使用 `SystemColors` 伪造按钮面。
-
-**注意**：原生截图里按钮是蓝色，可能是鼠标停在 ComboBox 上触发了 hot 状态；WPF 截图光标不在控件上，
-所以显示 normal 的灰色。比较 normal 状态时要把鼠标移开。
-
-真正需要“前后景/边缘拆分”的是 Header、Tab 的左右边缘、Menu 的勾选列/子菜单箭头等；
-ComboBox 下拉按钮本身不是这种结构。
-## 诊断日志与 HackImage/Image 选择
-
-`selftest.log` 现在会输出所有运行参数：
-
-- OS/位数/CLR/culture；
-- working set、managed bytes、进程句柄、private bytes；
-- DPI、window DIP、window pixel；
-- 主题文件/配色/尺寸、AppThemed/ThemeActive；
-- 创建/缓存图片数；
-- 每个缓存键：`theme-file|color|size|class|part|state|hwnd|dpi`。
-
-例如：
-
-```text
-image-cache=...\Aero.msstyles|NormalColor|NormalSize|TrackBar|5|1|3214018|1.25
-```
-
-### ThemePart：直接按最终尺寸绘制
-
-WPF 的 `OnRender` 没有 HDC，所以“UxTheme 直接画”只能落到一个位图表面（或 HwndHost）。
-本库新增了 `ThemePart` 控件，专门做前者：
-
-```xml
-<pt:ThemePart ClassName="Progress" PartId="5" StateId="1" />
-```
-
-`ThemePart`：
-
-- 在 `Loaded`/`SizeChanged` 时按 `ActualWidth/Height × DPI` 调
-  `GetSized(...)`；
-- `DrawThemeBackground` 在**最终像素矩形**上绘制，不九宫格；
-- 1:1 绘制 `BitmapSource`；
-- `Unloaded` 释放数据，缓存仍是弱引用；
-- 适合 ComboBox 下拉按钮、ProgressBar、Slider 轨道/Thumb、ScrollBar 箭头/Thumb/轨道等
-  “尺寸/状态完全由 UxTheme 决定”的 part。
-
-Button/CheckBox/Radio 等仍有大量 WPF 文本/布局因素，继续用 `HackImage`/`Image`，
-不会为了一个按钮面引入额外窗口。
-
-HwndHost 方案（真正子 HWND 绘制）没有采用：airspace、Popup/Adorner 遮挡、
-每控件一个 HWND 与低资源目标冲突。
-### Theme Explorer 的演示方式与 WPF 的对应
-
-Theme Explorer 的 `ThemePreviewControl` 不是把 part 先渲染成图片再九宫格，而是每次 `OnPaint`：
-
-1. `graphics.Clear(BackColor)`；
-2. 如果 `IsBackgroundPartiallyTransparent`，调用 `TryDrawParentBackground`；
-3. 直接 `TryDrawBackground(style, part, state, ClientRectangle)`；
-4. 需要文字时调用 `TryDrawText`。
-
-预览控件本身有 9 种尺寸（16×16、24×16、48×18、32×32、48×32、64×32、48×48、72×48、80×48），
-所以同一个 part 在**最终尺寸**上由 UxTheme 自己完成拉伸/边距/布局。
-
-WPF 这边现在也走“最终尺寸”：
-
-- `ThemeImageHost` 取元素 `ActualWidth/ActualHeight × DPI`，调
-  `ThemeImageProvider.GetSized(...)`；
-- `GetSized` 用 `DrawThemeBackground` 在**目标像素矩形**上直接绘制；
-- `HackImage` 在 `HackThickness=0` 时只画整张图，不再制造 9 个相同切片；
-- 固定 glyph/箭头继续用 `Image`，避免布局拉伸。
-
-这比之前“64×40 预渲染 + WPF 九宫格”更接近 Theme Explorer 的预览结果。
-### 九宫格由 UxTheme 数据决定
-
-是否做九宫格不应由控件名硬编码，而应由 `TMT_SIZINGMARGINS(3601)` 决定：
-
-- `GetThemeMargins` 返回的 left/top/right/bottom > 0 → 九宫格；
-- 全部为 0 → 普通位图，直接铺满。
-
-`ThemeImageProvider` 已经在 `TryGetMargins` 中读取 `TMT_SIZINGMARGINS`，并按
-`TMT_CONTENTMARGINS`、`TMT_BORDERSIZE` 和保守默认值回退。宿主把结果写进
-`HackImage.HackThickness`。
-
-现在 `HackImage` 自己也检查 `HackThickness`：
-
-```csharp
-if (l <= 0 && t <= 0 && r <= 0 && b <= 0)
-{
-    var whole = _slices[Center] ?? _bitmapSource;
-    dc.DrawImage(whole, new Rect(0, 0, targetW, targetH));
-    return;
-}
-```
-
-所以：
-
-- 有 margins → 九宫格切片；
-- 无 margins → 单张位图，行为等同 `Image`。
-
-`Image` 仍然用于固定尺寸、需要自然布局的 glyph/箭头/Thumb；它不是用来“猜测”九宫格的，
-九宫格判断完全来自 UxTheme。
-### HackImage 不是万能的
-
-- `HackImage`：保留给需要九宫格拉伸的**按钮面、边框、Header/Tab 背景、GroupBox、Progress**；
-- `Image`：固定尺寸的 **glyph / 箭头 / Thumb / gripper** 改用 `Image`，避免 `HackImage` 的切片/拉伸把箭头或 glyph 变形：
-  - CheckBox / RadioButton 的勾选 glyph；
-  - ScrollBar 四方向箭头、Thumb、gripper；
-  - Slider Thumb 和 Track；
-  - ComboBox 下拉按钮；
-  - Menu 子菜单箭头；
-  - StatusBar gripper。
-
-两者都走同一个 `ThemeImage` 懒加载/弱缓存宿主，区别只是 `HackImage` 做九宫格、`Image` 按固定图像绘制。
 ## Slider / ScrollBar 的各种情况
 
 ### Slider（TrackBar）
@@ -300,19 +147,6 @@ TabControl / ScrollBar / StatusBar / ToolTip / ContextMenu：
 > 了最常用的输入/按钮类控件及它们的全部主题状态；画廊把其余控件也放进同一窗口，便于后续逐个
 > 替换。
 
-## 自定义 Windows 皮肤 / Win10 布局修复
-
-- 主题句柄现在通过 **实际窗口句柄** 打开：`VisualStyle.Open(hwnd, className)`。
-  `OpenThemeData(NULL, ...)` 取的是进程/全局主题；某些 Win10 自定义皮肤是按窗口应用的，
-  用 NULL 会退回默认 Aero，于是出现“原生窗口是橙色、WPF 里还是灰色”的现象。
-  宿主从 `WindowInteropHelper` / `HwndSource` 取句柄，缓存键也包含 HWND。
-- 自检日志会打印 `theme-file=`、`theme-color=`、`theme-size=`、`app-themed=`，可先确认
-  当前进程看到的是不是自定义 `.msstyles`。
-- Win10 上曾出现画廊只剩 `File` 菜单、其余空白：顶层 `MenuItem` 使用了 `Menu` part 8 的
-  整条菜单栏图片，其自然尺寸把 `Menu` 撑到整个窗口高度。现在顶级菜单固定 24 px、改用系统
-  颜色高亮，不再用整条主题图；画廊恢复正常。
-- 如果 Win10 上仍看到默认 Aero，请把 `theme-file=` 日志发我；这说明皮肤是
-  `SetWindowTheme` 按控件子类应用的，需要再按窗口子类名打开。
 ## 懒加载与资源回收
 
 - **仅合并 XAML 不会加载任何图片。** 样式和模板由 WPF 延迟实例化，`ThemeImage` 附加属性只
@@ -438,8 +272,3 @@ build.ps1                      编译 + 两套自检
 docs/                          两套主题截图
 ```
 
-## 参考
-
-控件模板结构参考了反编译的 WPF Aero/Luna 主题（`BamlLonghorn` 中的
-`PresentationFramework.Aero` 等）：`BulletDecorator`、`ContentPresenter`、禁用态
-`GrayTextBrush` 等约定保持一致。
