@@ -2,7 +2,7 @@
 
 > 本项目仅适用于 Windows XP；此项目由 AI (DeepSeek) 完成。
 
-[English](README.en.md) | 简体中文
+[English](README.md) | 简体中文
 
 在 WPF 中直接使用 **Win32 视觉样式（UXTHEME）** 的控件主题库。
 

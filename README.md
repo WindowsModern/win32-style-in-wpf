@@ -2,7 +2,7 @@
 
 > This project targets Windows XP only. It was completed by AI (DeepSeek).
 
-English | [简体中文](README.md)
+English | [简体中文](README.zh-CN.md)
 
 A WPF control theme library that draws directly with **Win32 visual styles (UXTHEME)**.
 
