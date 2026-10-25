@@ -156,6 +156,47 @@
                     </StackPanel>
                 </Border>
 
+                <!-- ============ Taskbar / tray backgrounds (public template keys) ============ -->
+                <TextBlock Text="Taskbar / tray backgrounds (public resource keys)" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,6" />
+                <Border BorderBrush="#FFB8B8B8" BorderThickness="1" Padding="12" Margin="0,0,0,14">
+                    <StackPanel>
+                        <TextBlock TextWrapping="Wrap" Foreground="Gray" Margin="0,0,0,10"
+                                   Text="Consumed from outside the theme assembly by resource key: ThemeResourceKeys.TaskbarBackgroundBottom / TaskbarBackgroundRight / TrayNotifyBackground. Each key is a ControlTemplate whose root is a single HackImage, stretched to fill its slot. ThemeResourceKeys.TaskbarForeground is a Brush read from the theme text color when available, otherwise derived by contrast from the taskbar fill color. The slot backdrop is tinted so you can tell a part that drew nothing from one that drew white: on Windows 10/11 the live Aero TaskBar parts are flat white (the real taskbar is composited by DWM) and the TrayNotify class no longer exists, so the third slot stays tinted. Against an XP/Longhorn-era visual style these render as the real taskbar art." />
+                        <WrapPanel>
+                            <StackPanel Margin="0,0,16,10">
+                                <TextBlock Text="TaskBar part 1 &#8212; TBP_BACKGROUNDBOTTOM" FontWeight="SemiBold" />
+                                <TextBlock Text="bottom edge (horizontal bar)" FontSize="10" Foreground="Gray" Margin="0,1,0,4" />
+                                <Border Width="330" Height="36" BorderBrush="#FF808080" BorderThickness="1" Background="#FFFFF0C0">
+                                    <ContentControl Template="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarBackgroundBottom}}" />
+                                </Border>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,16,10">
+                                <TextBlock Text="TaskBar part 2 &#8212; TBP_BACKGROUNDRIGHT" FontWeight="SemiBold" />
+                                <TextBlock Text="right edge (vertical bar)" FontSize="10" Foreground="Gray" Margin="0,1,0,4" />
+                                <Border Width="60" Height="120" BorderBrush="#FF808080" BorderThickness="1" Background="#FFFFF0C0">
+                                    <ContentControl Template="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarBackgroundRight}}" />
+                                </Border>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,16,10">
+                                <TextBlock Text="TrayNotify part 1 &#8212; TNP_BACKGROUND" FontWeight="SemiBold" />
+                                <TextBlock Text="bottom edge (notification area)" FontSize="10" Foreground="Gray" Margin="0,1,0,4" />
+                                <Border Width="200" Height="36" BorderBrush="#FF808080" BorderThickness="1" Background="#FFFFF0C0">
+                                    <ContentControl Template="{DynamicResource {x:Static th:ThemeResourceKeys.TrayNotifyBackground}}" />
+                                </Border>
+                            </StackPanel>
+                        </WrapPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Text="Taskbar foreground:" FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <Border Width="330" Height="28" BorderBrush="#FF808080" BorderThickness="1" Background="#FF303342">
+                                <TextBlock Text="Taskbar foreground"
+                                           Foreground="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarForeground}}"
+                                           Margin="8,0,0,0" VerticalAlignment="Center" />
+                            </Border>
+                            <TextBlock Text="ThemeTaskbarForegroundBrush" Foreground="Gray" FontSize="10" VerticalAlignment="Center" Margin="10,0,0,0" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
                 <!-- ============ WPF built-in controls ============ -->
                 <TextBlock Text="Other WPF controls (mixed mapping)" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,6" />
                 <Border BorderBrush="#FFB8B8B8" BorderThickness="1" Padding="12" Margin="0,0,0,14">

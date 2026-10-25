@@ -4,8 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:pt="clr-namespace:System.Windows.Controls;assembly=PresentationFramework.Theme"
-        mc:Ignorable="d"
-        Title="HackImage 综合测试" Height="620" Width="760">
+        mc:Ignorable="d" Background="Gray"
+        Title="HackImage 综合测试" Height="900" Width="760">
 	<Window.Resources>
 		<!-- 5 张状态图，CacheOption=OnLoad 保证同步加载，Start 时 PixelWidth 就绪 -->
 		<BitmapImage x:Key="ImgNormal"   UriSource="/PNGFILE1150_1.png" CacheOption="OnLoad" />
@@ -75,65 +75,138 @@
 			<Setter Property="Foreground" Value="White" />
 		</Style>
 	</Window.Resources>
-	<Grid Margin="20">
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="*" />
-		</Grid.RowDefinitions>
-		<!-- 区 1：HackImage 单独展示 + 状态切换 + null 淡出淡入 -->
-		<Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="1" Padding="10" Margin="0,0,0,10" CornerRadius="4">
-			<StackPanel Orientation="Horizontal">
-				<pt:HackImage x:Name="Demo" HackThickness="3" Width="200" Height="80"
-                              Source="{StaticResource ImgNormal}"
-                              pt:HackImageTransitions.To="{StaticResource ImgNormal}"
-                              pt:HackImageTransitions.Duration="0:0:0.4"
-                              pt:HackImageTransitions.Easing="{StaticResource SmoothInOut}" />
-				<StackPanel Margin="20,0,0,0" VerticalAlignment="Center">
-					<TextBlock Text="区 1：HackImage 单独展示 + 过渡" FontWeight="Bold" />
-					<WrapPanel Margin="0,10,0,0">
-						<Button Content="普通"     Width="60"  Margin="0,0,5,0" Click="OnSetNormal" />
-						<Button Content="Hover"    Width="70"  Margin="0,0,5,0" Click="OnSetHover" />
-						<Button Content="Active"   Width="70"  Margin="0,0,5,0" Click="OnSetActive" />
-						<Button Content="Disabled" Width="80"  Margin="0,0,5,0" Click="OnSetDisabled" />
-						<Button Content="Focus"    Width="70"  Margin="0,0,5,0" Click="OnSetFocused" />
-					</WrapPanel>
-					<WrapPanel Margin="0,10,0,0">
-						<Button Content="淡出到 null" Width="100" Margin="0,0,5,0" Click="OnFadeOut" />
-						<Button Content="淡入 A"      Width="80"  Margin="0,0,5,0" Click="OnFadeIn" />
-						<Button Content="A→B 立即 B→A" Width="140" Click="OnRapidToggle" />
-					</WrapPanel>
-					<TextBlock Margin="0,10,0,0">
-                        <Run Text="IsRunning：" />
-                        <Run Text="{Binding (pt:HackImageTransitions.IsRunning), ElementName=Demo, Mode=OneWay}" />
-					</TextBlock>
+	<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+		<Grid Margin="20">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+			<!-- 区 1：HackImage 单独展示 + 状态切换 + null 淡出淡入 -->
+			<Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="1" Padding="10" Margin="0,0,0,10" CornerRadius="4">
+				<StackPanel Orientation="Horizontal">
+					<pt:HackImage x:Name="Demo" HackThickness="3" Width="200" Height="80"
+                                  Source="{StaticResource ImgNormal}"
+                                  pt:HackImageTransitions.To="{StaticResource ImgNormal}"
+                                  pt:HackImageTransitions.Duration="0:0:0.4"
+                                  pt:HackImageTransitions.Easing="{StaticResource SmoothInOut}" />
+					<StackPanel Margin="20,0,0,0" VerticalAlignment="Center">
+						<TextBlock Text="区 1：HackImage 单独展示 + 过渡" FontWeight="Bold" />
+						<WrapPanel Margin="0,10,0,0">
+							<Button Content="普通"     Width="60"  Margin="0,0,5,0" Click="OnSetNormal" />
+							<Button Content="Hover"    Width="70"  Margin="0,0,5,0" Click="OnSetHover" />
+							<Button Content="Active"   Width="70"  Margin="0,0,5,0" Click="OnSetActive" />
+							<Button Content="Disabled" Width="80"  Margin="0,0,5,0" Click="OnSetDisabled" />
+							<Button Content="Focus"    Width="70"  Margin="0,0,5,0" Click="OnSetFocused" />
+						</WrapPanel>
+						<WrapPanel Margin="0,10,0,0">
+							<Button Content="淡出到 null" Width="100" Margin="0,0,5,0" Click="OnFadeOut" />
+							<Button Content="淡入 A"      Width="80"  Margin="0,0,5,0" Click="OnFadeIn" />
+							<Button Content="A→B 立即 B→A" Width="140" Click="OnRapidToggle" />
+						</WrapPanel>
+						<TextBlock Margin="0,10,0,0">
+                            <Run Text="IsRunning：" />
+                            <Run Text="{Binding (pt:HackImageTransitions.IsRunning), ElementName=Demo, Mode=OneWay}" />
+						</TextBlock>
+					</StackPanel>
 				</StackPanel>
-			</StackPanel>
-		</Border>
-		<!-- 区 2：版本 A 按钮（直接切换） -->
-		<Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" Padding="10" Margin="0,0,0,10" CornerRadius="4">
-			<StackPanel Orientation="Horizontal">
-				<TextBlock Text="区 2：版本 A 直接切换" FontWeight="Bold" Width="180" VerticalAlignment="Center" />
-				<Button Content="可点击" Width="180" Height="60" Style="{StaticResource HackButtonDirect}" Click="OnDirectClick" />
-				<Button Content="禁用"   Width="180" Height="60" Style="{StaticResource HackButtonDirect}" IsEnabled="False" Margin="10,0,0,0" />
-			</StackPanel>
-		</Border>
-		<!-- 区 3：版本 B 按钮（平滑过渡） -->
-		<Border Grid.Row="2" BorderBrush="LightGray" BorderThickness="1" Padding="10" Margin="0,0,0,10" CornerRadius="4">
-			<StackPanel Orientation="Horizontal">
-				<TextBlock Text="区 3：版本 B 平滑过渡" FontWeight="Bold" Width="180" VerticalAlignment="Center" />
-				<Button Content="可点击" Width="180" Height="60" Style="{StaticResource HackButtonSmooth}" Click="OnSmoothClick" />
-				<Button Content="禁用"   Width="180" Height="60" Style="{StaticResource HackButtonSmooth}" IsEnabled="False" Margin="10,0,0,0" />
-			</StackPanel>
-		</Border>
-		<!-- 区 4：事件日志 -->
-		<Border Grid.Row="3" BorderBrush="LightGray" BorderThickness="1" Padding="10" CornerRadius="4">
-			<StackPanel>
-				<TextBlock Text="区 4：事件日志" FontWeight="Bold" Margin="0,0,0,5" />
-				<TextBlock x:Name="LogText" Text="（尚无事件）" Foreground="Gray" TextWrapping="Wrap" />
-			</StackPanel>
-		</Border>
-	</Grid>
+			</Border>
+			<!-- 区 2：版本 A 按钮（直接切换） -->
+			<Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" Padding="10" Margin="0,0,0,10" CornerRadius="4">
+				<StackPanel Orientation="Horizontal">
+					<TextBlock Text="区 2：版本 A 直接切换" FontWeight="Bold" Width="180" VerticalAlignment="Center" />
+					<Button Content="可点击" Width="180" Height="60" Style="{StaticResource HackButtonDirect}" Click="OnDirectClick" />
+					<Button Content="禁用"   Width="180" Height="60" Style="{StaticResource HackButtonDirect}" IsEnabled="False" Margin="10,0,0,0" />
+				</StackPanel>
+			</Border>
+			<!-- 区 3：版本 B 按钮（平滑过渡） -->
+			<Border Grid.Row="2" BorderBrush="LightGray" BorderThickness="1" Padding="10" Margin="0,0,0,10" CornerRadius="4">
+				<StackPanel Orientation="Horizontal">
+					<TextBlock Text="区 3：版本 B 平滑过渡" FontWeight="Bold" Width="180" VerticalAlignment="Center" />
+					<Button Content="可点击" Width="180" Height="60" Style="{StaticResource HackButtonSmooth}" Click="OnSmoothClick" />
+					<Button Content="禁用"   Width="180" Height="60" Style="{StaticResource HackButtonSmooth}" IsEnabled="False" Margin="10,0,0,0" />
+				</StackPanel>
+			</Border>
+			<!-- 区 4：事件日志 -->
+			<Border Grid.Row="3" BorderBrush="LightGray" BorderThickness="1" Padding="10" Margin="0,0,0,10" CornerRadius="4">
+				<StackPanel>
+					<TextBlock Text="区 4：事件日志" FontWeight="Bold" Margin="0,0,0,5" />
+					<TextBlock x:Name="LogText" Text="（尚无事件）" Foreground="Gray" TextWrapping="Wrap" />
+				</StackPanel>
+			</Border>
+			<!-- 区 5：IsSourceShrink 测试 -->
+			<Border Grid.Row="4" BorderBrush="LightGray" BorderThickness="1" Padding="10" CornerRadius="4">
+				<StackPanel>
+					<StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+						<TextBlock Text="区 5：IsSourceShrink 测试（源图像素尺寸 &lt; HackThickness 之和）" FontWeight="Bold" VerticalAlignment="Center" />
+						<Button Content="自动调整 HackThickness" Margin="10,0,0,0" Padding="8,2" Click="OnAutoAdjustThickness" />
+					</StackPanel>
+					<TextBlock x:Name="SourceInfoText" Foreground="Gray" FontSize="11" Margin="0,0,0,10" TextWrapping="Wrap" />
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="200" />
+							<ColumnDefinition Width="200" />
+							<ColumnDefinition Width="200" />
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+							<RowDefinition Height="Auto" />
+						</Grid.RowDefinitions>
+						<TextBlock Grid.Row="0" Grid.Column="0" Text="场景" FontWeight="Bold" Margin="0,0,0,8" />
+						<TextBlock Grid.Row="0" Grid.Column="1" Text="IsSourceShrink = False（默认：空白）" FontWeight="Bold" Margin="0,0,8,8" />
+						<TextBlock Grid.Row="0" Grid.Column="2" Text="IsSourceShrink = True（按比例缩小）" FontWeight="Bold" Margin="0,0,0,8" />
+						<!-- 行 1：宽度小于 -->
+						<StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,10,10" VerticalAlignment="Center">
+							<TextBlock Text="宽度小于" FontWeight="Bold" />
+							<TextBlock x:Name="LabelW" Text="L+R &gt; 图宽" FontSize="11" Foreground="Gray" TextWrapping="Wrap" />
+						</StackPanel>
+						<Border Grid.Row="1" Grid.Column="1" Width="180" Height="70" Margin="0,0,8,10"
+                                Background="#F0F0F0" BorderBrush="#999" BorderThickness="1"
+                                HorizontalAlignment="Left">
+							<pt:HackImage x:Name="ShrinkWFalse" Source="{StaticResource ImgNormal}" HackThickness="100,2,100,2" />
+						</Border>
+						<Border Grid.Row="1" Grid.Column="2" Width="180" Height="70" Margin="0,0,0,10"
+                                Background="#F0F0F0" BorderBrush="#999" BorderThickness="1"
+                                HorizontalAlignment="Left">
+							<pt:HackImage x:Name="ShrinkWTrue" Source="{StaticResource ImgNormal}" HackThickness="100,2,100,2" IsSourceShrink="True" />
+						</Border>
+						<!-- 行 2：高度小于 -->
+						<StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,10,10" VerticalAlignment="Center">
+							<TextBlock Text="高度小于" FontWeight="Bold" />
+							<TextBlock x:Name="LabelH" Text="T+B &gt; 图高" FontSize="11" Foreground="Gray" TextWrapping="Wrap" />
+						</StackPanel>
+						<Border Grid.Row="2" Grid.Column="1" Width="180" Height="70" Margin="0,0,8,10"
+                                Background="#F0F0F0" BorderBrush="#999" BorderThickness="1"
+                                HorizontalAlignment="Left">
+							<pt:HackImage x:Name="ShrinkHFalse" Source="{StaticResource ImgNormal}" HackThickness="2,100,2,100" />
+						</Border>
+						<Border Grid.Row="2" Grid.Column="2" Width="180" Height="70" Margin="0,0,0,10"
+                                Background="#F0F0F0" BorderBrush="#999" BorderThickness="1"
+                                HorizontalAlignment="Left">
+							<pt:HackImage x:Name="ShrinkHTrue" Source="{StaticResource ImgNormal}" HackThickness="2,100,2,100" IsSourceShrink="True" />
+						</Border>
+						<!-- 行 3：全部小于 -->
+						<StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,10,0" VerticalAlignment="Center">
+							<TextBlock Text="全部小于" FontWeight="Bold" />
+							<TextBlock x:Name="LabelAll" Text="L+R 与 T+B 均大于图尺寸" FontSize="11" Foreground="Gray" TextWrapping="Wrap" />
+						</StackPanel>
+						<Border Grid.Row="3" Grid.Column="1" Width="180" Height="70" Margin="0,0,8,0"
+                                Background="#F0F0F0" BorderBrush="#999" BorderThickness="1"
+                                HorizontalAlignment="Left">
+							<pt:HackImage x:Name="ShrinkAllFalse" Source="{StaticResource ImgNormal}" HackThickness="100,100,100,100" />
+						</Border>
+						<Border Grid.Row="3" Grid.Column="2" Width="180" Height="70" Margin="0,0,0,0"
+                                Background="#F0F0F0" BorderBrush="#999" BorderThickness="1"
+                                HorizontalAlignment="Left">
+							<pt:HackImage x:Name="ShrinkAllTrue" Source="{StaticResource ImgNormal}" HackThickness="100,100,100,100" IsSourceShrink="True" />
+						</Border>
+					</Grid>
+				</StackPanel>
+			</Border>
+		</Grid>
+	</ScrollViewer>
 </Window>

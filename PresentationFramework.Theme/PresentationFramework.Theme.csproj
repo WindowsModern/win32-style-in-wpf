@@ -50,8 +50,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThemeDibRenderer.cs" />
     <Compile Include="ThemeCalendar.cs" />
+    <Compile Include="ThemeColors.cs" />
     <Compile Include="ThemeHackImage.cs" />
     <Compile Include="ThemeImage.cs" />
+  <Compile Include="ThemeResourceKeys.cs" />
     <Compile Include="ScrollBarThumbLengthConverter.cs" />
     <Compile Include="ThemePart.cs" />
     <Compile Include="ThemeProgress.cs" />

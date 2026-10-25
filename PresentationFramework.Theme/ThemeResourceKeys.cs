@@ -1,0 +1,170 @@
+using System;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Controls;
+
+namespace Microsoft.Windows.Themes
+{
+    /// <summary>
+    /// Resource keys for the theme's background templates, and helpers to consume them from
+    /// outside the theme assembly.
+    /// <para xml:lang="zh-CN">
+    /// 主题背景模板的资源键，以及供外部程序集取用的辅助方法。
+    /// 这些键指向 <c>ControlTemplate</c>，模板内容是一个铺满的 <see cref="HackImage"/>，
+    /// 该 <see cref="HackImage"/> 通过 <see cref="ThemeImage"/> 附加属性取得 Win32 视觉样式的部件图。
+    /// </para>
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// These keys exist so that a shell-shaped application can paint Win32 taskbar and tray-Notify
+    /// backgrounds with WPF layout, without re-deriving the uxTheme class/part/state triples. The
+    /// triples are not guesswork: they are the documented part constants of the <c>TaskBar</c> and
+    /// <c>TrayNotify</c> theme classes, and each one below is named after its constant.
+    /// </para>
+    /// <para>
+    /// The reason the taskbar needs two of them is that its background part is split by edge, not
+    /// by state. <c>TaskBar</c> has a distinct part for each edge the bar can be docked against,
+    /// and the two this project ships are the ones a shell actually reaches: the bottom edge for a
+    /// horizontal bar and the right edge for a vertical one. There is no single "taskbar
+    /// background" part to fall back to, which is exactly why the caller has to choose.
+    /// </para>
+    /// <para>
+    /// Consumption, from XAML — the template is looked up at run time, so the theme can be swapped:
+    /// <code language="xml">
+    /// &lt;ContentControl Template="{DynamicResource ThemeTaskbarBackgroundBottomTemplate}" /&gt;
+    /// </code>
+    /// or from code:
+    /// <code language="csharp">
+    /// ContentControl bar = ThemeResourceKeys.CreateBackground(ThemeResourceKeys.TaskbarBackgroundBottom);
+    /// </code>
+    /// </para>
+    /// </remarks>
+    public static class ThemeResourceKeys
+    {
+        /// <summary>
+        /// Taskbar background, bottom edge. uxTheme <c>TaskBar</c> part 1,
+        /// <c>TBP_BACKGROUNDBOTTOM</c>.
+        /// <para xml:lang="zh-CN">任务栏背景（底边）。uxTheme 类 <c>TaskBar</c> 部件 1，<c>TBP_BACKGROUNDBOTTOM</c>。</para>
+        /// </summary>
+        public const string TaskbarBackgroundBottom = "ThemeTaskbarBackgroundBottomTemplate";
+
+        /// <summary>
+        /// Taskbar background, right edge. uxTheme <c>TaskBar</c> part 2,
+        /// <c>TBP_BACKGROUNDRIGHT</c>.
+        /// <para xml:lang="zh-CN">任务栏背景（右边）。uxTheme 类 <c>TaskBar</c> 部件 2，<c>TBP_BACKGROUNDRIGHT</c>。</para>
+        /// </summary>
+        public const string TaskbarBackgroundRight = "ThemeTaskbarBackgroundRightTemplate";
+
+        /// <summary>
+        /// Notification-area (tray) background, bottom edge. uxTheme <c>TrayNotify</c> part 1,
+        /// <c>TNP_BACKGROUND</c>.
+        /// <para xml:lang="zh-CN">通知区域（托盘）背景（底边）。uxTheme 类 <c>TrayNotify</c> 部件 1，<c>TNP_BACKGROUND</c>。</para>
+        /// </summary>
+        public const string TrayNotifyBackground = "ThemeTrayNotifyBackgroundTemplate";
+
+        /// <summary>
+        /// Taskbar foreground brush, derived from the current theme.
+        /// <para xml:lang="zh-CN">任务栏前景色画刷，来自当前主题。</para>
+        /// </summary>
+        public const string TaskbarForeground = "ThemeTaskbarForegroundBrush";
+
+        // Array, not a read-only collection: IReadOnlyList<T> arrived in .NET 4.5 and this
+        // assembly targets 4.0.
+        private static readonly string[] AllKeys = new string[]
+        {
+            TaskbarBackgroundBottom,
+            TaskbarBackgroundRight,
+            TrayNotifyBackground
+        };
+
+        /// <summary>
+        /// Every background key this class defines, in the order they appear above.
+        /// <para xml:lang="zh-CN">本类定义的全部背景键，按上面的顺序。</para>
+        /// </summary>
+        /// <remarks>
+        /// A copy is returned every time. Handing out the backing array would let a caller
+        /// reorder or overwrite the theme's own list, and a diagnostic loop is not worth that.
+        /// </remarks>
+        public static IList<string> All
+        {
+            get { return new List<string>(AllKeys); }
+        }
+
+        /// <summary>
+        /// Looks up one of these templates.
+        /// <para xml:lang="zh-CN">查找其中一个模板。</para>
+        /// </summary>
+        /// <param name="key">One of the constants on this class.</param>
+        /// <param name="scope">
+        /// An element to search first, typically the caller's window. Its resource chain is walked
+        /// before the application's, which is what lets a host override a single background without
+        /// replacing the whole theme.
+        /// </param>
+        /// <returns>The template, or <c>null</c> when the theme is not loaded.</returns>
+        public static ControlTemplate FindTemplate(string key, DependencyObject scope)
+        {
+            if (key == null)
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
+            // Walk the caller's own resource chain first, then the application's.
+            FrameworkElement element = scope as FrameworkElement;
+            if (element != null)
+            {
+                ControlTemplate local = element.TryFindResource(key) as ControlTemplate;
+                if (local != null)
+                {
+                    return local;
+                }
+            }
+
+            Application application = Application.Current;
+            if (application != null)
+            {
+                return application.TryFindResource(key) as ControlTemplate;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Creates an element that renders one of these backgrounds.
+        /// <para xml:lang="zh-CN">创建一个渲染这些背景之一的元素。</para>
+        /// </summary>
+        /// <param name="key">One of the constants on this class.</param>
+        /// <param name="scope">
+        /// See <see cref="FindTemplate"/>. May be <c>null</c>, in which case only the application's
+        /// resources are searched.
+        /// </param>
+        /// <returns>
+        /// A <see cref="ContentControl"/> whose <see cref="Control.Template"/> is the requested
+        /// template, or <c>null</c> when the theme is not loaded.
+        /// </returns>
+        /// <remarks>
+        /// <para>
+        /// The template is assigned, not referenced by a <c>DynamicResource</c> expression. A
+        /// caller that wants live theme swapping should set the expression itself:
+        /// </para>
+        /// <code language="csharp">
+        /// bar.SetResourceReference(Control.TemplateProperty, ThemeResourceKeys.TaskbarBackgroundBottom);
+        /// </code>
+        /// <para>
+        /// This method is for the case where the caller wants one concrete element and does not
+        /// care about re-theming.
+        /// </para>
+        /// </remarks>
+        public static ContentControl CreateBackground(string key, DependencyObject scope)
+        {
+            ControlTemplate template = FindTemplate(key, scope);
+            if (template == null)
+            {
+                return null;
+            }
+
+            ContentControl host = new ContentControl();
+            host.Template = template;
+            return host;
+        }
+    }
+}

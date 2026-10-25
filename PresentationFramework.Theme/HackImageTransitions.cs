@@ -22,7 +22,6 @@ namespace System.Windows.Controls
 		public static IEasingFunction GetEasing (DependencyObject d) { return (IEasingFunction)d.GetValue (EasingProperty); }
 		public static void SetEasing (DependencyObject d, IEasingFunction value) { d.SetValue (EasingProperty, value); }
 		public static bool GetIsRunning (DependencyObject d) { return (bool)d.GetValue (IsRunningProperty); }
-		// To 变化：停旧过渡（取当前帧作新起点）→ null→null 短路 → 同引用短路 → 目标未加载兜底 → 启动过渡（null 参与亦走过渡）
 		private static void OnToChanged (DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
 			var img = d as HackImage;
@@ -41,12 +40,24 @@ namespace System.Windows.Controls
 			if (from == null && to == null) return;
 			if (from != null && ReferenceEquals (from, to)) return;
 			if (to != null && (to.PixelWidth == 0 || to.PixelHeight == 0)) { img.SetCurrentValue (HackImage.SourceProperty, to); return; }
+			// 不可切片的图无法参与过渡，直接赋值（IsSourceShrink=true 时任何尺寸都可切片）
+			if (!CanSlice (img, from) || !CanSlice (img, to)) { img.SetCurrentValue (HackImage.SourceProperty, to); return; }
 			var trans = new HackImageTransition (img, from, to, GetDuration (img).TimeSpan);
 			trans.Easing = GetEasing (img);
 			trans.Completed += OnCompleted;
 			d.SetValue (TransitionProperty, trans);
 			img.SetValue (IsRunningPropertyKey, true);
 			trans.Start ();
+		}
+		// 检查一张图在当前 HackThickness / IsSourceShrink 下能否切片；null 视为可切片（透明）
+		private static bool CanSlice (HackImage img, BitmapSource bmp)
+		{
+			if (bmp == null) return true;
+			if (img.IsSourceShrink) return true;
+			var h = img.HackThickness;
+			int l = HackImage.ToNonNegativeInt (h.Left), t = HackImage.ToNonNegativeInt (h.Top);
+			int r = HackImage.ToNonNegativeInt (h.Right), b = HackImage.ToNonNegativeInt (h.Bottom);
+			return (long)l + r <= bmp.PixelWidth && (long)t + b <= bmp.PixelHeight;
 		}
 		// 过渡完成：复位 IsRunning、清 Transition、Dispose 释放像素缓冲
 		private static void OnCompleted (object sender, EventArgs e)
