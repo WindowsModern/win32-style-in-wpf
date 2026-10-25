@@ -53,8 +53,19 @@ jobs:
       - name: Build
         shell: pwsh
         run: |
-          powershell -NoProfile -ExecutionPolicy Bypass `
-            -File .\build.ps1 -Configuration Release
+          $log = Join-Path $env:GITHUB_WORKSPACE 'build.log'
+          try {
+            powershell -NoProfile -ExecutionPolicy Bypass `
+              -File .\build.ps1 -Configuration Release 2>&1 |
+              Tee-Object -FilePath $log
+            if ($LASTEXITCODE -ne 0) {
+              throw "build.ps1 exited with $LASTEXITCODE"
+            }
+          }
+          catch {
+            $_ | Out-String | Add-Content $log
+            throw
+          }
 
       - name: Upload build artifacts
         if: always()
@@ -68,6 +79,7 @@ jobs:
             WpfApplicationTest/bin/Release/
             artifacts/selftest-plain/
             artifacts/selftest-transition/
+            build.log
 
   publish:
     name: Publish NuGet (tag)
