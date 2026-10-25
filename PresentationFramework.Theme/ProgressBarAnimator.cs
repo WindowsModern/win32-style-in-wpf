@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -127,7 +127,8 @@ namespace Microsoft.Windows.Themes
         private static void Flush(State state)
         {
             ProgressBar bar = state.Bar;
-            if (!bar.IsLoaded || bar.IsIndeterminate || !ThemeProgress.GetAnimateValue(bar))
+            if (!bar.IsLoaded || bar.IsIndeterminate || !ThemeProgress.GetAnimateValue(bar) ||
+                !IsContinuousMode(bar))
             {
                 Stop(state);
                 return;
@@ -204,6 +205,19 @@ namespace Microsoft.Windows.Themes
             }
         }
 
+        private static bool IsContinuousMode(ProgressBar bar)
+        {
+            if (ThemeProgress.GetMode(bar) == ThemeProgressMode.Smooth)
+                return true;
+
+            string tag = bar.Tag as string;
+            if (string.Equals(tag, "Smooth", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            // On Vista+ the ProgressBar style selects the smooth template for
+            // determinate progress, including the chunked layout fallback.
+            return ThemeProgress.IsVistaOrLater;
+        }
         private static FrameworkElement FindTemplateChild(Control control, string name)
         {
             if (control.Template == null)
