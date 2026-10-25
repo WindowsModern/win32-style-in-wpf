@@ -29,6 +29,24 @@ jobs:
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      - name: Install .NET Framework 4.0 reference assemblies
+        shell: pwsh
+        run: |
+          $packageRoot = Join-Path $env:TEMP 'net40-reference-assemblies'
+          nuget install Microsoft.NETFramework.ReferenceAssemblies.net40 `
+            -Version 1.0.3 `
+            -OutputDirectory $packageRoot `
+            -NonInteractive
+          $source = Join-Path $packageRoot 'Microsoft.NETFramework.ReferenceAssemblies.net40.1.0.3\build\.NETFramework\v4.0'
+          $destination = 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0'
+          if (-not (Test-Path $source)) {
+            throw "Reference assemblies not found: $source"
+          }
+          New-Item -ItemType Directory -Force $destination | Out-Null
+          Copy-Item "$source\*" -Destination $destination -Recurse -Force
       - name: Build
         shell: pwsh
         run: |
@@ -70,6 +88,21 @@ jobs:
       - name: Setup NuGet
         uses: NuGet/setup-nuget@v2
 
+      - name: Install .NET Framework 4.0 reference assemblies
+        shell: pwsh
+        run: |
+          $packageRoot = Join-Path $env:TEMP 'net40-reference-assemblies'
+          nuget install Microsoft.NETFramework.ReferenceAssemblies.net40 `
+            -Version 1.0.3 `
+            -OutputDirectory $packageRoot `
+            -NonInteractive
+          $source = Join-Path $packageRoot 'Microsoft.NETFramework.ReferenceAssemblies.net40.1.0.3\build\.NETFramework\v4.0'
+          $destination = 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.0'
+          if (-not (Test-Path $source)) {
+            throw "Reference assemblies not found: $source"
+          }
+          New-Item -ItemType Directory -Force $destination | Out-Null
+          Copy-Item "$source\*" -Destination $destination -Recurse -Force
       - name: Build Release
         shell: pwsh
         run: |
