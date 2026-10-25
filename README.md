@@ -9,63 +9,6 @@
 引入一个 `ResourceDictionary` 后，已映射的 WPF 控件会使用当前 Windows 主题的真实部件绘制，
 而不是 WPF 自带皮肤的近似效果。库同时提供**无过渡**和**带过渡**两个版本。
 
-## Slider / ScrollBar 的各种情况
-
-### Slider（TrackBar）
-
-Win32 TrackBar 的部件不是只有一套：
-
-| 情况 | Win32 部件 | 当前实现 |
-| --- | --- | --- |
-| 水平、无刻度 | `TKP_TRACK(1)` + `TKP_THUMB(3)` | ✅ |
-| 水平、刻度在上 | `TKP_TRACK(1)` + `TKP_THUMBTOP(5)` + `TKP_TICS(9)` | ✅ 轨道 + Thumb 5 |
-| 水平、刻度在下 | `TKP_TRACK(1)` + `TKP_THUMBBOTTOM(4)` + `TKP_TICS(9)` | ✅ 轨道 + Thumb 4 |
-| 水平、上下都有 | 上述组合 | ✅ 轨道 + 通用 Thumb 3 |
-| 垂直、无刻度 | `TKP_TRACKVERT(2)` + `TKP_THUMBVERT(6)` | ✅ |
-| 垂直、刻度在左/右 | `TKP_THUMBLEFT(7)` / `TKP_THUMBRIGHT(8)` + `TKP_TICSVERT(10)` | ✅ 轨道 + Thumb 7/8 |
-
-- **导轨粗细**：视觉导轨固定 2 px，和原生 TrackBar 的细线接近；之前是 12 px，明显偏粗。
-- **交互区域**：Slider 根 Grid 是 24/32/36 px 高的透明命中区；轨道图 `IsHitTestVisible=False`，
-  刻度 `TickBar` 也不参与命中；点击轨道、拖动 Thumb 由 `Track` 的透明 RepeatButton/Thumb 处理。
-  所以“看到的细线”和“可点击的整行”是分离的。
-- **刻度**：当前用 WPF `TickBar`（细灰刻度）按 `Minimum/Maximum/TickFrequency/TickPlacement` 生成，
-  因为 Win32 的 `TKP_TICS` 位图不能直接平铺；下一步若要完全像素一致，需要把 TICS 图做成
-  `ImageBrush` 平铺，而不是拉伸。
-- **待补**：带刻度时 Win32 使用 `THUMBTOP/THUMBBOTTOM/THUMBLEFT/THUMBRIGHT`，当前仍用
-  通用 Thumb 部件；这是下一步模板精度工作。
-
-
-
-### NativeComparison 的分组截图
-
-```text
-NativeComparison.exe --out=logs\native-win32.png
-NativeComparison.exe --form=sliders --out=logs\native-sliders.png
-NativeComparison.exe --form=scrollbars --out=logs\native-scrollbars.png
-```
-
-- `sliders`：水平 None/TopLeft/BottomRight/Both/Disabled，垂直 None/Left/Right/Both/Disabled；
-- `scrollbars`：水平/垂直、启用/禁用、最大值；
-- `Run-Native.bat` 会一次生成三张图，`Run-All.bat` 也会调用它。
-### ListView / ListBox / DataGrid
-
-- `GridViewColumnHeader` 使用 `Header` part 1，TopLeft/Hot/Pressed 状态；
-- `ListView` 保留 GridView 的行 presenter（不能替换 `ListViewItem.Template`，否则列布局会变成
-  `ToString()`），只换 Header 和背景；
-- `ListBox` 边框使用 `Listbox` 边框部件，Item 选中/热状态使用 part 5；
-- `DataGrid` 的列头复用 `Header` part 1，网格/背景使用系统色。
-
-`TreeView`、`Calendar`、`DatePicker` 目前只做了背景/边框系统色，内部仍是 WPF 模板。
-
-### ScrollBar
-
-“上下左右箭头”属于 ScrollBar，不是 Slider：
-
-- 四方向箭头：`SBP_ARROWBTN(1)` 的 up/down/left/right 状态组；
-- 水平/垂直 Thumb：`SBP_THUMBBTNHORZ(2)` / `SBP_THUMBVERT(3)`；
-- 上下/左右轨道：part 4–7；
-- 抓手：part 8/9；
-- 箭头按钮 17×17，整条轨道和翻页按钮都是可点击区域，Thumb 只占视觉上的那一块。
 ## 与原生 Win32 对比
 
 `NativeComparison.exe` 是一个纯 Win32/WinForms 对照窗口，使用 `Application.EnableVisualStyles()` +

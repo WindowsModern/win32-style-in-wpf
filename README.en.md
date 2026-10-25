@@ -10,69 +10,6 @@ After merging one `ResourceDictionary`, mapped WPF controls render with the real
 current Windows theme instead of WPF's approximation. The library provides both a **plain** and
 a **transition** version.
 
-## Slider / ScrollBar cases
-
-### Slider (TrackBar)
-
-Win32 TrackBar has several part sets:
-
-| Case | Win32 parts | Current implementation |
-| --- | --- | --- |
-| Horizontal, no ticks | `TKP_TRACK(1)` + `TKP_THUMB(3)` | ✅ |
-| Horizontal, ticks on top | `TKP_TRACK(1)` + `TKP_THUMBTOP(5)` + `TKP_TICS(9)` | ✅ track + thumb 5 |
-| Horizontal, ticks below | `TKP_TRACK(1)` + `TKP_THUMBBOTTOM(4)` + `TKP_TICS(9)` | ✅ track + thumb 4 |
-| Horizontal, ticks on both sides | Combination above | ✅ track + generic thumb 3 |
-| Vertical, no ticks | `TKP_TRACKVERT(2)` + `TKP_THUMBVERT(6)` | ✅ |
-| Vertical, ticks left/right | `TKP_THUMBLEFT(7)` / `TKP_THUMBRIGHT(8)` + `TKP_TICSVERT(10)` | ✅ track + thumb 7/8 |
-
-- **Rail thickness**: the visual rail is fixed at 2 px, close to the thin native TrackBar line;
-  it used to be 12 px and looked too thick.
-- **Hit area**: the Slider root Grid is a transparent 24/32/36 px hit area; the track image has
-  `IsHitTestVisible=False`, and `TickBar` does not participate in hit testing either. Clicking the
-  track and dragging the thumb are handled by the transparent `Track` RepeatButton/Thumb.
-  The "thin line you see" and the "full row you can click" are intentionally separate.
-- **Ticks**: currently generated with WPF `TickBar` (thin gray ticks) from
-  `Minimum/Maximum/TickFrequency/TickPlacement`. Win32 `TKP_TICS` bitmaps cannot be tiled
-  directly; for pixel-perfect output, the TICS bitmap should become a tiled `ImageBrush`
-  instead of being stretched.
-- **TODO**: with ticks, Win32 uses `THUMBTOP/THUMBBOTTOM/THUMBLEFT/THUMBRIGHT`; we still use the
-  generic thumb part. This is the next template-precision task.
-
-### NativeComparison grouped screenshots
-
-```text
-NativeComparison.exe --out=logs\native-win32.png
-NativeComparison.exe --form=sliders --out=logs\native-sliders.png
-NativeComparison.exe --form=scrollbars --out=logs\native-scrollbars.png
-```
-
-- `sliders`: horizontal None/TopLeft/BottomRight/Both/Disabled; vertical
-  None/Left/Right/Both/Disabled;
-- `scrollbars`: horizontal/vertical, enabled/disabled, maximum value;
-- `Run-Native.bat` generates all three images in one run; `Run-All.bat` also calls it.
-
-### ListView / ListBox / DataGrid
-
-- `GridViewColumnHeader` uses `Header` part 1, TopLeft/Hot/Pressed states;
-- `ListView` keeps the GridView row presenter (do not replace `ListViewItem.Template`, otherwise
-  the column layout becomes `ToString()`); only the header and background are replaced;
-- `ListBox` uses the `Listbox` border parts; item selected/hot states use part 5;
-- `DataGrid` column headers reuse `Header` part 1; grid/background use system colors.
-
-`TreeView`, `Calendar`, and `DatePicker` currently only use system colors for background/border;
-their internals are still WPF templates.
-
-### ScrollBar
-
-The up/down/left/right arrows belong to ScrollBar, not Slider:
-
-- four-direction arrows: `SBP_ARROWBTN(1)` up/down/left/right state groups;
-- horizontal/vertical thumb: `SBP_THUMBBTNHORZ(2)` / `SBP_THUMBVERT(3)`;
-- upper/lower and left/right tracks: parts 4–7;
-- gripper: parts 8/9;
-- arrow buttons are 17×17; the entire track and page buttons are clickable; the thumb only
-  occupies its visible block.
-
 ## Comparison with native Win32
 
 `NativeComparison.exe` is a pure Win32/WinForms comparison window using
