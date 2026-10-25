@@ -2,6 +2,8 @@
 
 > 本项目仅适用于 Windows XP；此项目由 AI (DeepSeek) 完成。
 
+[English](README.en.md) | 简体中文
+
 在 WPF 中直接使用 **Win32 视觉样式（UXTHEME）** 的控件主题库。
 
 引入一个 `ResourceDictionary` 后，已映射的 WPF 控件会使用当前 Windows 主题的真实部件绘制，
