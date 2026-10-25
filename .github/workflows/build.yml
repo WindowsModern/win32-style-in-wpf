@@ -137,9 +137,15 @@ jobs:
             throw 'Tag must look like v1.0.0.'
           }
           New-Item -ItemType Directory -Force .\artifacts\nuget | Out-Null
+          $packLog = Join-Path $env:GITHUB_WORKSPACE 'pack.log'
           nuget pack .\nuget\Win32ThemeStyle.WPF.nuspec `
             -Version $version `
-            -OutputDirectory .\artifacts\nuget
+            -OutputDirectory .\artifacts\nuget 2>&1 |
+            Tee-Object -FilePath $packLog
+          if ($LASTEXITCODE -ne 0) {
+            Get-Content $packLog | ForEach-Object { Write-Output "::error title=NuGet pack::$_" }
+            throw "nuget pack exited with $LASTEXITCODE"
+          }
 
       - name: NuGet login (Trusted Publishing)
         uses: NuGet/login@v1
@@ -155,7 +161,13 @@ jobs:
           if (-not (Test-Path $package)) {
             throw "Package not found: $package"
           }
+          $pushLog = Join-Path $env:GITHUB_WORKSPACE 'push.log'
           nuget push $package `
             -Source https://api.nuget.org/v3/index.json `
             -ApiKey ${{ steps.nuget-login.outputs.NUGET_API_KEY }} `
-            -SkipDuplicate
+            -SkipDuplicate 2>&1 |
+            Tee-Object -FilePath $pushLog
+          if ($LASTEXITCODE -ne 0) {
+            Get-Content $pushLog | ForEach-Object { Write-Output "::error title=NuGet push::$_" }
+            throw "nuget push exited with $LASTEXITCODE"
+          }
