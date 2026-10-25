@@ -324,40 +324,45 @@ namespace Microsoft.Windows.Themes
             if (width <= 0 || height <= 0)
                 return null;
 
-            System.Drawing.Color black = System.Drawing.Color.Black;
+            // Use two non-black backgrounds.  UxTheme uses black as a
+            // transparent/color-key value for several overlay parts, so
+            // rendering on black can produce C1 == black and make the whole
+            // part look transparent.  Control and Window are close but never
+            // color-keyed, and the formula remains exact.
             System.Drawing.Color control = System.Drawing.SystemColors.Control;
+            System.Drawing.Color window = System.Drawing.SystemColors.Window;
 
-            BitmapSource onBlack = ThemeDibRenderer.Render(width, height, DpiScale, black,
-                delegate(IntPtr hdc)
-                {
-                    ThemeRenderer.TryDrawBackground(hdc, style, part, state,
-                        new System.Drawing.Rectangle(0, 0, width, height));
-                });
             BitmapSource onControl = ThemeDibRenderer.Render(width, height, DpiScale, control,
                 delegate(IntPtr hdc)
                 {
                     ThemeRenderer.TryDrawBackground(hdc, style, part, state,
                         new System.Drawing.Rectangle(0, 0, width, height));
                 });
-            if (onBlack == null || onControl == null)
+            BitmapSource onWindow = ThemeDibRenderer.Render(width, height, DpiScale, window,
+                delegate(IntPtr hdc)
+                {
+                    ThemeRenderer.TryDrawBackground(hdc, style, part, state,
+                        new System.Drawing.Rectangle(0, 0, width, height));
+                });
+            if (onControl == null || onWindow == null)
                 return null;
 
             int stride = width * 4;
-            var blackPixels = new byte[stride * height];
             var controlPixels = new byte[stride * height];
-            onBlack.CopyPixels(blackPixels, stride, 0);
+            var windowPixels = new byte[stride * height];
             onControl.CopyPixels(controlPixels, stride, 0);
+            onWindow.CopyPixels(windowPixels, stride, 0);
 
             var output = new byte[stride * height];
-            for (int i = 0; i < blackPixels.Length; i += 4)
+            for (int i = 0; i < controlPixels.Length; i += 4)
             {
                 int alphaSum = 0;
                 for (int c = 0; c < 3; c++)
                 {
-                    int b1 = 0;
-                    int b2 = c == 0 ? control.B : c == 1 ? control.G : control.R;
-                    int c1 = blackPixels[i + c];
-                    int c2 = controlPixels[i + c];
+                    int b1 = c == 0 ? control.B : c == 1 ? control.G : control.R;
+                    int b2 = c == 0 ? window.B : c == 1 ? window.G : window.R;
+                    int c1 = controlPixels[i + c];
+                    int c2 = windowPixels[i + c];
                     int denominator = b2 - b1;
                     int a = denominator == 0 ? 255 : 255 - ((c2 - c1) * 255) / denominator;
                     if (a < 0) a = 0;
@@ -376,9 +381,15 @@ namespace Microsoft.Windows.Themes
                 }
 
                 output[i + 3] = (byte)alpha;
-                output[i + 2] = (byte)Math.Min(255, (blackPixels[i + 2] * 255 + alpha / 2) / alpha);
-                output[i + 1] = (byte)Math.Min(255, (blackPixels[i + 1] * 255 + alpha / 2) / alpha);
-                output[i] = (byte)Math.Min(255, (blackPixels[i] * 255 + alpha / 2) / alpha);
+                int b = control.B;
+                int g = control.G;
+                int r = control.R;
+                output[i + 2] = (byte)Math.Max(0, Math.Min(255,
+                    (controlPixels[i + 2] - ((255 - alpha) * b) / 255) * 255 / alpha));
+                output[i + 1] = (byte)Math.Max(0, Math.Min(255,
+                    (controlPixels[i + 1] - ((255 - alpha) * g) / 255) * 255 / alpha));
+                output[i] = (byte)Math.Max(0, Math.Min(255,
+                    (controlPixels[i] - ((255 - alpha) * r) / 255) * 255 / alpha));
             }
 
             BitmapSource image = BitmapSource.Create(width, height,
