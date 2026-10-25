@@ -362,6 +362,11 @@ namespace Microsoft.Windows.Themes
 
         private static volatile int _alphaProbeLimit = 8;
 
+        internal static int AlphaProbeLimit
+        {
+            get { return _alphaProbeLimit; }
+        }
+
         private static System.Drawing.Color[] ChooseAlphaProbes(int width, int height)
         {
             long pixels = (long)width * height;
@@ -491,6 +496,36 @@ namespace Microsoft.Windows.Themes
                                 continue;
                             }
 
+                            // Some UxTheme parts are not drawn at all on a black
+                            // background (black is used as a color key).  If the
+                            // black probe is zero while every other probe is the
+                            // same non-zero color, treat black as an invalid
+                            // sample instead of letting it force alpha to zero.
+                            bool skipBlack = false;
+                            if (probeCount > 1 && pixels[0][i] == 0 && pixels[0][i + 1] == 0 && pixels[0][i + 2] == 0)
+                            {
+                                int otherB = pixels[1][i];
+                                int otherG = pixels[1][i + 1];
+                                int otherR = pixels[1][i + 2];
+                                bool otherSame = true;
+                                for (int p = 2; p < probeCount; p++)
+                                {
+                                    if (pixels[p][i] != otherB ||
+                                        pixels[p][i + 1] != otherG ||
+                                        pixels[p][i + 2] != otherR)
+                                    {
+                                        otherSame = false;
+                                        break;
+                                    }
+                                }
+                                skipBlack = otherSame && (otherB != 0 || otherG != 0 || otherR != 0);
+                            }
+
+                            int usedProbes = skipBlack ? probeCount - 1 : probeCount;
+                            int fallbackB = skipBlack ? pixels[1][i] : pixels[0][i];
+                            int fallbackG = skipBlack ? pixels[1][i + 1] : pixels[0][i + 1];
+                            int fallbackR = skipBlack ? pixels[1][i + 2] : pixels[0][i + 2];
+
                             double alphaSum = 0.0;
                             double weightSum = 0.0;
                             double fB = 0.0, fG = 0.0, fR = 0.0;
@@ -501,6 +536,9 @@ namespace Microsoft.Windows.Themes
                                 double sumX = 0.0, sumY = 0.0, sumXX = 0.0, sumXY = 0.0;
                                 for (int p = 0; p < probeCount; p++)
                                 {
+                                    if (skipBlack && p == 0)
+                                        continue;
+
                                     double bg = c == 0 ? probeB[p] : c == 1 ? probeG[p] : probeR[p];
                                     double value = pixels[p][i + c];
                                     sumX += bg;
@@ -509,12 +547,12 @@ namespace Microsoft.Windows.Themes
                                     sumXY += bg * value;
                                 }
 
-                                double denominator = probeCount * sumXX - sumX * sumX;
+                                double denominator = usedProbes * sumXX - sumX * sumX;
                                 if (Math.Abs(denominator) < 0.001)
                                     continue;
 
-                                double slope = (probeCount * sumXY - sumX * sumY) / denominator;
-                                double intercept = (sumY - slope * sumX) / probeCount;
+                                double slope = (usedProbes * sumXY - sumX * sumY) / denominator;
+                                double intercept = (sumY - slope * sumX) / usedProbes;
                                 double alpha = 1.0 - slope;
                                 if (alpha < 0.0) alpha = 0.0;
                                 if (alpha > 1.0) alpha = 1.0;
@@ -537,9 +575,9 @@ namespace Microsoft.Windows.Themes
 
                             if (weightSum <= 0.0)
                             {
-                                row[i] = (byte)firstB;
-                                row[i + 1] = (byte)firstG;
-                                row[i + 2] = (byte)firstR;
+                                row[i] = (byte)fallbackB;
+                                row[i + 1] = (byte)fallbackG;
+                                row[i + 2] = (byte)fallbackR;
                                 row[i + 3] = 255;
                                 continue;
                             }

@@ -50,6 +50,10 @@ namespace ThemeDemo
                 log.Add("theme-size=" + ThemeSystem.GetCurrentTheme().SizeName);
                 log.Add("app-themed=" + ThemeSystem.IsAppThemed);
                 log.Add("theme-active=" + ThemeSystem.IsThemeActive);
+                log.Add("platform-aero=" + ThemeProgress.IsAero);
+                log.Add("platform-aero2=" + ThemeProgress.IsAero2OrLater);
+                log.Add("platform-vista-or-later=" + ThemeProgress.IsVistaOrLater);
+                log.Add("alpha-probe-limit=" + ThemeImageDiagnostics.AlphaProbeLimit);
                 LogEnvironment(log);
                 int chunkSize;
                 int spaceSize;
@@ -226,11 +230,16 @@ namespace ThemeDemo
             if (Application.Current == null || Application.Current.MainWindow == null)
                 return;
 
+            int index = 0;
             foreach (System.Windows.Controls.ProgressBar bar in FindVisualChildren<System.Windows.Controls.ProgressBar>(Application.Current.MainWindow))
             {
                 FrameworkElement host = bar.Template == null ? null : bar.Template.FindName("Bar", bar) as FrameworkElement;
                 if (host == null)
+                {
+                    log.Add("progress[" + index + "]=no-bar;value=" + bar.Value.ToString("R", CultureInfo.InvariantCulture)); 
+                    index++;
                     continue;
+                }
 
                 FrameworkElement container = null;
                 Panel root = host.Parent as Panel;
@@ -246,19 +255,70 @@ namespace ThemeDemo
                         }
                     }
                 }
-                Thickness margin = ThemeImage.GetChunkMargin(host);
-                log.Add("progress-chunk-margin=" + margin.Left.ToString("R", CultureInfo.InvariantCulture) + "," +
-                    margin.Top.ToString("R", CultureInfo.InvariantCulture) + "," +
-                    margin.Right.ToString("R", CultureInfo.InvariantCulture) + "," +
-                    margin.Bottom.ToString("R", CultureInfo.InvariantCulture) +
-                    ";container=" + (container == null ? "null" :
-                        container.Margin.Left.ToString("R", CultureInfo.InvariantCulture) + "," +
-                        container.Margin.Top.ToString("R", CultureInfo.InvariantCulture) + "," +
-                        container.Margin.Right.ToString("R", CultureInfo.InvariantCulture) + "," +
-                        container.Margin.Bottom.ToString("R", CultureInfo.InvariantCulture)));
+
+                Thickness chunkMargin = ThemeImage.GetChunkMargin(host);
+                System.Windows.Controls.Panel chunks = null;
+                if (bar.Template != null)
+                    chunks = bar.Template.FindName("Chunks", bar) as System.Windows.Controls.Panel;
+
+                log.Add("progress[" + index + "]=value:" + bar.Value.ToString("R", CultureInfo.InvariantCulture) +
+                    ";indeterminate:" + bar.IsIndeterminate +
+                    ";enabled:" + bar.IsEnabled +
+                    ";orientation:" + bar.Orientation +
+                    ";bar:" + bar.ActualWidth.ToString("R", CultureInfo.InvariantCulture) + "x" +
+                        bar.ActualHeight.ToString("R", CultureInfo.InvariantCulture) +
+                    ";host:" + host.ActualWidth.ToString("R", CultureInfo.InvariantCulture) + "x" +
+                        host.ActualHeight.ToString("R", CultureInfo.InvariantCulture) +
+                    ";part:" + ThemeImage.GetClass(host) + "/" + ThemeImage.GetPart(host) + "/" + ThemeImage.GetState(host) +
+                    ";chunk-margin:" + MarginText(chunkMargin) +
+                    ";container-margin:" + (container == null ? "null" : MarginText(container.Margin)) +
+                    ";container:" + (container == null ? "null" :
+                        container.ActualWidth.ToString("R", CultureInfo.InvariantCulture) + "x" +
+                        container.ActualHeight.ToString("R", CultureInfo.InvariantCulture)) +
+                    ";chunks:" + (chunks == null ? "null" : chunks.Children.Count.ToString(CultureInfo.InvariantCulture)));
+                index++;
             }
         }
 
+        private static void LogScrollBars(List<string> log)
+        {
+            if (Application.Current == null || Application.Current.MainWindow == null)
+                return;
+
+            int index = 0;
+            foreach (System.Windows.Controls.Primitives.ScrollBar bar in FindVisualChildren<System.Windows.Controls.Primitives.ScrollBar>(Application.Current.MainWindow))
+            {
+                if (!bar.IsVisible || bar.ActualWidth <= 0 || bar.ActualHeight <= 0)
+                    continue;
+
+                var track = bar.Template == null ? null :
+                    bar.Template.FindName("PART_Track", bar) as System.Windows.Controls.Primitives.Track;
+                var thumb = track == null ? null : track.Thumb;
+
+                log.Add("scrollbar[" + index + "]=orientation:" + bar.Orientation +
+                    ";value:" + bar.Value.ToString("R", CultureInfo.InvariantCulture) +
+                    ";min:" + bar.Minimum.ToString("R", CultureInfo.InvariantCulture) +
+                    ";max:" + bar.Maximum.ToString("R", CultureInfo.InvariantCulture) +
+                    ";viewport:" + bar.ViewportSize.ToString("R", CultureInfo.InvariantCulture) +
+                    ";bar:" + bar.ActualWidth.ToString("R", CultureInfo.InvariantCulture) + "x" +
+                        bar.ActualHeight.ToString("R", CultureInfo.InvariantCulture) +
+                    ";track:" + (track == null ? "null" :
+                        track.ActualWidth.ToString("R", CultureInfo.InvariantCulture) + "x" +
+                        track.ActualHeight.ToString("R", CultureInfo.InvariantCulture)) +
+                    ";thumb:" + (thumb == null ? "null" :
+                        thumb.ActualWidth.ToString("R", CultureInfo.InvariantCulture) + "x" +
+                        thumb.ActualHeight.ToString("R", CultureInfo.InvariantCulture)));
+                index++;
+            }
+        }
+
+        private static string MarginText(Thickness margin)
+        {
+            return margin.Left.ToString("R", CultureInfo.InvariantCulture) + "," +
+                margin.Top.ToString("R", CultureInfo.InvariantCulture) + "," +
+                margin.Right.ToString("R", CultureInfo.InvariantCulture) + "," +
+                margin.Bottom.ToString("R", CultureInfo.InvariantCulture);
+        }
         private static IEnumerable<T> FindVisualChildren<T>(DependencyObject root) where T : DependencyObject
         {
             int count = VisualTreeHelper.GetChildrenCount(root);
@@ -294,6 +354,7 @@ namespace ThemeDemo
         private static void LogWindowMetrics(Window window, List<string> log)
         {
             LogProgressMargins(log);
+            LogScrollBars(log);
             log.Add("window-dip=" + window.ActualWidth.ToString("R", CultureInfo.InvariantCulture)
                 + "x" + window.ActualHeight.ToString("R", CultureInfo.InvariantCulture));
 

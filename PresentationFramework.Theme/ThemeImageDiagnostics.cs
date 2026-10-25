@@ -14,6 +14,11 @@ namespace Microsoft.Windows.Themes
         /// Total number of theme images rendered since the process started.
         /// <para xml:lang="zh-CN">进程启动以来渲染的主题图片总数。</para>
         /// </summary>
+        public static int AlphaProbeLimit
+        {
+            get { return ThemeImageProvider.AlphaProbeLimit; }
+        }
+
         public static int CreatedImageCount
         {
             get { return ThemeImageProvider.CreatedCount; }
