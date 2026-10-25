@@ -206,7 +206,13 @@ namespace System.Windows.Controls
 
             // Keep the two-background alpha reconstruction for the
             // Progress/Indeterminate MoveOverlay as well.
-            _data = PreserveAlpha
+            // XP's Scrollbar parts do not blend reliably against the probe
+            // backgrounds; use the original sized bitmap there.
+            bool useAlpha = PreserveAlpha
+                && !(Environment.OSVersion.Version.Major < 6 &&
+                     string.Equals(className, "Scrollbar", StringComparison.Ordinal));
+
+            _data = useAlpha
                 ? ThemeImageProvider.GetAlphaNatural(className, PartId, StateId, hwnd, SubClass)
                 : null;
             if (_data == null || !ThemeImageProvider.HasVisibleAlpha(_data.Image))

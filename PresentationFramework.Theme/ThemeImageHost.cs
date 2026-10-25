@@ -136,7 +136,11 @@ namespace Microsoft.Windows.Themes
             _pixelHeight = PixelHeight();
             System.Drawing.Color background = ThemeImageProvider.GetBackgroundColor(_element);
             ThemeImageData data;
-            if (ThemeImage.GetPreserveAlpha(_element))
+            bool useAlpha = ThemeImage.GetPreserveAlpha(_element)
+                && !(Environment.OSVersion.Version.Major < 6 &&
+                     string.Equals(className, "Scrollbar", StringComparison.Ordinal));
+
+            if (useAlpha)
                 data = ThemeImageProvider.GetAlphaNatural(className, part, state, windowHandle);
             else
                 data = null;
