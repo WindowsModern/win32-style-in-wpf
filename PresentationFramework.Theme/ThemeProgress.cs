@@ -69,7 +69,7 @@ namespace Microsoft.Windows.Themes
         }
         public static readonly DependencyProperty AnimateValueProperty = DependencyProperty.RegisterAttached(
             "AnimateValue", typeof(bool), typeof(ThemeProgress),
-            new FrameworkPropertyMetadata(true));
+            new FrameworkPropertyMetadata(false));
 
         public static readonly DependencyProperty ValueTransitionDurationProperty = DependencyProperty.RegisterAttached(
             "ValueTransitionDuration", typeof(Duration), typeof(ThemeProgress),
