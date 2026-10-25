@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Windows.Data;
+using System.Windows.Controls.Primitives;
 
 namespace Microsoft.Windows.Themes
 {
@@ -17,11 +18,22 @@ namespace Microsoft.Windows.Themes
                 return 8.0;
 
             double track, viewport, maximum, minimum;
-            if (!TryNumber(values[0], out track) ||
-                !TryNumber(values[1], out viewport) ||
+            bool trackValid = TryNumber(values[0], out track);
+            if (!TryNumber(values[1], out viewport) ||
                 !TryNumber(values[2], out maximum) ||
                 !TryNumber(values[3], out minimum))
                 return 8.0;
+
+            if ((!trackValid || track <= 0) && values.Length > 4)
+            {
+                var bar = values[4] as ScrollBar;
+                if (bar != null)
+                {
+                    track = bar.Orientation == System.Windows.Controls.Orientation.Vertical
+                        ? bar.ActualHeight - 34.0
+                        : bar.ActualWidth - 34.0;
+                }
+            }
 
             if (track <= 0 || viewport <= 0)
                 return 8.0;
