@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+  <!-- Theme without transition: state changes are instant. -->
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceDictionary Source="pack://application:,,,/PresentationFramework.Theme;component/theme.base.xaml" />
+  </ResourceDictionary.MergedDictionaries>
+
+  <sys:TimeSpan x:Key="ThemeTransitionDuration">0:0:0</sys:TimeSpan>
+
+</ResourceDictionary>

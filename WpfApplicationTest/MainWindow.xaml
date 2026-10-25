@@ -1,0 +1,139 @@
+﻿<Window x:Class="WpfApplicationTest.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:pt="clr-namespace:System.Windows.Controls;assembly=PresentationFramework.Theme"
+        mc:Ignorable="d"
+        Title="HackImage 综合测试" Height="620" Width="760">
+	<Window.Resources>
+		<!-- 5 张状态图，CacheOption=OnLoad 保证同步加载，Start 时 PixelWidth 就绪 -->
+		<BitmapImage x:Key="ImgNormal"   UriSource="/PNGFILE1150_1.png" CacheOption="OnLoad" />
+		<BitmapImage x:Key="ImgHover"    UriSource="/PNGFILE1151_1.png" CacheOption="OnLoad" />
+		<BitmapImage x:Key="ImgActive"   UriSource="/PNGFILE1152_1.png" CacheOption="OnLoad" />
+		<BitmapImage x:Key="ImgDisabled" UriSource="/PNGFILE1153_1.png" CacheOption="OnLoad" />
+		<BitmapImage x:Key="ImgFocused"  UriSource="/PNGFILE1154_1.png" CacheOption="OnLoad" />
+		<CubicEase x:Key="SmoothInOut" EasingMode="EaseInOut" />
+		<!-- 版本 A：直接切换 Source -->
+		<ControlTemplate x:Key="HackButtonTemplateDirect" TargetType="Button">
+			<Grid>
+				<pt:HackImage x:Name="Bg" HackThickness="3" Source="{StaticResource ImgNormal}" />
+				<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}" />
+			</Grid>
+			<ControlTemplate.Triggers>
+				<Trigger Property="IsKeyboardFocused" Value="True">
+					<Setter TargetName="Bg" Property="Source" Value="{StaticResource ImgFocused}" />
+				</Trigger>
+				<Trigger Property="IsMouseOver" Value="True">
+					<Setter TargetName="Bg" Property="Source" Value="{StaticResource ImgHover}" />
+				</Trigger>
+				<Trigger Property="IsPressed" Value="True">
+					<Setter TargetName="Bg" Property="Source" Value="{StaticResource ImgActive}" />
+				</Trigger>
+				<Trigger Property="IsEnabled" Value="False">
+					<Setter TargetName="Bg" Property="Source" Value="{StaticResource ImgDisabled}" />
+				</Trigger>
+			</ControlTemplate.Triggers>
+		</ControlTemplate>
+		<!-- 版本 B：HackImageTransitions.To 平滑过渡 -->
+		<ControlTemplate x:Key="HackButtonTemplateSmooth" TargetType="Button">
+			<Grid>
+				<pt:HackImage x:Name="Bg" HackThickness="3"
+                              Source="{StaticResource ImgNormal}"
+                              pt:HackImageTransitions.To="{StaticResource ImgNormal}"
+                              pt:HackImageTransitions.Duration="0:0:0.15"
+                              pt:HackImageTransitions.Easing="{StaticResource SmoothInOut}" />
+				<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}" />
+			</Grid>
+			<ControlTemplate.Triggers>
+				<Trigger Property="IsKeyboardFocused" Value="True">
+					<Setter TargetName="Bg" Property="pt:HackImageTransitions.To" Value="{StaticResource ImgFocused}" />
+				</Trigger>
+				<Trigger Property="IsMouseOver" Value="True">
+					<Setter TargetName="Bg" Property="pt:HackImageTransitions.To" Value="{StaticResource ImgHover}" />
+				</Trigger>
+				<Trigger Property="IsPressed" Value="True">
+					<Setter TargetName="Bg" Property="pt:HackImageTransitions.To" Value="{StaticResource ImgActive}" />
+				</Trigger>
+				<Trigger Property="IsEnabled" Value="False">
+					<Setter TargetName="Bg" Property="pt:HackImageTransitions.To" Value="{StaticResource ImgDisabled}" />
+				</Trigger>
+			</ControlTemplate.Triggers>
+		</ControlTemplate>
+		<Style x:Key="HackButtonDirect" TargetType="Button">
+			<Setter Property="Template" Value="{StaticResource HackButtonTemplateDirect}" />
+			<Setter Property="FocusVisualStyle" Value="{x:Null}" />
+			<Setter Property="Cursor" Value="Hand" />
+			<Setter Property="Padding" Value="8" />
+			<Setter Property="Foreground" Value="White" />
+		</Style>
+		<Style x:Key="HackButtonSmooth" TargetType="Button">
+			<Setter Property="Template" Value="{StaticResource HackButtonTemplateSmooth}" />
+			<Setter Property="FocusVisualStyle" Value="{x:Null}" />
+			<Setter Property="Cursor" Value="Hand" />
+			<Setter Property="Padding" Value="8" />
+			<Setter Property="Foreground" Value="White" />
+		</Style>
+	</Window.Resources>
+	<Grid Margin="20">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+		<!-- 区 1：HackImage 单独展示 + 状态切换 + null 淡出淡入 -->
+		<Border Grid.Row="0" BorderBrush="LightGray" BorderThickness="1" Padding="10" Margin="0,0,0,10" CornerRadius="4">
+			<StackPanel Orientation="Horizontal">
+				<pt:HackImage x:Name="Demo" HackThickness="3" Width="200" Height="80"
+                              Source="{StaticResource ImgNormal}"
+                              pt:HackImageTransitions.To="{StaticResource ImgNormal}"
+                              pt:HackImageTransitions.Duration="0:0:0.4"
+                              pt:HackImageTransitions.Easing="{StaticResource SmoothInOut}" />
+				<StackPanel Margin="20,0,0,0" VerticalAlignment="Center">
+					<TextBlock Text="区 1：HackImage 单独展示 + 过渡" FontWeight="Bold" />
+					<WrapPanel Margin="0,10,0,0">
+						<Button Content="普通"     Width="60"  Margin="0,0,5,0" Click="OnSetNormal" />
+						<Button Content="Hover"    Width="70"  Margin="0,0,5,0" Click="OnSetHover" />
+						<Button Content="Active"   Width="70"  Margin="0,0,5,0" Click="OnSetActive" />
+						<Button Content="Disabled" Width="80"  Margin="0,0,5,0" Click="OnSetDisabled" />
+						<Button Content="Focus"    Width="70"  Margin="0,0,5,0" Click="OnSetFocused" />
+					</WrapPanel>
+					<WrapPanel Margin="0,10,0,0">
+						<Button Content="淡出到 null" Width="100" Margin="0,0,5,0" Click="OnFadeOut" />
+						<Button Content="淡入 A"      Width="80"  Margin="0,0,5,0" Click="OnFadeIn" />
+						<Button Content="A→B 立即 B→A" Width="140" Click="OnRapidToggle" />
+					</WrapPanel>
+					<TextBlock Margin="0,10,0,0">
+                        <Run Text="IsRunning：" />
+                        <Run Text="{Binding (pt:HackImageTransitions.IsRunning), ElementName=Demo, Mode=OneWay}" />
+					</TextBlock>
+				</StackPanel>
+			</StackPanel>
+		</Border>
+		<!-- 区 2：版本 A 按钮（直接切换） -->
+		<Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" Padding="10" Margin="0,0,0,10" CornerRadius="4">
+			<StackPanel Orientation="Horizontal">
+				<TextBlock Text="区 2：版本 A 直接切换" FontWeight="Bold" Width="180" VerticalAlignment="Center" />
+				<Button Content="可点击" Width="180" Height="60" Style="{StaticResource HackButtonDirect}" Click="OnDirectClick" />
+				<Button Content="禁用"   Width="180" Height="60" Style="{StaticResource HackButtonDirect}" IsEnabled="False" Margin="10,0,0,0" />
+			</StackPanel>
+		</Border>
+		<!-- 区 3：版本 B 按钮（平滑过渡） -->
+		<Border Grid.Row="2" BorderBrush="LightGray" BorderThickness="1" Padding="10" Margin="0,0,0,10" CornerRadius="4">
+			<StackPanel Orientation="Horizontal">
+				<TextBlock Text="区 3：版本 B 平滑过渡" FontWeight="Bold" Width="180" VerticalAlignment="Center" />
+				<Button Content="可点击" Width="180" Height="60" Style="{StaticResource HackButtonSmooth}" Click="OnSmoothClick" />
+				<Button Content="禁用"   Width="180" Height="60" Style="{StaticResource HackButtonSmooth}" IsEnabled="False" Margin="10,0,0,0" />
+			</StackPanel>
+		</Border>
+		<!-- 区 4：事件日志 -->
+		<Border Grid.Row="3" BorderBrush="LightGray" BorderThickness="1" Padding="10" CornerRadius="4">
+			<StackPanel>
+				<TextBlock Text="区 4：事件日志" FontWeight="Bold" Margin="0,0,0,5" />
+				<TextBlock x:Name="LogText" Text="（尚无事件）" Foreground="Gray" TextWrapping="Wrap" />
+			</StackPanel>
+		</Border>
+	</Grid>
+</Window>
