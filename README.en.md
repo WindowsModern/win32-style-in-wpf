@@ -10,10 +10,6 @@ After merging one `ResourceDictionary`, mapped WPF controls render with the real
 current Windows theme instead of WPF's approximation. The library provides both a **plain** and
 a **transition** version.
 
-| Plain (`theme.xaml`) | Transition (`theme.withtransition.xaml`) |
-| --- | --- |
-| ![plain](docs/theme-demo.png) | ![transition](docs/theme-demo-transition.png) |
-
 ## Slider / ScrollBar cases
 
 ### Slider (TrackBar)

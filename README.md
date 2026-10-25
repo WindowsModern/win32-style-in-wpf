@@ -9,10 +9,6 @@
 引入一个 `ResourceDictionary` 后，已映射的 WPF 控件会使用当前 Windows 主题的真实部件绘制，
 而不是 WPF 自带皮肤的近似效果。库同时提供**无过渡**和**带过渡**两个版本。
 
-| 无过渡（theme.xaml） | 带过渡（theme.withtransition.xaml） |
-| --- | --- |
-| ![plain](docs/theme-demo.png) | ![transition](docs/theme-demo-transition.png) |
-
 ## Slider / ScrollBar 的各种情况
 
 ### Slider（TrackBar）
