@@ -1,0 +1,25 @@
+PresentationFramework.Theme 便携测试包
+=====================================
+
+1. 把整个 TestDemo 文件夹复制到 Windows XP。
+2. 确认已安装 .NET Framework 4.0。
+3. 双击 Run-All.bat。
+
+生成的文件
+----------
+logs\plain\selftest.log
+logs\plain\theme-plain.png
+logs\transition\selftest.log
+logs\transition\theme-withtransition.png
+logs\native-win32.png
+
+请把上面这些文件发回，尤其是：
+- logs\plain\selftest.log
+- logs\native-win32.png
+
+说明
+----
+- ThemeDemo.exe 不能单独拷走，必须和两个 DLL 放在同一目录。
+- Run-Native.bat 单独生成原生 Win32 对照截图。
+- Run-Plain.bat / Run-Transition.bat 可单独跑某一套主题。
+- Run-Demo.bat 正常打开画廊（不生成日志）。
