@@ -64,6 +64,47 @@ Reference these assemblies: `PresentationFramework.Theme.dll`, `ThemeExplorer.Co
 > Merge the dictionary before creating windows/controls. Replacing it at runtime only affects
 > controls created afterwards.
 
+## Composing with existing styles
+
+WPF does not merge style setters from resource dictionaries. For an implicit style key such as
+`{x:Type Button}`, exactly one dictionary wins: the last merged dictionary that defines it.
+`DynamicResource` also resolves one key; it does not combine styles.
+
+If the application already has implicit styles, keep the theme loaded and base the application
+style on the keyed theme style instead:
+
+```xml
+<Style TargetType="Button" BasedOn="{StaticResource ThemeButtonStyle}">
+  <Setter Property="Margin" Value="4" />
+</Style>
+```
+
+The keyed aliases are generated for every mapped control:
+
+```text
+ThemeButtonStyle, ThemeCheckBoxStyle, ThemeTextBoxStyle, ...
+```
+
+Recommended dictionary order:
+
+```xml
+<ResourceDictionary.MergedDictionaries>
+  <ResourceDictionary Source="app.styles.xaml" />
+  <ResourceDictionary Source="pack://application:,,,/PresentationFramework.Theme;component/theme.xaml" />
+</ResourceDictionary.MergedDictionaries>
+```
+
+The theme must be last so its implicit styles win. If the application style must win instead,
+put it after the theme and use `BasedOn="{StaticResource ThemeXxxStyle}"`.
+
+The Windows system theme (for example Classic) sits below application dictionaries. An implicit
+theme style replaces the system style for that key; it does not automatically inherit it.
+For controls whose system style is available as a resource, use `BasedOn` in your own style;
+otherwise copy the required Classic setters into the composed application style.
+
+Replacing `MergedDictionaries[i]` at runtime does not reapply implicit styles to controls that
+already exist. Apply the dictionary before creating the window, or recreate/reassign styles.
+
 ## Demo coverage
 
 `ThemeDemo` is a scrollable, screenshot-friendly control gallery covering:

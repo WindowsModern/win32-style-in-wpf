@@ -56,6 +56,39 @@ TabControl / ScrollBar / StatusBar / ToolTip / ContextMenu：
 
 > 请在创建窗口/控件之前合并字典；运行中替换字典只影响之后创建的控件。
 
+## 与已有样式组合
+
+WPF 的资源字典不会合并 Style 的 Setter。对于隐式样式键 `{x:Type Button}`，同一个键最终只有一个字典生效：后合并的字典覆盖前面的字典。`DynamicResource` 也只是解析一个键，不会合并样式。
+
+如果应用已有隐式样式，请保留主题字典，并让应用样式基于带键的主题基础样式：
+
+```xml
+<Style TargetType="Button" BasedOn="{StaticResource ThemeButtonStyle}">
+  <Setter Property="Margin" Value="4" />
+</Style>
+```
+
+所有已映射控件都有对应的键：
+
+```text
+ThemeButtonStyle、ThemeCheckBoxStyle、ThemeTextBoxStyle……
+```
+
+推荐顺序：
+
+```xml
+<ResourceDictionary.MergedDictionaries>
+  <ResourceDictionary Source="app.styles.xaml" />
+  <ResourceDictionary Source="pack://application:,,,/PresentationFramework.Theme;component/theme.xaml" />
+</ResourceDictionary.MergedDictionaries>
+```
+
+主题放在最后，主题隐式样式才会生效；如果应用样式必须优先，则放在主题之后，并用 `BasedOn="{StaticResource ThemeXxxStyle}"` 组合。
+
+Windows 系统主题（例如 Classic）位于应用字典之下。主题隐式样式会替换对应的系统样式，而不会自动继承它。若某个控件的系统样式能作为资源访问，可以在自己的样式中使用 `BasedOn`；否则需要把那部分 Classic Setter 显式复制到组合样式中。
+
+运行中替换 `MergedDictionaries[i]` 不会重新应用到已经存在的控件；应在创建窗口前应用，或重新创建/重新赋值样式。
+
 ## 示例覆盖
 
 `ThemeDemo` 是一个可滚动/可截图的控制面板画廊，覆盖：
