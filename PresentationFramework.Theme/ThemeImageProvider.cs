@@ -105,6 +105,21 @@ namespace Microsoft.Windows.Themes
             }
         }
 
+        internal static bool HasVisibleAlpha(BitmapSource image)
+        {
+            if (image == null || image.PixelWidth <= 0 || image.PixelHeight <= 0)
+                return false;
+
+            int stride = image.PixelWidth * 4;
+            var pixels = new byte[stride * image.PixelHeight];
+            image.CopyPixels(pixels, stride, 0);
+            for (int i = 3; i < pixels.Length; i += 4)
+            {
+                if (pixels[i] > 8)
+                    return true;
+            }
+            return false;
+        }
         internal static System.Drawing.Color GetBackgroundColor(DependencyObject element)
         {
             DependencyObject current = element;

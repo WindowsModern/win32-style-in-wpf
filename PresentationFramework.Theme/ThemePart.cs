@@ -208,7 +208,9 @@ namespace System.Windows.Controls
             // Progress/Indeterminate MoveOverlay as well.
             _data = PreserveAlpha
                 ? ThemeImageProvider.GetAlphaNatural(className, PartId, StateId, hwnd, SubClass)
-                : ThemeImageProvider.GetSized(className, PartId, StateId, hwnd, width, height, background);
+                : null;
+            if (_data == null || !ThemeImageProvider.HasVisibleAlpha(_data.Image))
+                _data = ThemeImageProvider.GetSized(className, PartId, StateId, hwnd, width, height, background);
             _source = _data != null ? _data.Image : null;
             InvalidateVisual();
             InvalidateMeasure();
