@@ -184,6 +184,7 @@ namespace Microsoft.Windows.Themes
                     hack.HackThickness = data.Margins;
                     ThemeImage.SetHackThickness(_element, data.Margins);
                     ThemeImage.SetChunkMargin(_element, GetChunkMargin(data, part));
+                    ApplyChunkContainerMargin(data, part);
                     hack.Source = source;
                 }
                 return;
@@ -197,6 +198,15 @@ namespace Microsoft.Windows.Themes
             }
         }
 
+        private void ApplyChunkContainerMargin(ThemeImageData data, int part)
+        {
+            if (part != 1 && part != 2)
+                return;
+
+            FrameworkElement parent = _element.Parent as FrameworkElement;
+            if (parent != null)
+                parent.Margin = GetChunkMargin(data, part);
+        }
         private static Thickness GetChunkMargin(ThemeImageData data, int part)
         {
             if (data.HasContentMargins)
@@ -213,6 +223,7 @@ namespace Microsoft.Windows.Themes
             target.HackThickness = data.Margins;
             ThemeImage.SetHackThickness(_element, data.Margins);
             ThemeImage.SetChunkMargin(_element, GetChunkMargin(data, part));
+            ApplyChunkContainerMargin(data, part);
 
             var transition = new HackImageTransition(target, target.Source, data.Image, duration);
             transition.Completed += OnTransitionCompleted;
