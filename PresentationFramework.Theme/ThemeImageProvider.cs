@@ -324,47 +324,64 @@ namespace Microsoft.Windows.Themes
             if (width <= 0 || height <= 0)
                 return null;
 
-            // Use two non-black backgrounds.  UxTheme uses black as a
-            // transparent/color-key value for several overlay parts, so
-            // rendering on black can produce C1 == black and make the whole
-            // part look transparent.  Control and Window are close but never
-            // color-keyed, and the formula remains exact.
+            System.Drawing.Color black = System.Drawing.Color.Black;
             System.Drawing.Color control = System.Drawing.SystemColors.Control;
-            System.Drawing.Color window = System.Drawing.SystemColors.Window;
 
+            BitmapSource onBlack = ThemeDibRenderer.Render(width, height, DpiScale, black,
+                delegate(IntPtr hdc)
+                {
+                    ThemeRenderer.TryDrawBackground(hdc, style, part, state,
+                        new System.Drawing.Rectangle(0, 0, width, height));
+                });
             BitmapSource onControl = ThemeDibRenderer.Render(width, height, DpiScale, control,
                 delegate(IntPtr hdc)
                 {
                     ThemeRenderer.TryDrawBackground(hdc, style, part, state,
                         new System.Drawing.Rectangle(0, 0, width, height));
                 });
-            BitmapSource onWindow = ThemeDibRenderer.Render(width, height, DpiScale, window,
-                delegate(IntPtr hdc)
-                {
-                    ThemeRenderer.TryDrawBackground(hdc, style, part, state,
-                        new System.Drawing.Rectangle(0, 0, width, height));
-                });
-            if (onControl == null || onWindow == null)
+            if (onBlack == null || onControl == null)
                 return null;
 
             int stride = width * 4;
+            var blackPixels = new byte[stride * height];
             var controlPixels = new byte[stride * height];
-            var windowPixels = new byte[stride * height];
+            onBlack.CopyPixels(blackPixels, stride, 0);
             onControl.CopyPixels(controlPixels, stride, 0);
-            onWindow.CopyPixels(windowPixels, stride, 0);
+
+            int controlB = control.B;
+            int controlG = control.G;
+            int controlR = control.R;
 
             var output = new byte[stride * height];
-            for (int i = 0; i < controlPixels.Length; i += 4)
+            for (int i = 0; i < blackPixels.Length; i += 4)
             {
+                int c1b = blackPixels[i];
+                int c1g = blackPixels[i + 1];
+                int c1r = blackPixels[i + 2];
+                int c2b = controlPixels[i];
+                int c2g = controlPixels[i + 1];
+                int c2r = controlPixels[i + 2];
+
+                // If both backgrounds produced exactly the same pixel, the
+                // part did not blend with either background.  Keep the color
+                // opaque and do not run the alpha solve for this pixel.
+                if (c1b == c2b && c1g == c2g && c1r == c2r)
+                {
+                    output[i] = (byte)c1b;
+                    output[i + 1] = (byte)c1g;
+                    output[i + 2] = (byte)c1r;
+                    output[i + 3] = 255;
+                    continue;
+                }
+
                 int alphaSum = 0;
+                int[] c1 = { c1b, c1g, c1r };
+                int[] c2 = { c2b, c2g, c2r };
+                int[] b2 = { controlB, controlG, controlR };
                 for (int c = 0; c < 3; c++)
                 {
-                    int b1 = c == 0 ? control.B : c == 1 ? control.G : control.R;
-                    int b2 = c == 0 ? window.B : c == 1 ? window.G : window.R;
-                    int c1 = controlPixels[i + c];
-                    int c2 = windowPixels[i + c];
-                    int denominator = b2 - b1;
-                    int a = denominator == 0 ? 255 : 255 - ((c2 - c1) * 255) / denominator;
+                    int denominator = b2[c];
+                    int a = denominator == 0 ? 255 : 255 - ((c2[c] - c1[c]) * 255) / denominator;
                     if (a < 0) a = 0;
                     if (a > 255) a = 255;
                     alphaSum += a;
@@ -381,15 +398,12 @@ namespace Microsoft.Windows.Themes
                 }
 
                 output[i + 3] = (byte)alpha;
-                int b = control.B;
-                int g = control.G;
-                int r = control.R;
                 output[i + 2] = (byte)Math.Max(0, Math.Min(255,
-                    (controlPixels[i + 2] - ((255 - alpha) * b) / 255) * 255 / alpha));
+                    (c1r - ((255 - alpha) * controlR) / 255) * 255 / alpha));
                 output[i + 1] = (byte)Math.Max(0, Math.Min(255,
-                    (controlPixels[i + 1] - ((255 - alpha) * g) / 255) * 255 / alpha));
+                    (c1g - ((255 - alpha) * controlG) / 255) * 255 / alpha));
                 output[i] = (byte)Math.Max(0, Math.Min(255,
-                    (controlPixels[i] - ((255 - alpha) * r) / 255) * 255 / alpha));
+                    (c1b - ((255 - alpha) * controlB) / 255) * 255 / alpha));
             }
 
             BitmapSource image = BitmapSource.Create(width, height,
