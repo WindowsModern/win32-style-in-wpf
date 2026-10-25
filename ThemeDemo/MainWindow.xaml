@@ -312,7 +312,21 @@
                                 </Button.ToolTip>
                                 <Button.ContextMenu>
                                     <ContextMenu>
-                                        <MenuItem Header="Context item" />
+                                        <MenuItem Header="Context item" InputGestureText="Ctrl+C" />
+                                        <MenuItem Header="Checked item" IsCheckable="True" IsChecked="True" />
+                                        <MenuItem Header="Disabled item" IsEnabled="False" />
+                                        <Separator />
+                                        <MenuItem Header="Submenu">
+                                            <MenuItem Header="Child one" />
+                                            <MenuItem Header="Child two" IsCheckable="True" />
+                                            <Separator />
+                                            <MenuItem Header="Disabled child" IsEnabled="False" />
+                                        </MenuItem>
+                                        <MenuItem Header="Icon item">
+                                            <MenuItem.Icon>
+                                                <Rectangle Width="16" Height="16" Fill="#FF3B6EA5" Stroke="#FF1F4E79" />
+                                            </MenuItem.Icon>
+                                        </MenuItem>
                                     </ContextMenu>
                                 </Button.ContextMenu>
                             </Button>
