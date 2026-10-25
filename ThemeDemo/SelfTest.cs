@@ -280,6 +280,64 @@ namespace ThemeDemo
             }
         }
 
+        private static void LogMenuItemStyles(List<string> log)
+        {
+            if (Application.Current == null || Application.Current.MainWindow == null)
+                return;
+
+            int menuIndex = 0;
+            foreach (System.Windows.Controls.Button button in FindVisualChildren<System.Windows.Controls.Button>(Application.Current.MainWindow))
+            {
+                System.Windows.Controls.ContextMenu menu = button.ContextMenu;
+                if (menu == null)
+                    continue;
+
+                object menuStyle = menu.TryFindResource(typeof(System.Windows.Controls.ContextMenu));
+                object separatorStyle = menu.TryFindResource(System.Windows.Controls.MenuItem.SeparatorStyleKey);
+                log.Add("contextmenu[" + menuIndex + "]=items:" + menu.Items.Count +
+                    ";style:" + (menu.Style == null ? "null" : menu.Style.GetType().Name) +
+                    ";resource-style:" + (menuStyle == null ? "null" : menuStyle.GetType().Name) +
+                    ";separator-resource:" + (separatorStyle == null ? "null" : separatorStyle.GetType().Name) +
+                    ";background:" + (menu.Background == null ? "null" : menu.Background.ToString()));
+
+                int itemIndex = 0;
+                foreach (object entry in menu.Items)
+                {
+                    var menuItem = entry as System.Windows.Controls.MenuItem;
+                    if (menuItem != null)
+                    {
+                        log.Add("  menuitem[" + itemIndex + "]=header:" + (menuItem.Header == null ? "null" : menuItem.Header.ToString()) +
+                            ";style:" + (menuItem.Style == null ? "null" : menuItem.Style.GetType().Name) +
+                            ";template:" + (menuItem.Template == null ? "null" : menuItem.Template.GetType().Name) +
+                            ";checkable:" + menuItem.IsCheckable +
+                            ";checked:" + menuItem.IsChecked +
+                            ";enabled:" + menuItem.IsEnabled +
+                            ";icon:" + (menuItem.Icon == null ? "null" : menuItem.Icon.GetType().Name));
+                    }
+                    else
+                    {
+                        log.Add("  menuitem[" + itemIndex + "]=type:" + entry.GetType().Name +
+                            ";style:" + (entry is System.Windows.FrameworkElement && ((System.Windows.FrameworkElement)entry).Style != null
+                                ? ((System.Windows.FrameworkElement)entry).Style.GetType().Name : "null"));
+                    }
+                    itemIndex++;
+                }
+                menuIndex++;
+            }
+
+            int comboIndex = 0;
+            foreach (System.Windows.Controls.ComboBox combo in FindVisualChildren<System.Windows.Controls.ComboBox>(Application.Current.MainWindow))
+            {
+                object itemStyle = combo.TryFindResource(typeof(System.Windows.Controls.ComboBoxItem));
+                object comboStyle = combo.TryFindResource(typeof(System.Windows.Controls.ComboBox));
+                log.Add("combo[" + comboIndex + "]=style:" + (combo.Style == null ? "null" : combo.Style.GetType().Name) +
+                    ";resource-style:" + (comboStyle == null ? "null" : comboStyle.GetType().Name) +
+                    ";item-resource:" + (itemStyle == null ? "null" : itemStyle.GetType().Name) +
+                    ";items:" + combo.Items.Count +
+                    ";dropdown-open:" + combo.IsDropDownOpen);
+                comboIndex++;
+            }
+        }
         private static void LogScrollBars(List<string> log)
         {
             if (Application.Current == null || Application.Current.MainWindow == null)
@@ -355,6 +413,7 @@ namespace ThemeDemo
         {
             LogProgressMargins(log);
             LogScrollBars(log);
+            LogMenuItemStyles(log);
             log.Add("window-dip=" + window.ActualWidth.ToString("R", CultureInfo.InvariantCulture)
                 + "x" + window.ActualHeight.ToString("R", CultureInfo.InvariantCulture));
 
