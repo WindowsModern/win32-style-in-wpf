@@ -69,6 +69,61 @@ namespace Microsoft.Windows.Themes
             }
         }
 
+        /// <summary>
+        /// Foreground color for a normal active window caption.
+        /// <para xml:lang="zh-CN">普通活动窗口标题栏的前景色。</para>
+        /// </summary>
+        public static Color NormalWindowForeground
+        {
+            get { return GetWindowTextColor(1, true); }
+        }
+
+        /// <summary>
+        /// Foreground color for an active tool-window caption.
+        /// <para xml:lang="zh-CN">活动工具窗口标题栏的前景色。</para>
+        /// </summary>
+        public static Color ToolWindowForeground
+        {
+            get { return GetWindowTextColor(2, false); }
+        }
+
+        private static Color GetWindowTextColor(int part, bool normalWindow)
+        {
+            using (VisualStyleContext context = new VisualStyleContext())
+            using (VisualStyle theme = context.Open("Window"))
+            {
+                Color color;
+                if (theme != null &&
+                    (TryReadColor(theme, part, 1, TmtTextColor, out color) ||
+                     TryReadColor(theme, part, 1, TmtTextColorHint, out color)))
+                    return color;
+            }
+
+            return normalWindow ? SystemColors.WindowTextColor : NormalWindowForeground;
+        }
+
+        /// <summary>
+        /// Text color used inside a normal window's client area.
+        /// <para xml:lang="zh-CN">普通窗口内容区使用的文本前景色。</para>
+        /// </summary>
+        public static Color WindowContentForeground
+        {
+            get
+            {
+                using (VisualStyleContext context = new VisualStyleContext())
+                using (VisualStyle theme = context.Open("Window"))
+                {
+                    Color color;
+                    if (theme != null &&
+                        (TryReadColor(theme, 39, 1, TmtTextColor, out color) ||
+                         TryReadColor(theme, 39, 1, TmtTextColorHint, out color)))
+                        return color;
+                }
+
+                return SystemColors.WindowTextColor;
+            }
+        }
+
         private static bool TryGetTextColor(string className, string subClass, int[] parts, out Color color)
         {
             color = default(Color);

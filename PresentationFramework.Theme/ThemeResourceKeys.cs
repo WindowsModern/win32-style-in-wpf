@@ -87,13 +87,53 @@ namespace Microsoft.Windows.Themes
         /// </summary>
         public const string TrayNotifyForeground = "ThemeTrayNotifyForegroundBrush";
 
+        /// <summary>
+        /// Active normal-window border template.
+        /// <para xml:lang="zh-CN">有焦点的普通窗口边框模板。</para>
+        /// </summary>
+        public const string NormalWindowBorder = "ThemeNormalWindowBorderTemplate";
+
+        /// <summary>
+        /// Active tool-window border template.
+        /// <para xml:lang="zh-CN">有焦点的工具窗口边框模板。</para>
+        /// </summary>
+        public const string ToolWindowBorder = "ThemeToolWindowBorderTemplate";
+
+        /// <summary>
+        /// Active normal-window caption foreground brush.
+        /// <para xml:lang="zh-CN">有焦点的普通窗口标题前景色画刷。</para>
+        /// </summary>
+        public const string NormalWindowForeground = "ThemeNormalWindowForegroundBrush";
+
+        /// <summary>
+        /// Active tool-window caption foreground brush.
+        /// <para xml:lang="zh-CN">有焦点的工具窗口标题前景色画刷。</para>
+        /// </summary>
+        public const string ToolWindowForeground = "ThemeToolWindowForegroundBrush";
+
+        /// <summary>
+        /// Window client-area background template. Defaults to white.
+        /// <para xml:lang="zh-CN">窗口内容区背景模板，默认白色。</para>
+        /// </summary>
+        public const string WindowContentBackground = "ThemeWindowContentBackgroundTemplate";
+
+        /// <summary>
+        /// Window client-area text foreground brush.
+        /// <para xml:lang="zh-CN">窗口内容区文本前景色画刷。</para>
+        /// </summary>
+        public const string WindowContentForeground = "ThemeWindowContentForegroundBrush";
+
         // Array, not a read-only collection: IReadOnlyList<T> arrived in .NET 4.5 and this
         // assembly targets 4.0.
         private static readonly string[] AllKeys = new string[]
         {
             TaskbarBackgroundBottom,
             TaskbarBackgroundRight,
-            TrayNotifyBackground
+            TaskbarSizingBarBottom,
+            TaskbarBackgroundBottomRotated,
+            TrayNotifyBackground,
+            NormalWindowBorder,
+            ToolWindowBorder
         };
 
         /// <summary>
