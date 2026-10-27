@@ -153,6 +153,15 @@ jobs:
         with:
           user: ${{ secrets.NUGET_USER }}
 
+      - name: Unlist 1.0.1
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          nuget delete Win32ThemeStyle.WPF 1.0.1 `
+            -Source https://api.nuget.org/v3/index.json `
+            -ApiKey ${{ steps.nuget-login.outputs.NUGET_API_KEY }} `
+            -NonInteractive
+
       - name: Push to nuget.org
         shell: pwsh
         run: |

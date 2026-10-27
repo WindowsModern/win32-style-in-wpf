@@ -167,35 +167,35 @@
                                 <TextBlock Text="TaskBar part 1 &#8212; TBP_BACKGROUNDBOTTOM" FontWeight="SemiBold" />
                                 <TextBlock Text="bottom edge (horizontal bar)" FontSize="10" Foreground="Gray" Margin="0,1,0,4" />
                                 <Border Width="330" Height="36" BorderBrush="#FF808080" BorderThickness="1" Background="#FFFFF0C0">
-                                    <ContentControl Template="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarBackgroundBottom}}" />
+                                    <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarBackgroundBottom}}" />
                                 </Border>
                             </StackPanel>
                             <StackPanel Margin="0,0,16,10">
                                 <TextBlock Text="TaskBar part 5 &#8212; TBP_SIZINGBARBOTTOM" FontWeight="SemiBold" />
                                 <TextBlock Text="sizing bar (bottom edge)" FontSize="10" Foreground="Gray" Margin="0,1,0,4" />
                                 <Border Width="330" Height="20" BorderBrush="#FF808080" BorderThickness="1" Background="#FFFFF0C0">
-                                    <ContentControl Template="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarSizingBarBottom}}" />
+                                    <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarSizingBarBottom}}" />
                                 </Border>
                             </StackPanel>
                             <StackPanel Margin="0,0,16,10">
                                 <TextBlock Text="TaskBar part 2 &#8212; TBP_BACKGROUNDRIGHT" FontWeight="SemiBold" />
                                 <TextBlock Text="right edge (vertical bar)" FontSize="10" Foreground="Gray" Margin="0,1,0,4" />
                                 <Border Width="60" Height="120" BorderBrush="#FF808080" BorderThickness="1" Background="#FFFFF0C0">
-                                    <ContentControl Template="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarBackgroundRight}}" />
+                                    <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarBackgroundRight}}" />
                                 </Border>
                             </StackPanel>
                             <StackPanel Margin="0,0,16,10">
                                 <TextBlock Text="TaskBar bottom rotated 90&#176; CCW" FontWeight="SemiBold" />
                                 <TextBlock Text="derived vertical (TBP_BACKGROUNDBOTTOM, -90&#176;)" FontSize="10" Foreground="Gray" Margin="0,1,0,4" />
                                 <Border Width="60" Height="120" BorderBrush="#FF808080" BorderThickness="1" Background="#FFFFF0C0">
-                                    <ContentControl Template="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarBackgroundBottomRotated}}" />
+                                    <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarBackgroundBottomRotated}}" />
                                 </Border>
                             </StackPanel>
                             <StackPanel Margin="0,0,16,10">
                                 <TextBlock Text="TrayNotify [TrayNotifyHoriz] part 1 &#8212; TNP_BACKGROUND" FontWeight="SemiBold" />
                                 <TextBlock Text="bottom edge (notification area)" FontSize="10" Foreground="Gray" Margin="0,1,0,4" />
                                 <Border Width="200" Height="36" BorderBrush="#FF808080" BorderThickness="1" Background="#FFFFF0C0">
-                                    <ContentControl Template="{DynamicResource {x:Static th:ThemeResourceKeys.TrayNotifyBackground}}" />
+                                    <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.TrayNotifyBackground}}" />
                                 </Border>
                             </StackPanel>
                         </WrapPanel>
