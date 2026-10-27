@@ -320,7 +320,11 @@ namespace Microsoft.Windows.Themes
             }
         }
 
-        private static ThemeImageData RenderAlphaNatural(string className, int part, int state, IntPtr window, string subClass, bool ignoreIdentical)
+        private static bool IsWindowChrome(string className, int part)
+{
+return string.Equals(className, "Window", StringComparison.Ordinal) &&
+(part == 1 || part == 2 || part == 9 || part == 12);
+}private static ThemeImageData RenderAlphaNatural(string className, int part, int state, IntPtr window, string subClass, bool ignoreIdentical)
         {
             using (VisualStyle style = OpenStyle(className, window, subClass))
             {
@@ -330,9 +334,19 @@ namespace Microsoft.Windows.Themes
                 int actualPart;
                 System.Drawing.Size natural;
                 TryGetPartSizeWithFallback(style, className, part, state, out actualPart, out natural);
-                return RenderReconstructedAlpha(style, actualPart, state, natural.Width, natural.Height, ignoreIdentical);
+                System.Drawing.Color[] colors = IsWindowChrome(className, actualPart)
+                    ? AlphaProbesWindow
+                    : ChooseAlphaProbes(natural.Width, natural.Height);
+                return RenderReconstructedAlpha(style, actualPart, state, natural.Width, natural.Height, ignoreIdentical, colors);
             }
         }
+
+        private static readonly System.Drawing.Color[] AlphaProbesWindow =
+{
+System.Drawing.Color.FromArgb(63, 63, 63),
+System.Drawing.Color.FromArgb(127, 127, 127),
+System.Drawing.Color.FromArgb(192, 192, 192)
+        };
 
         private static readonly System.Drawing.Color[] AlphaProbes8 =
         {
@@ -423,12 +437,11 @@ namespace Microsoft.Windows.Themes
         }
 
         private static ThemeImageData RenderReconstructedAlpha(VisualStyle style, int part, int state,
-            int width, int height, bool ignoreIdentical)
+            int width, int height, bool ignoreIdentical, System.Drawing.Color[] colors)
         {
             if (width <= 0 || height <= 0)
                 return null;
 
-            System.Drawing.Color[] colors = ChooseAlphaProbes(width, height);
             int probeCount = colors.Length;
             int stride = width * 4;
             var probes = new BitmapSource[probeCount];
@@ -463,14 +476,14 @@ namespace Microsoft.Windows.Themes
             catch (OutOfMemoryException)
             {
                 LowerAlphaProbeLimit(probeCount);
-                return RenderReconstructedAlpha(style, part, state, width, height, ignoreIdentical);
+                return RenderReconstructedAlpha(style, part, state, width, height, ignoreIdentical, colors);
             }
 
             watch.Stop();
             if (watch.ElapsedMilliseconds > 120 && probeCount > 2)
             {
                 LowerAlphaProbeLimit(probeCount);
-                return RenderReconstructedAlpha(style, part, state, width, height, ignoreIdentical);
+                return RenderReconstructedAlpha(style, part, state, width, height, ignoreIdentical, colors);
             }
 
             var output = new byte[stride * height];

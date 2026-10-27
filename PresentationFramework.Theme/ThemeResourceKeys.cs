@@ -123,6 +123,30 @@ namespace Microsoft.Windows.Themes
         /// </summary>
         public const string WindowContentForeground = "ThemeWindowContentForegroundBrush";
 
+        /// <summary>
+        /// Content margin for an active normal window.
+        /// <para xml:lang="zh-CN">活动普通窗口的内容区边距。</para>
+        /// </summary>
+        public const string NormalWindowContentMargin = "ThemeNormalWindowContentMargin";
+
+        /// <summary>
+        /// Content margin for an active tool window.
+        /// <para xml:lang="zh-CN">活动工具窗口的内容区边距。</para>
+        /// </summary>
+        public const string ToolWindowContentMargin = "ThemeToolWindowContentMargin";
+
+        /// <summary>
+        /// Title height for an active normal window.
+        /// <para xml:lang="zh-CN">活动普通窗口标题区高度。</para>
+        /// </summary>
+        public const string NormalWindowTitleHeight = "ThemeNormalWindowTitleHeight";
+
+        /// <summary>
+        /// Title height for an active tool window.
+        /// <para xml:lang="zh-CN">活动工具窗口标题区高度。</para>
+        /// </summary>
+        public const string ToolWindowTitleHeight = "ThemeToolWindowTitleHeight";
+
         // Array, not a read-only collection: IReadOnlyList<T> arrived in .NET 4.5 and this
         // assembly targets 4.0.
         private static readonly string[] AllKeys = new string[]
