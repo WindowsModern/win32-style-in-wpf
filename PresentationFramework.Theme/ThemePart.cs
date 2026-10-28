@@ -204,13 +204,14 @@ namespace System.Windows.Controls
 
             System.Drawing.Color background = ThemeImageProvider.GetBackgroundColor(this);
 
-            // Keep the two-background alpha reconstruction for the
-            // Progress/Indeterminate MoveOverlay as well.
-            // XP's Scrollbar parts do not blend reliably against the probe
-            // backgrounds; use the original sized bitmap there.
+            // XP's Scrollbar track/arrow parts do not blend reliably against
+            // the probe backgrounds; use the original sized bitmap there.
+            // The Thumb (2/3) is different: its own transparency is needed
+            // before the separate Gripper layer is composited above it.
             bool useAlpha = PreserveAlpha
                 && !(Environment.OSVersion.Version.Major < 6 &&
-                     string.Equals(className, "Scrollbar", StringComparison.Ordinal));
+                     string.Equals(className, "Scrollbar", StringComparison.Ordinal) &&
+                     PartId != 2 && PartId != 3);
 
             _data = useAlpha
                 ? ThemeImageProvider.GetAlphaNatural(className, PartId, StateId, hwnd, SubClass)
