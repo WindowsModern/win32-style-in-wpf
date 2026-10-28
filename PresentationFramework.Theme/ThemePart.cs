@@ -214,20 +214,9 @@ namespace System.Windows.Controls
 
             System.Drawing.Color background = ThemeImageProvider.GetBackgroundColor(this);
 
-            // XP's Scrollbar track/arrow parts do not blend reliably against
-            // the probe backgrounds; use the original sized bitmap there.
-            // Two-part overlays (Thumb 2/3 and Gripper 8/9) are handled
-            // separately; only the Gripper needs alpha reconstruction.
-            bool useAlpha = PreserveAlpha
-                && !(Environment.OSVersion.Version.Major < 6 &&
-                     string.Equals(className, "Scrollbar", StringComparison.Ordinal) &&
-                     PartId != 2 && PartId != 3 && PartId != 8 && PartId != 9);
-
-            _data = useAlpha
+            _data = PreserveAlpha
                 ? ThemeImageProvider.GetAlphaNatural(className, PartId, StateId, hwnd, SubClass)
-                : null;
-            if (_data == null || !ThemeImageProvider.HasVisibleAlpha(_data.Image))
-                _data = ThemeImageProvider.GetSized(className, PartId, StateId, hwnd, width, height, background);
+                : ThemeImageProvider.GetSized(className, PartId, StateId, hwnd, width, height, background);
             _source = _data != null ? _data.Image : null;
             InvalidateVisual();
             InvalidateMeasure();

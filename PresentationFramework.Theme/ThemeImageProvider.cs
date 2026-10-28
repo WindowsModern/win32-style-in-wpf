@@ -288,7 +288,7 @@ namespace Microsoft.Windows.Themes
             }
         }
 
-        internal static ThemeImageData GetAlphaNatural(string className, int part, int state, IntPtr window, string subClass = null, bool ignoreIdentical = false)
+        internal static ThemeImageData GetAlphaNatural(string className, int part, int state, IntPtr window, string subClass = null)
         {
             if (string.IsNullOrEmpty(className) || !ThemeSystem.IsVisualStylesEnabled)
                 return null;
@@ -345,89 +345,60 @@ namespace Microsoft.Windows.Themes
             if (width <= 0 || height <= 0)
                 return null;
 
-            // Two fixed probes are enough for the straight-alpha blend:
-            // C = F * alpha + background * (1 - alpha).
-            // The difference between the two samples removes F:
-            // alpha = 1 - (C_light - C_dark) / (light - dark).
-            const int Dark = 63;
-            const int Light = 191;
-            const int Delta = Light - Dark;
-
-            System.Drawing.Color darkBackground = System.Drawing.Color.FromArgb(Dark, Dark, Dark);
-            System.Drawing.Color lightBackground = System.Drawing.Color.FromArgb(Light, Light, Light);
-            int stride = width * 4;
-
-            BitmapSource onDark = ThemeDibRenderer.Render(width, height, DpiScale, darkBackground,
+            System.Drawing.Color black = System.Drawing.Color.Black;
+            System.Drawing.Color control = System.Drawing.SystemColors.Control;
+            BitmapSource onBlack = ThemeDibRenderer.Render(width, height, DpiScale, black,
                 delegate(IntPtr hdc)
                 {
                     ThemeRenderer.TryDrawBackground(hdc, style, part, state,
                         new System.Drawing.Rectangle(0, 0, width, height));
                 });
-            BitmapSource onLight = ThemeDibRenderer.Render(width, height, DpiScale, lightBackground,
+            BitmapSource onControl = ThemeDibRenderer.Render(width, height, DpiScale, control,
                 delegate(IntPtr hdc)
                 {
                     ThemeRenderer.TryDrawBackground(hdc, style, part, state,
                         new System.Drawing.Rectangle(0, 0, width, height));
                 });
-            if (onDark == null || onLight == null)
+            if (onBlack == null || onControl == null)
                 return null;
 
-            var darkPixels = new byte[stride * height];
-            var lightPixels = new byte[stride * height];
-            onDark.CopyPixels(darkPixels, stride, 0);
-            onLight.CopyPixels(lightPixels, stride, 0);
+            int stride = width * 4;
+            var blackPixels = new byte[stride * height];
+            var controlPixels = new byte[stride * height];
+            onBlack.CopyPixels(blackPixels, stride, 0);
+            onControl.CopyPixels(controlPixels, stride, 0);
 
             var output = new byte[stride * height];
-            System.Runtime.InteropServices.GCHandle outputHandle =
-                System.Runtime.InteropServices.GCHandle.Alloc(output,
-                    System.Runtime.InteropServices.GCHandleType.Pinned);
-            try
+            for (int i = 0; i < blackPixels.Length; i += 4)
             {
-                IntPtr outputBase = outputHandle.AddrOfPinnedObject();
-                System.Threading.Tasks.Parallel.For(0, height, y =>
+                int alphaSum = 0;
+                for (int c = 0; c < 3; c++)
                 {
-                    unsafe
-                    {
-                        byte* row = (byte*)outputBase + y * stride;
-                        for (int x = 0; x < width; x++)
-                        {
-                            int i = x * 4;
-                            int alphaSum = 0;
-                            for (int c = 0; c < 3; c++)
-                            {
-                                int delta = lightPixels[i + c] - darkPixels[i + c];
-                                int a = 255 - delta * 255 / Delta;
-                                if (a < 0) a = 0;
-                                if (a > 255) a = 255;
-                                alphaSum += a;
-                            }
+                    int background = c == 0 ? control.B : c == 1 ? control.G : control.R;
+                    int dark = blackPixels[i + c];
+                    int light = controlPixels[i + c];
+                    int a = background == 0
+                        ? 255
+                        : 255 - (light - dark) * 255 / background;
+                    if (a < 0) a = 0;
+                    if (a > 255) a = 255;
+                    alphaSum += a;
+                }
 
-                            int alpha = alphaSum / 3;
-                            if (alpha < 3)
-                            {
-                                row[i] = 0;
-                                row[i + 1] = 0;
-                                row[i + 2] = 0;
-                                row[i + 3] = 0;
-                                continue;
-                            }
+                int alpha = alphaSum / 3;
+                if (alpha < 3)
+                {
+                    output[i] = 0;
+                    output[i + 1] = 0;
+                    output[i + 2] = 0;
+                    output[i + 3] = 0;
+                    continue;
+                }
 
-                            row[i + 3] = (byte)alpha;
-                            int premultipliedBackground = Dark * (255 - alpha);
-                            for (int c = 0; c < 3; c++)
-                            {
-                                int value = (darkPixels[i + c] * 255 - premultipliedBackground) / alpha;
-                                if (value < 0) value = 0;
-                                if (value > 255) value = 255;
-                                row[i + c] = (byte)value;
-                            }
-                        }
-                    }
-                });
-            }
-            finally
-            {
-                outputHandle.Free();
+                output[i + 3] = (byte)alpha;
+                output[i + 2] = (byte)Math.Min(255, (blackPixels[i + 2] * 255 + alpha / 2) / alpha);
+                output[i + 1] = (byte)Math.Min(255, (blackPixels[i + 1] * 255 + alpha / 2) / alpha);
+                output[i] = (byte)Math.Min(255, (blackPixels[i] * 255 + alpha / 2) / alpha);
             }
 
             BitmapSource image = BitmapSource.Create(width, height,

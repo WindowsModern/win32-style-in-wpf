@@ -137,27 +137,9 @@ namespace Microsoft.Windows.Themes
             _pixelWidth = PixelWidth();
             _pixelHeight = PixelHeight();
             System.Drawing.Color background = ThemeImageProvider.GetBackgroundColor(_element);
-            ThemeImageData data;
-            bool isAeroOrLater = Environment.OSVersion.Version.Major >= 6;
-            bool isShellBackground = string.Equals(className, "TaskBar", StringComparison.Ordinal) ||
-                string.Equals(className, "TrayNotify", StringComparison.Ordinal) ||
-                string.Equals(className, "Toolbar", StringComparison.Ordinal);
-            bool useAlpha = ThemeImage.GetPreserveAlpha(_element)
-                && (isAeroOrLater || !isShellBackground)
-                && !(Environment.OSVersion.Version.Major < 6 &&
-                     string.Equals(className, "Scrollbar", StringComparison.Ordinal) &&
-                     part != 8 && part != 9);
-
-            bool ignoreIdentical = isAeroOrLater && isShellBackground;
-
-            if (useAlpha)
-                data = ThemeImageProvider.GetAlphaNatural(className, part, state, windowHandle, subClass, ignoreIdentical);
-            else
-                data = null;
-            if (data == null || !ThemeImageProvider.HasVisibleAlpha(data.Image))
-                data = ThemeImage.GetRenderMode(_element) == ThemeImage.ThemeImageRenderMode.Natural
-                    ? ThemeImageProvider.GetNatural(className, part, state, windowHandle, subClass, background)
-                    : ThemeImageProvider.GetSized(className, part, state, windowHandle, _pixelWidth, _pixelHeight, background, subClass);
+            ThemeImageData data = ThemeImage.GetRenderMode(_element) == ThemeImage.ThemeImageRenderMode.Natural
+                ? ThemeImageProvider.GetNatural(className, part, state, windowHandle, subClass, background)
+                : ThemeImageProvider.GetSized(className, part, state, windowHandle, _pixelWidth, _pixelHeight, background, subClass);
 
             // Aero reports 3x3 for the TaskBar background, which is a solid fill
             // rather than a usable natural bitmap. Fall back to the sized render
