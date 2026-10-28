@@ -49,6 +49,40 @@ namespace Microsoft.Windows.Themes
             get { return GetPartDimension(2, true); }
         }
 
+        /// <summary>
+        /// Caption font size for an active normal window.
+        /// <para xml:lang="zh-CN">活动普通窗口标题栏字号。</para>
+        /// </summary>
+        public static double NormalWindowTitleFontSize
+        {
+            get { return GetTitleFontSize(1, 801, SystemFonts.CaptionFontSize); }
+        }
+
+        /// <summary>
+        /// Caption font size for an active tool window.
+        /// <para xml:lang="zh-CN">活动工具窗口标题栏字号。</para>
+        /// </summary>
+        public static double ToolWindowTitleFontSize
+        {
+            get { return GetTitleFontSize(2, 802, SystemFonts.SmallCaptionFontSize); }
+        }
+
+        private static double GetTitleFontSize(int part, int property, double fallback)
+        {
+            using (VisualStyleContext context = new VisualStyleContext())
+            using (VisualStyle style = context.Open("Window"))
+            {
+                ThemeFontInfo font;
+                if (style != null && style.TryGetFont(part, 1, property, out font) && font.Height != 0)
+                {
+                    double size = Math.Abs(font.Height) / ThemeImageProvider.Dpi;
+                    if (size > 0) return size;
+                }
+            }
+
+            return fallback;
+        }
+
         private static Thickness GetContentMargin(bool toolWindow)
         {
             double left = GetPartDimension(toolWindow ? 10 : 7, false);

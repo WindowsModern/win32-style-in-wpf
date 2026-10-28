@@ -147,6 +147,18 @@ namespace Microsoft.Windows.Themes
         /// </summary>
         public const string ToolWindowTitleHeight = "ThemeToolWindowTitleHeight";
 
+        /// <summary>
+        /// Caption font size for an active normal window.
+        /// <para xml:lang="zh-CN">活动普通窗口标题栏字号。</para>
+        /// </summary>
+        public const string NormalWindowTitleFontSize = "ThemeNormalWindowTitleFontSize";
+
+        /// <summary>
+        /// Caption font size for an active tool window.
+        /// <para xml:lang="zh-CN">活动工具窗口标题栏字号。</para>
+        /// </summary>
+        public const string ToolWindowTitleFontSize = "ThemeToolWindowTitleFontSize";
+
         // Array, not a read-only collection: IReadOnlyList<T> arrived in .NET 4.5 and this
         // assembly targets 4.0.
         private static readonly string[] AllKeys = new string[]
