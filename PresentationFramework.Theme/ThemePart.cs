@@ -73,6 +73,10 @@ namespace System.Windows.Controls
             nameof(PreserveAlpha), typeof(bool), typeof(ThemePart),
             new FrameworkPropertyMetadata(false, OnPropertyChanged));
 
+        public static readonly DependencyProperty NaturalSizeProperty = DependencyProperty.Register(
+            nameof(NaturalSize), typeof(bool), typeof(ThemePart),
+            new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsMeasure, OnPropertyChanged));
+
         public static readonly DependencyProperty SubClassProperty = DependencyProperty.Register(
             nameof(SubClass), typeof(string), typeof(ThemePart),
             new FrameworkPropertyMetadata(null, OnPropertyChanged));
@@ -106,6 +110,12 @@ namespace System.Windows.Controls
         {
             get { return (bool)GetValue(PreserveAlphaProperty); }
             set { SetValue(PreserveAlphaProperty, value); }
+        }
+
+        public bool NaturalSize
+        {
+            get { return (bool)GetValue(NaturalSizeProperty); }
+            set { SetValue(NaturalSizeProperty, value); }
         }
 
         public string SubClass
@@ -206,12 +216,12 @@ namespace System.Windows.Controls
 
             // XP's Scrollbar track/arrow parts do not blend reliably against
             // the probe backgrounds; use the original sized bitmap there.
-            // The Thumb (2/3) is different: its own transparency is needed
-            // before the separate Gripper layer is composited above it.
+            // Two-part overlays (Thumb 2/3 and Gripper 8/9) are handled
+            // separately; only the Gripper needs alpha reconstruction.
             bool useAlpha = PreserveAlpha
                 && !(Environment.OSVersion.Version.Major < 6 &&
                      string.Equals(className, "Scrollbar", StringComparison.Ordinal) &&
-                     PartId != 2 && PartId != 3);
+                     PartId != 2 && PartId != 3 && PartId != 8 && PartId != 9);
 
             _data = useAlpha
                 ? ThemeImageProvider.GetAlphaNatural(className, PartId, StateId, hwnd, SubClass)
@@ -368,6 +378,9 @@ namespace System.Windows.Controls
                     }
                 }
             }
+            if (NaturalSize && _source != null)
+                return new Size(_source.Width, _source.Height);
+
             double width = double.IsInfinity(availableSize.Width)
                 ? (_source != null ? _source.Width : 0)
                 : availableSize.Width;

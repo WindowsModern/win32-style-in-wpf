@@ -300,7 +300,7 @@ namespace Microsoft.Windows.Themes
                 state.ToString(CultureInfo.InvariantCulture), "|",
                 window.ToInt64().ToString(CultureInfo.InvariantCulture), "|",
                 DpiScale.ToString("R", CultureInfo.InvariantCulture), "|alpha|",
-                subClass ?? string.Empty, "|ignore=", ignoreIdentical ? "1" : "0");
+                subClass ?? string.Empty);
 
             lock (Gate)
             {
@@ -308,7 +308,7 @@ namespace Microsoft.Windows.Themes
                 if (Cache.TryGetValue(key, out reference) && reference.IsAlive)
                     return (ThemeImageData)reference.Target;
 
-                ThemeImageData data = RenderAlphaNatural(className, part, state, window, subClass, ignoreIdentical);
+                ThemeImageData data = RenderAlphaNatural(className, part, state, window, subClass);
                 if (data != null)
                 {
                     if (Cache.Count >= MaxCacheEntries)
@@ -320,12 +320,12 @@ namespace Microsoft.Windows.Themes
             }
         }
 
-        private static bool IsWindowChrome(string className, int part)
-{
-return string.Equals(className, "Window", StringComparison.Ordinal) &&
-(part == 1 || part == 2 || part == 9 || part == 12);
-}
-        private static ThemeImageData RenderAlphaNatural(string className, int part, int state, IntPtr window, string subClass, bool ignoreIdentical)
+        internal static int AlphaProbeLimit
+        {
+            get { return 2; }
+        }
+
+        private static ThemeImageData RenderAlphaNatural(string className, int part, int state, IntPtr window, string subClass)
         {
             using (VisualStyle style = OpenStyle(className, window, subClass))
             {
@@ -335,157 +335,47 @@ return string.Equals(className, "Window", StringComparison.Ordinal) &&
                 int actualPart;
                 System.Drawing.Size natural;
                 TryGetPartSizeWithFallback(style, className, part, state, out actualPart, out natural);
-                System.Drawing.Color[] colors = IsWindowChrome(className, actualPart)
-                    ? AlphaProbesWindow
-                    : ChooseAlphaProbes(natural.Width, natural.Height);
-                return RenderReconstructedAlpha(style, actualPart, state, natural.Width, natural.Height, ignoreIdentical, colors);
+                return RenderReconstructedAlpha(style, actualPart, state, natural.Width, natural.Height);
             }
-        }
-
-        private static readonly System.Drawing.Color[] AlphaProbesWindow =
-{
-System.Drawing.Color.FromArgb(63, 63, 63),
-System.Drawing.Color.FromArgb(127, 127, 127),
-System.Drawing.Color.FromArgb(192, 192, 192)
-        };
-
-        private static readonly System.Drawing.Color[] AlphaProbes8 =
-        {
-            System.Drawing.Color.Black,
-            System.Drawing.Color.White,
-            System.Drawing.Color.Red,
-            System.Drawing.Color.Lime,
-            System.Drawing.Color.Blue,
-            System.Drawing.Color.Cyan,
-            System.Drawing.Color.Magenta,
-            System.Drawing.Color.Yellow
-        };
-
-        private static readonly System.Drawing.Color[] AlphaProbes5 =
-        {
-            System.Drawing.Color.Black,
-            System.Drawing.Color.White,
-            System.Drawing.Color.Red,
-            System.Drawing.Color.Lime,
-            System.Drawing.Color.Blue
-        };
-
-        private static readonly System.Drawing.Color[] AlphaProbes4 =
-        {
-            System.Drawing.Color.Black,
-            System.Drawing.Color.White,
-            System.Drawing.Color.FromArgb(128, 128, 128),
-            System.Drawing.Color.FromArgb(127, 127, 127)
-        };
-
-        private static readonly System.Drawing.Color[] AlphaProbes3 =
-        {
-            System.Drawing.Color.Black,
-            System.Drawing.Color.White,
-            System.Drawing.Color.Gray
-        };
-
-        private static readonly System.Drawing.Color[] AlphaProbes2 =
-        {
-            System.Drawing.Color.Black,
-            System.Drawing.Color.White
-        };
-
-        private static volatile int _alphaProbeLimit = 8;
-
-        internal static int AlphaProbeLimit
-        {
-            get { return _alphaProbeLimit; }
-        }
-
-        private static System.Drawing.Color[] ChooseAlphaProbes(int width, int height)
-        {
-            long pixels = (long)width * height;
-            System.Drawing.Color[] colors;
-            if (pixels > 1500000)
-                colors = AlphaProbes2;
-            else if (pixels > 800000)
-                colors = AlphaProbes3;
-            else if (pixels > 400000)
-                colors = AlphaProbes4;
-            else if (pixels > 150000)
-                colors = AlphaProbes5;
-            else
-                colors = AlphaProbes8;
-
-            int limit = _alphaProbeLimit;
-            if (colors.Length > limit)
-            {
-                if (limit <= 2) colors = AlphaProbes2;
-                else if (limit == 3) colors = AlphaProbes3;
-                else if (limit == 4) colors = AlphaProbes4;
-                else if (limit == 5) colors = AlphaProbes5;
-            }
-            return colors;
-        }
-
-        private static void LowerAlphaProbeLimit(int usedCount)
-        {
-            int next;
-            if (usedCount > 5) next = 5;
-            else if (usedCount > 4) next = 4;
-            else if (usedCount > 3) next = 3;
-            else next = 2;
-
-            int current = _alphaProbeLimit;
-            if (next < current)
-                _alphaProbeLimit = next;
         }
 
         private static ThemeImageData RenderReconstructedAlpha(VisualStyle style, int part, int state,
-            int width, int height, bool ignoreIdentical, System.Drawing.Color[] colors)
+            int width, int height)
         {
             if (width <= 0 || height <= 0)
                 return null;
 
-            int probeCount = colors.Length;
+            // Two fixed probes are enough for the straight-alpha blend:
+            // C = F * alpha + background * (1 - alpha).
+            // The difference between the two samples removes F:
+            // alpha = 1 - (C_light - C_dark) / (light - dark).
+            const int Dark = 63;
+            const int Light = 191;
+            const int Delta = Light - Dark;
+
+            System.Drawing.Color darkBackground = System.Drawing.Color.FromArgb(Dark, Dark, Dark);
+            System.Drawing.Color lightBackground = System.Drawing.Color.FromArgb(Light, Light, Light);
             int stride = width * 4;
-            var probes = new BitmapSource[probeCount];
-            var pixels = new byte[probeCount][];
-            var probeB = new int[probeCount];
-            var probeG = new int[probeCount];
-            var probeR = new int[probeCount];
 
-            var watch = System.Diagnostics.Stopwatch.StartNew();
-            try
-            {
-                for (int p = 0; p < probeCount; p++)
+            BitmapSource onDark = ThemeDibRenderer.Render(width, height, DpiScale, darkBackground,
+                delegate(IntPtr hdc)
                 {
-                    System.Drawing.Color background = colors[p];
-                    probeB[p] = background.B;
-                    probeG[p] = background.G;
-                    probeR[p] = background.R;
+                    ThemeRenderer.TryDrawBackground(hdc, style, part, state,
+                        new System.Drawing.Rectangle(0, 0, width, height));
+                });
+            BitmapSource onLight = ThemeDibRenderer.Render(width, height, DpiScale, lightBackground,
+                delegate(IntPtr hdc)
+                {
+                    ThemeRenderer.TryDrawBackground(hdc, style, part, state,
+                        new System.Drawing.Rectangle(0, 0, width, height));
+                });
+            if (onDark == null || onLight == null)
+                return null;
 
-                    probes[p] = ThemeDibRenderer.Render(width, height, DpiScale, background,
-                        delegate(IntPtr hdc)
-                        {
-                            ThemeRenderer.TryDrawBackground(hdc, style, part, state,
-                                new System.Drawing.Rectangle(0, 0, width, height));
-                        });
-                    if (probes[p] == null)
-                        return null;
-
-                    pixels[p] = new byte[stride * height];
-                    probes[p].CopyPixels(pixels[p], stride, 0);
-                }
-            }
-            catch (OutOfMemoryException)
-            {
-                LowerAlphaProbeLimit(probeCount);
-                return RenderReconstructedAlpha(style, part, state, width, height, ignoreIdentical, colors);
-            }
-
-            watch.Stop();
-            if (watch.ElapsedMilliseconds > 120 && probeCount > 2)
-            {
-                LowerAlphaProbeLimit(probeCount);
-                return RenderReconstructedAlpha(style, part, state, width, height, ignoreIdentical, colors);
-            }
+            var darkPixels = new byte[stride * height];
+            var lightPixels = new byte[stride * height];
+            onDark.CopyPixels(darkPixels, stride, 0);
+            onLight.CopyPixels(lightPixels, stride, 0);
 
             var output = new byte[stride * height];
             System.Runtime.InteropServices.GCHandle outputHandle =
@@ -502,128 +392,18 @@ System.Drawing.Color.FromArgb(192, 192, 192)
                         for (int x = 0; x < width; x++)
                         {
                             int i = x * 4;
-                            int firstB = pixels[0][i];
-                            int firstG = pixels[0][i + 1];
-                            int firstR = pixels[0][i + 2];
-                            bool identical = true;
-                            for (int p = 1; p < probeCount; p++)
-                            {
-                                if (pixels[p][i] != firstB ||
-                                    pixels[p][i + 1] != firstG ||
-                                    pixels[p][i + 2] != firstR)
-                                {
-                                    identical = false;
-                                    break;
-                                }
-                            }
-
-                            if (identical)
-                            {
-                                if (ignoreIdentical)
-                                {
-                                    row[i] = 0;
-                                    row[i + 1] = 0;
-                                    row[i + 2] = 0;
-                                    row[i + 3] = 0;
-                                }
-                                else
-                                {
-                                    row[i] = (byte)firstB;
-                                    row[i + 1] = (byte)firstG;
-                                    row[i + 2] = (byte)firstR;
-                                    row[i + 3] = 255;
-                                }
-                                continue;
-                            }
-
-                            // Some UxTheme parts are not drawn at all on a black
-                            // background (black is used as a color key).  If the
-                            // black probe is zero while every other probe is the
-                            // same non-zero color, treat black as an invalid
-                            // sample instead of letting it force alpha to zero.
-                            bool skipBlack = false;
-                            if (probeCount > 1 && pixels[0][i] == 0 && pixels[0][i + 1] == 0 && pixels[0][i + 2] == 0)
-                            {
-                                int otherB = pixels[1][i];
-                                int otherG = pixels[1][i + 1];
-                                int otherR = pixels[1][i + 2];
-                                bool otherSame = true;
-                                for (int p = 2; p < probeCount; p++)
-                                {
-                                    if (pixels[p][i] != otherB ||
-                                        pixels[p][i + 1] != otherG ||
-                                        pixels[p][i + 2] != otherR)
-                                    {
-                                        otherSame = false;
-                                        break;
-                                    }
-                                }
-                                skipBlack = otherSame && (otherB != 0 || otherG != 0 || otherR != 0);
-                            }
-
-                            int usedProbes = skipBlack ? probeCount - 1 : probeCount;
-                            int fallbackB = skipBlack ? pixels[1][i] : pixels[0][i];
-                            int fallbackG = skipBlack ? pixels[1][i + 1] : pixels[0][i + 1];
-                            int fallbackR = skipBlack ? pixels[1][i + 2] : pixels[0][i + 2];
-
-                            double alphaSum = 0.0;
-                            double weightSum = 0.0;
-                            double fB = 0.0, fG = 0.0, fR = 0.0;
-                            double wB = 0.0, wG = 0.0, wR = 0.0;
-
+                            int alphaSum = 0;
                             for (int c = 0; c < 3; c++)
                             {
-                                double sumX = 0.0, sumY = 0.0, sumXX = 0.0, sumXY = 0.0;
-                                for (int p = 0; p < probeCount; p++)
-                                {
-                                    if (skipBlack && p == 0)
-                                        continue;
-
-                                    double bg = c == 0 ? probeB[p] : c == 1 ? probeG[p] : probeR[p];
-                                    double value = pixels[p][i + c];
-                                    sumX += bg;
-                                    sumY += value;
-                                    sumXX += bg * bg;
-                                    sumXY += bg * value;
-                                }
-
-                                double denominator = usedProbes * sumXX - sumX * sumX;
-                                if (Math.Abs(denominator) < 0.001)
-                                    continue;
-
-                                double slope = (usedProbes * sumXY - sumX * sumY) / denominator;
-                                double intercept = (sumY - slope * sumX) / usedProbes;
-                                double alpha = 1.0 - slope;
-                                if (alpha < 0.0) alpha = 0.0;
-                                if (alpha > 1.0) alpha = 1.0;
-
-                                double weight = Math.Abs(slope);
-                                if (weight < 0.01)
-                                    continue;
-
-                                alphaSum += alpha * weight;
-                                weightSum += weight;
-
-                                if (alpha > 0.001)
-                                {
-                                    double f = intercept / alpha;
-                                    if (c == 0) { fB = f; wB = weight; }
-                                    else if (c == 1) { fG = f; wG = weight; }
-                                    else { fR = f; wR = weight; }
-                                }
+                                int delta = lightPixels[i + c] - darkPixels[i + c];
+                                int a = 255 - delta * 255 / Delta;
+                                if (a < 0) a = 0;
+                                if (a > 255) a = 255;
+                                alphaSum += a;
                             }
 
-                            if (weightSum <= 0.0)
-                            {
-                                row[i] = (byte)fallbackB;
-                                row[i + 1] = (byte)fallbackG;
-                                row[i + 2] = (byte)fallbackR;
-                                row[i + 3] = 255;
-                                continue;
-                            }
-
-                            double globalAlpha = alphaSum / weightSum;
-                            if (globalAlpha < 0.012)
+                            int alpha = alphaSum / 3;
+                            if (alpha < 3)
                             {
                                 row[i] = 0;
                                 row[i + 1] = 0;
@@ -632,10 +412,15 @@ System.Drawing.Color.FromArgb(192, 192, 192)
                                 continue;
                             }
 
-                            row[i + 3] = (byte)Math.Max(0, Math.Min(255, (int)(globalAlpha * 255.0 + 0.5)));
-                            if (wB > 0.0) row[i] = (byte)Math.Max(0, Math.Min(255, (int)(fB + 0.5)));
-                            if (wG > 0.0) row[i + 1] = (byte)Math.Max(0, Math.Min(255, (int)(fG + 0.5)));
-                            if (wR > 0.0) row[i + 2] = (byte)Math.Max(0, Math.Min(255, (int)(fR + 0.5)));
+                            row[i + 3] = (byte)alpha;
+                            int premultipliedBackground = Dark * (255 - alpha);
+                            for (int c = 0; c < 3; c++)
+                            {
+                                int value = (darkPixels[i + c] * 255 - premultipliedBackground) / alpha;
+                                if (value < 0) value = 0;
+                                if (value > 255) value = 255;
+                                row[i + c] = (byte)value;
+                            }
                         }
                     }
                 });
