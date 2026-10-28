@@ -216,6 +216,38 @@
                     </StackPanel>
                 </Border>
 
+                <TextBlock Text="Window borders / content (ControlTemplates)" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,6" />
+                <Border BorderBrush="#FFB8B8B8" BorderThickness="1" Padding="12" Margin="0,0,0,14">
+                    <WrapPanel>
+                        <StackPanel Margin="0,0,18,12">
+                            <TextBlock Text="Normal active window" FontWeight="SemiBold" />
+                            <TextBlock Text="caption + left/right/bottom, fixed native heights/widths" FontSize="10" Foreground="Gray" Margin="0,1,0,4" />
+                            <Grid Width="280" Height="170">
+                                <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowBorder}}" />
+                                <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.WindowContentBackground}}"
+                                         Margin="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowContentMargin}}" />
+                                <TextBlock Text="Normal window" Foreground="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowForeground}}"
+                                           FontWeight="SemiBold" Margin="10,4,8,0" VerticalAlignment="Top" />
+                                <TextBlock Text="Window content" Foreground="{DynamicResource {x:Static th:ThemeResourceKeys.WindowContentForeground}}"
+                                           Margin="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowContentMargin}}" />
+                            </Grid>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,18,12">
+                            <TextBlock Text="Tool window (active)" FontWeight="SemiBold" />
+                            <TextBlock Text="small caption + small frame parts" FontSize="10" Foreground="Gray" Margin="0,1,0,4" />
+                            <Grid Width="280" Height="170">
+                                <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.ToolWindowBorder}}" />
+                                <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.WindowContentBackground}}"
+                                         Margin="{DynamicResource {x:Static th:ThemeResourceKeys.ToolWindowContentMargin}}" />
+                                <TextBlock Text="Tool window" Foreground="{DynamicResource {x:Static th:ThemeResourceKeys.ToolWindowForeground}}"
+                                           FontWeight="SemiBold" Margin="10,4,8,0" VerticalAlignment="Top" />
+                                <TextBlock Text="Window content" Foreground="{DynamicResource {x:Static th:ThemeResourceKeys.WindowContentForeground}}"
+                                           Margin="{DynamicResource {x:Static th:ThemeResourceKeys.ToolWindowContentMargin}}" />
+                            </Grid>
+                        </StackPanel>
+                    </WrapPanel>
+                </Border>
+
                 <!-- ============ WPF built-in controls ============ -->
                 <TextBlock Text="Other WPF controls (mixed mapping)" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,6" />
                 <Border BorderBrush="#FFB8B8B8" BorderThickness="1" Padding="12" Margin="0,0,0,14">
@@ -307,7 +339,7 @@
                             <ProgressBar Height="18" Margin="0,5,0,0" Value="40" Maximum="100" th:ThemeProgress.State="Paused" />
                             <ProgressBar Height="18" Margin="0,5,0,0" Value="40" Maximum="100" th:ThemeProgress.State="Error" />
                             <ProgressBar Height="18" Margin="0,5,0,0" IsIndeterminate="True" />
-                            <TextBlock Text="chunked / smooth / paused / error / waiting" FontSize="10" Margin="0,3,0,0" />
+                            <TextBlock Text="chunked / smooth (overlay) / paused / error / waiting" FontSize="10" Margin="0,3,0,0" />
                             <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                 <ProgressBar Orientation="Vertical" Width="18" Height="80" Value="40" Maximum="100" />
                                 <ProgressBar Orientation="Vertical" Width="18" Height="80" Margin="8,0,0,0" Value="40" Maximum="100" Tag="Smooth" />
