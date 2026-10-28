@@ -324,7 +324,8 @@ namespace Microsoft.Windows.Themes
 {
 return string.Equals(className, "Window", StringComparison.Ordinal) &&
 (part == 1 || part == 2 || part == 9 || part == 12);
-}private static ThemeImageData RenderAlphaNatural(string className, int part, int state, IntPtr window, string subClass, bool ignoreIdentical)
+}
+        private static ThemeImageData RenderAlphaNatural(string className, int part, int state, IntPtr window, string subClass, bool ignoreIdentical)
         {
             using (VisualStyle style = OpenStyle(className, window, subClass))
             {
