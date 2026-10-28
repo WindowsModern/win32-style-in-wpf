@@ -240,11 +240,7 @@ namespace System.Windows.Controls
             if (PartId < 7 || PartId > 10)
                 return;
 
-            // UxTheme Aero/Aero2 overlay bitmaps are single stretched layers,
-            // not 3x3 tiling patterns.  Tiling a 42px pulse or a 127px move
-            // bitmap is what produced repeated copies.
-            Tile = false;
-
+            // The bitmap layout is controlled by the template's Tile value.
             // Pulse is visible in the normal continuous state, but hidden
             // while the ProgressBar is indeterminate.
             if (PartId == 7 || PartId == 9)
