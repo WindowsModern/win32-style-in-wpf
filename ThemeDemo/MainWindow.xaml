@@ -1,4 +1,4 @@
-﻿<Window x:Class="ThemeDemo.MainWindow"
+<Window x:Class="ThemeDemo.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:pt="clr-namespace:System.Windows.Controls;assembly=PresentationFramework.Theme"
@@ -226,6 +226,7 @@
                                 <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowBorder}}" />
                                 <Grid VerticalAlignment="Top" Height="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowTitleHeight}}">
                                     <TextBlock Text="Normal window" Foreground="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowForeground}}"
+                                               FontSize="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowTitleFontSize}}"
                                                FontWeight="SemiBold" Margin="10,0,8,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                                 </Grid>
                                 <TextBlock Text="Window content" Foreground="{DynamicResource {x:Static th:ThemeResourceKeys.WindowContentForeground}}"
@@ -239,6 +240,7 @@
                                 <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.ToolWindowBorder}}" />
                                 <Grid VerticalAlignment="Top" Height="{DynamicResource {x:Static th:ThemeResourceKeys.ToolWindowTitleHeight}}">
                                     <TextBlock Text="Tool window" Foreground="{DynamicResource {x:Static th:ThemeResourceKeys.ToolWindowForeground}}"
+                                               FontSize="{DynamicResource {x:Static th:ThemeResourceKeys.ToolWindowTitleFontSize}}"
                                                FontWeight="SemiBold" Margin="10,0,8,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
                                 </Grid>
                                 <TextBlock Text="Window content" Foreground="{DynamicResource {x:Static th:ThemeResourceKeys.WindowContentForeground}}"

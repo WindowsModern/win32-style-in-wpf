@@ -884,6 +884,20 @@
             <para xml:lang="zh-CN">尝试读取字体属性。返回描述对象而不是 <see cref="T:System.Drawing.Font"/>，这样调用方无需拥有 GDI 对象。</para>
             </summary>
         </member>
+        <member name="M:ThemeExplorer.Core.VisualStyle.TryGetSystemFont(System.Int32,ThemeExplorer.Core.ThemeFontInfo@)">
+            <summary>
+            Tries to read a system font (SysMetrics section), for example
+            <c>TMT_CAPTIONFONT</c> or <c>TMT_SMALLCAPTIONFONT</c>.
+            <para xml:lang="zh-CN">尝试读取系统字体（SysMetrics 区），例如标题栏字体或小标题栏字体。</para>
+            </summary>
+        </member>
+        <member name="M:ThemeExplorer.Core.VisualStyle.TryGetSystemColor(System.Int32,System.Drawing.Color@)">
+            <summary>
+            Tries to read a system color (SysMetrics section), using a
+            <c>COLOR_*</c> index such as <c>COLOR_ACTIVECAPTIONTEXT</c>.
+            <para xml:lang="zh-CN">尝试读取系统颜色（SysMetrics 区），使用 <c>COLOR_*</c> 索引。</para>
+            </summary>
+        </member>
         <member name="M:ThemeExplorer.Core.VisualStyle.TryGetIntList(System.Int32,System.Int32,System.Int32,System.Int32[]@)">
             <summary>
             Tries to read an integer list property.

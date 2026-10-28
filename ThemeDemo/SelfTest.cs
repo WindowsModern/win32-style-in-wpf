@@ -440,6 +440,8 @@ namespace ThemeDemo
             log.Add("window-title-font-size-tool=" + ThemeWindowMetrics.ToolWindowTitleFontSize.ToString("R", CultureInfo.InvariantCulture));
             log.Add("window-title-height-normal=" + ThemeWindowMetrics.NormalWindowTitleHeight.ToString("R", CultureInfo.InvariantCulture));
             log.Add("window-title-height-tool=" + ThemeWindowMetrics.ToolWindowTitleHeight.ToString("R", CultureInfo.InvariantCulture));
+            log.Add("window-title-system-active-caption-text=" + FormatColor(SystemColors.ActiveCaptionTextColor));
+            log.Add("window-title-system-window-text=" + FormatColor(SystemColors.WindowTextColor));
 
             using (var context = new VisualStyleContext())
             using (var style = context.Open("Window"))
@@ -452,9 +454,14 @@ namespace ThemeDemo
                 {
                     LogThemeColor(log, "normal", style, 1, 3803);
                     LogThemeColor(log, "normal-hint", style, 1, 3824);
+                    LogThemeColor(log, "normal-fill", style, 1, 3802);
+                    LogThemeColor(log, "normal-fill-hint", style, 1, 3821);
                     LogThemeColor(log, "tool", style, 2, 3803);
+                    LogThemeColor(log, "tool-fill", style, 2, 3802);
                     LogThemeFont(log, "normal", style, 1, 801);
                     LogThemeFont(log, "tool", style, 2, 802);
+                    LogThemeSystemFont(log, "normal", style, 801);
+                    LogThemeSystemFont(log, "tool", style, 802);
                 }
             }
 
@@ -487,6 +494,16 @@ namespace ThemeDemo
             ThemeFontInfo font;
             log.Add("window-theme-font-" + label + "=" +
                 (style.TryGetFont(part, 1, property, out font)
+                    ? "face:" + font.FaceName + ";height:" + font.Height.ToString(CultureInfo.InvariantCulture) +
+                      ";weight:" + font.Weight.ToString(CultureInfo.InvariantCulture)
+                    : "missing"));
+        }
+
+        private static void LogThemeSystemFont(List<string> log, string label, VisualStyle style, int property)
+        {
+            ThemeFontInfo font;
+            log.Add("window-theme-sysfont-" + label + "=" +
+                (style.TryGetSystemFont(property, out font)
                     ? "face:" + font.FaceName + ";height:" + font.Height.ToString(CultureInfo.InvariantCulture) +
                       ";weight:" + font.Weight.ToString(CultureInfo.InvariantCulture)
                     : "missing"));

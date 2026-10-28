@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -77,6 +77,12 @@ namespace ThemeExplorer.Core.Interop
 
         [DllImport(UxThemeDll, CharSet = CharSet.Unicode, ExactSpelling = true)]
         internal static extern int GetThemeFont(IntPtr hTheme, IntPtr hdc, int iPartId, int iStateId, int iPropId, out LOGFONT pFont);
+
+        [DllImport(UxThemeDll, CharSet = CharSet.Unicode, ExactSpelling = true)]
+        internal static extern int GetThemeSysFont(IntPtr hTheme, int iFontId, out LOGFONT pFont);
+
+        [DllImport(UxThemeDll, ExactSpelling = true)]
+        internal static extern uint GetThemeSysColor(IntPtr hTheme, int iColorId);
 
         [DllImport(UxThemeDll, CharSet = CharSet.Unicode, ExactSpelling = true)]
         internal static extern int GetThemeString(IntPtr hTheme, int iPartId, int iStateId, int iPropId, StringBuilder pszBuff, int cchMaxBuffChars);

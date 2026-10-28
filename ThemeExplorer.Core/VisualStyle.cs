@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -311,6 +311,57 @@ namespace ThemeExplorer.Core
             finally
             {
                 NativeMethods.ReleaseDC(IntPtr.Zero, dc);
+            }
+        }
+
+        /// <summary>
+        /// Tries to read a system font (SysMetrics section), for example
+        /// <c>TMT_CAPTIONFONT</c> or <c>TMT_SMALLCAPTIONFONT</c>.
+        /// <para xml:lang="zh-CN">尝试读取系统字体（SysMetrics 区），例如标题栏字体或小标题栏字体。</para>
+        /// </summary>
+        public bool TryGetSystemFont(int fontId, out ThemeFontInfo value)
+        {
+            ThrowIfDisposed();
+            try
+            {
+                LOGFONT font;
+                if (NativeMethods.GetThemeSysFont(Handle, fontId, out font) < 0)
+                {
+                    value = null;
+                    return false;
+                }
+
+                value = new ThemeFontInfo(font.lfFaceName, font.lfHeight, font.lfWeight,
+                    font.lfItalic != 0, font.lfUnderline != 0);
+                return true;
+            }
+            catch (EntryPointNotFoundException)
+            {
+                value = null;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Tries to read a system color (SysMetrics section), using a
+        /// <c>COLOR_*</c> index such as <c>COLOR_ACTIVECAPTIONTEXT</c>.
+        /// <para xml:lang="zh-CN">尝试读取系统颜色（SysMetrics 区），使用 <c>COLOR_*</c> 索引。</para>
+        /// </summary>
+        public bool TryGetSystemColor(int colorId, out Color value)
+        {
+            ThrowIfDisposed();
+            try
+            {
+                uint color = NativeMethods.GetThemeSysColor(Handle, colorId);
+                value = Color.FromArgb((int)(color & 0xFF),
+                    (int)((color >> 8) & 0xFF),
+                    (int)((color >> 16) & 0xFF));
+                return true;
+            }
+            catch (EntryPointNotFoundException)
+            {
+                value = Color.Empty;
+                return false;
             }
         }
 

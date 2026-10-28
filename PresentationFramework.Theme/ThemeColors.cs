@@ -97,9 +97,23 @@ namespace Microsoft.Windows.Themes
                     (TryReadColor(theme, part, 1, TmtTextColor, out color) ||
                      TryReadColor(theme, part, 1, TmtTextColorHint, out color)))
                     return color;
+
+                // COLOR_CAPTIONTEXT is the SysMetrics caption text color.
+                // Prefer it over a fill-color guess: XP themes often publish
+                // a light caption fill but still draw white caption text.
+                DrawingColor systemColor;
+                if (theme != null && theme.TryGetSystemColor(9, out systemColor) &&
+                    systemColor != DrawingColor.Empty)
+                    return Color.FromRgb(systemColor.R, systemColor.G, systemColor.B);
+
+                Color fill;
+                if (theme != null &&
+                    (TryReadColor(theme, part, 1, TmtFillColorHint, out fill) ||
+                     TryReadColor(theme, part, 1, TmtFillColor, out fill)))
+                    return GetContrastColor(fill);
             }
 
-            return normalWindow ? SystemColors.WindowTextColor : NormalWindowForeground;
+            return normalWindow ? SystemColors.ActiveCaptionTextColor : NormalWindowForeground;
         }
 
         /// <summary>

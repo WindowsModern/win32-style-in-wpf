@@ -73,7 +73,10 @@ namespace Microsoft.Windows.Themes
             using (VisualStyle style = context.Open("Window"))
             {
                 ThemeFontInfo font;
-                if (style != null && style.TryGetFont(part, 1, property, out font) && font.Height != 0)
+                if (style != null &&
+                    (style.TryGetSystemFont(property, out font) ||
+                     style.TryGetFont(part, 1, property, out font)) &&
+                    font.Height != 0)
                 {
                     double size = Math.Abs(font.Height) / ThemeImageProvider.Dpi;
                     if (size > 0) return size;

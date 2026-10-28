@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 
@@ -176,7 +176,8 @@ namespace ThemeExplorer.Core
                 case ThemePropertyType.Font:
                 {
                     ThemeFontInfo font;
-                    if (!style.TryGetFont(part, state, property.Id, out font))
+                    if (!style.TryGetFont(part, state, property.Id, out font) &&
+                        !style.TryGetSystemFont(property.Id, out font))
                         return false;
                     value = new ThemePropertyValue(ThemePropertyType.Font) { FontValue = font };
                     return true;
