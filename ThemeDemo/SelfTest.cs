@@ -429,6 +429,73 @@ namespace ThemeDemo
 
             log.Add("window-offscreen-left=" + window.Left.ToString("R", CultureInfo.InvariantCulture));
             log.Add("window-offscreen-top=" + window.Top.ToString("R", CultureInfo.InvariantCulture));
+            LogWindowTitleMetrics(window, log);
+        }
+
+        private static void LogWindowTitleMetrics(Window window, List<string> log)
+        {
+            log.Add("window-title-color-normal=" + FormatColor(ThemeColors.NormalWindowForeground));
+            log.Add("window-title-color-tool=" + FormatColor(ThemeColors.ToolWindowForeground));
+            log.Add("window-title-font-size-normal=" + ThemeWindowMetrics.NormalWindowTitleFontSize.ToString("R", CultureInfo.InvariantCulture));
+            log.Add("window-title-font-size-tool=" + ThemeWindowMetrics.ToolWindowTitleFontSize.ToString("R", CultureInfo.InvariantCulture));
+            log.Add("window-title-height-normal=" + ThemeWindowMetrics.NormalWindowTitleHeight.ToString("R", CultureInfo.InvariantCulture));
+            log.Add("window-title-height-tool=" + ThemeWindowMetrics.ToolWindowTitleHeight.ToString("R", CultureInfo.InvariantCulture));
+
+            using (var context = new VisualStyleContext())
+            using (var style = context.Open("Window"))
+            {
+                if (style == null)
+                {
+                    log.Add("window-theme-style=null");
+                }
+                else
+                {
+                    LogThemeColor(log, "normal", style, 1, 3803);
+                    LogThemeColor(log, "normal-hint", style, 1, 3824);
+                    LogThemeColor(log, "tool", style, 2, 3803);
+                    LogThemeFont(log, "normal", style, 1, 801);
+                    LogThemeFont(log, "tool", style, 2, 802);
+                }
+            }
+
+            foreach (TextBlock text in FindVisualChildren<TextBlock>(window))
+            {
+                if (!string.Equals(text.Text, "Normal window", StringComparison.Ordinal) &&
+                    !string.Equals(text.Text, "Tool window", StringComparison.Ordinal))
+                    continue;
+
+                var brush = text.Foreground as SolidColorBrush;
+                log.Add("window-title-text=" + text.Text +
+                    ";font-size=" + text.FontSize.ToString("R", CultureInfo.InvariantCulture) +
+                    ";font-family=" + text.FontFamily +
+                    ";font-weight=" + text.FontWeight +
+                    ";foreground=" + (brush == null ? "null" : FormatColor(brush.Color)) +
+                    ";actual=" + text.ActualWidth.ToString("R", CultureInfo.InvariantCulture) +
+                    "x" + text.ActualHeight.ToString("R", CultureInfo.InvariantCulture));
+            }
+        }
+
+        private static void LogThemeColor(List<string> log, string label, VisualStyle style, int part, int property)
+        {
+            System.Drawing.Color color;
+            log.Add("window-theme-color-" + label + "=" +
+                (style.TryGetColor(part, 1, property, out color) ? color.ToString() : "missing"));
+        }
+
+        private static void LogThemeFont(List<string> log, string label, VisualStyle style, int part, int property)
+        {
+            ThemeFontInfo font;
+            log.Add("window-theme-font-" + label + "=" +
+                (style.TryGetFont(part, 1, property, out font)
+                    ? "face:" + font.FaceName + ";height:" + font.Height.ToString(CultureInfo.InvariantCulture) +
+                      ";weight:" + font.Weight.ToString(CultureInfo.InvariantCulture)
+                    : "missing"));
+        }
+
+        private static string FormatColor(Color color)
+        {
+            return string.Format(CultureInfo.InvariantCulture, "#{0:X2}{1:X2}{2:X2}{3:X2}",
+                color.A, color.R, color.G, color.B);
         }
 
         private static bool HasArg(string[] args, string value)
