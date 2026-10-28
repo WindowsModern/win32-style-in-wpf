@@ -145,7 +145,8 @@ namespace Microsoft.Windows.Themes
             bool useAlpha = ThemeImage.GetPreserveAlpha(_element)
                 && (isAeroOrLater || !isShellBackground)
                 && !(Environment.OSVersion.Version.Major < 6 &&
-                     string.Equals(className, "Scrollbar", StringComparison.Ordinal));
+                     string.Equals(className, "Scrollbar", StringComparison.Ordinal) &&
+                     part != 8 && part != 9);
 
             bool ignoreIdentical = isAeroOrLater && isShellBackground;
 
