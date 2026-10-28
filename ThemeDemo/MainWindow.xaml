@@ -224,8 +224,6 @@
                             <TextBlock Text="caption + left/right/bottom, fixed native heights/widths" FontSize="10" Foreground="Gray" Margin="0,1,0,4" />
                             <Grid Width="280" Height="170">
                                 <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowBorder}}" />
-                                <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.WindowContentBackground}}"
-                                         Margin="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowContentMargin}}" />
                                 <TextBlock Text="Normal window" Foreground="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowForeground}}"
                                            FontWeight="SemiBold" Margin="10,4,8,0" VerticalAlignment="Top" />
                                 <TextBlock Text="Window content" Foreground="{DynamicResource {x:Static th:ThemeResourceKeys.WindowContentForeground}}"
@@ -237,8 +235,6 @@
                             <TextBlock Text="small caption + small frame parts" FontSize="10" Foreground="Gray" Margin="0,1,0,4" />
                             <Grid Width="280" Height="170">
                                 <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.ToolWindowBorder}}" />
-                                <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.WindowContentBackground}}"
-                                         Margin="{DynamicResource {x:Static th:ThemeResourceKeys.ToolWindowContentMargin}}" />
                                 <TextBlock Text="Tool window" Foreground="{DynamicResource {x:Static th:ThemeResourceKeys.ToolWindowForeground}}"
                                            FontWeight="SemiBold" Margin="10,4,8,0" VerticalAlignment="Top" />
                                 <TextBlock Text="Window content" Foreground="{DynamicResource {x:Static th:ThemeResourceKeys.WindowContentForeground}}"
