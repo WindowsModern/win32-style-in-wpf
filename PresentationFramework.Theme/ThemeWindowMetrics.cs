@@ -67,6 +67,24 @@ namespace Microsoft.Windows.Themes
         }
 
         /// <summary>
+        /// Caption corner radius for an active normal window.
+        /// <para xml:lang="zh-CN">活动普通窗口标题栏圆角半径。</para>
+        /// </summary>
+        public static double NormalWindowCornerRadius
+        {
+            get { return GetCornerRadius(1); }
+        }
+
+        /// <summary>
+        /// Caption corner radius for an active tool window.
+        /// <para xml:lang="zh-CN">活动工具窗口标题栏圆角半径。</para>
+        /// </summary>
+        public static double ToolWindowCornerRadius
+        {
+            get { return GetCornerRadius(2); }
+        }
+
+        /// <summary>
         /// Height of an active normal-window title area.
         /// <para xml:lang="zh-CN">活动普通窗口标题区高度。</para>
         /// </summary>
@@ -134,6 +152,26 @@ namespace Microsoft.Windows.Themes
             double border = WindowBorderWidth;
             double title = toolWindow ? ToolWindowTitleHeight : NormalWindowTitleHeight;
             return new Thickness(border, title, border, WindowBorderHeight);
+        }
+
+        private static double GetCornerRadius(int part)
+        {
+            using (VisualStyleContext context = new VisualStyleContext())
+            using (VisualStyle style = context.Open("Window"))
+            {
+                int widthPercent;
+                int heightPercent;
+                if (style != null &&
+                    style.TryGetInt(part, 1, 2404, out widthPercent) &&
+                    style.TryGetInt(part, 1, 2405, out heightPercent))
+                {
+                    double percent = Math.Min(widthPercent, heightPercent) / 100.0;
+                    double height = part == 2 ? ToolWindowTitleHeight : NormalWindowTitleHeight;
+                    return Math.Max(0, Math.Min(height / 2, height * percent));
+                }
+            }
+
+            return 0;
         }
 
         private static double ToDip(int pixels)

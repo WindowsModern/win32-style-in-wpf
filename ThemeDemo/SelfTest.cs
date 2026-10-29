@@ -442,6 +442,8 @@ namespace ThemeDemo
             log.Add("window-title-height-tool=" + ThemeWindowMetrics.ToolWindowTitleHeight.ToString("R", CultureInfo.InvariantCulture));
             log.Add("window-border-width=" + ThemeWindowMetrics.WindowBorderWidth.ToString("R", CultureInfo.InvariantCulture));
             log.Add("window-border-height=" + ThemeWindowMetrics.WindowBorderHeight.ToString("R", CultureInfo.InvariantCulture));
+            log.Add("window-corner-radius-normal=" + ThemeWindowMetrics.NormalWindowCornerRadius.ToString("R", CultureInfo.InvariantCulture));
+            log.Add("window-corner-radius-tool=" + ThemeWindowMetrics.ToolWindowCornerRadius.ToString("R", CultureInfo.InvariantCulture));
             log.Add("window-title-system-active-caption-text=" + FormatColor(SystemColors.ActiveCaptionTextColor));
             log.Add("window-title-system-window-text=" + FormatColor(SystemColors.WindowTextColor));
 

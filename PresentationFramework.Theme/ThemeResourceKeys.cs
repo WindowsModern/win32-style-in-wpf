@@ -160,6 +160,18 @@ namespace Microsoft.Windows.Themes
         public const string WindowBorderHeight = "ThemeWindowBorderHeight";
 
         /// <summary>
+        /// Caption corner radius for a normal window.
+        /// <para xml:lang="zh-CN">普通窗口标题栏圆角半径。</para>
+        /// </summary>
+        public const string NormalWindowCornerRadius = "ThemeNormalWindowCornerRadius";
+
+        /// <summary>
+        /// Caption corner radius for a tool window.
+        /// <para xml:lang="zh-CN">工具窗口标题栏圆角半径。</para>
+        /// </summary>
+        public const string ToolWindowCornerRadius = "ThemeToolWindowCornerRadius";
+
+        /// <summary>
         /// Caption font size for an active normal window.
         /// <para xml:lang="zh-CN">活动普通窗口标题栏字号。</para>
         /// </summary>
