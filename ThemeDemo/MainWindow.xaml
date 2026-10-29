@@ -1,4 +1,4 @@
-﻿<Window x:Class="ThemeDemo.MainWindow"
+<Window x:Class="ThemeDemo.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:pt="clr-namespace:System.Windows.Controls;assembly=PresentationFramework.Theme"
@@ -221,7 +221,9 @@
                     <WrapPanel>
                         <StackPanel Margin="0,0,18,12">
                             <TextBlock Text="Normal active window" FontWeight="SemiBold" />
-                            <TextBlock Text="caption + left/right/bottom from system non-client metrics" FontSize="10" Foreground="Gray" Margin="0,1,0,4" />
+                            <TextBlock Text="caption + left/right/bottom from system non-client metrics" FontSize="10" Foreground="Gray" Margin="0,1,0,2" />
+                            <TextBlock Text="{Binding Source={x:Static th:ThemeWindowMetrics.NormalWindowCornerRadius}, StringFormat=Measured corner radius: {0:0.##}}"
+                                       FontSize="10" Foreground="Gray" Margin="0,0,0,4" />
                             <Grid Width="280" Height="170">
                                 <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowBorder}}" />
                                 <Grid VerticalAlignment="Top" Height="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowTitleHeight}}">
@@ -235,7 +237,9 @@
                         </StackPanel>
                         <StackPanel Margin="0,0,18,12">
                             <TextBlock Text="Tool window (active)" FontWeight="SemiBold" />
-                            <TextBlock Text="small caption + system non-client metrics" FontSize="10" Foreground="Gray" Margin="0,1,0,4" />
+                            <TextBlock Text="small caption + system non-client metrics" FontSize="10" Foreground="Gray" Margin="0,1,0,2" />
+                            <TextBlock Text="{Binding Source={x:Static th:ThemeWindowMetrics.ToolWindowCornerRadius}, StringFormat=Measured corner radius: {0:0.##}}"
+                                       FontSize="10" Foreground="Gray" Margin="0,0,0,4" />
                             <Grid Width="280" Height="170">
                                 <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.ToolWindowBorder}}" />
                                 <Grid VerticalAlignment="Top" Height="{DynamicResource {x:Static th:ThemeResourceKeys.ToolWindowTitleHeight}}">

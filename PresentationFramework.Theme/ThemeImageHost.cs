@@ -137,9 +137,18 @@ namespace Microsoft.Windows.Themes
             _pixelWidth = PixelWidth();
             _pixelHeight = PixelHeight();
             System.Drawing.Color background = ThemeImageProvider.GetBackgroundColor(_element);
-            ThemeImageData data = ThemeImage.GetRenderMode(_element) == ThemeImage.ThemeImageRenderMode.Natural
-                ? ThemeImageProvider.GetNatural(className, part, state, windowHandle, subClass, background)
-                : ThemeImageProvider.GetSized(className, part, state, windowHandle, _pixelWidth, _pixelHeight, background, subClass);
+            ThemeImageData data = null;
+            if (ThemeImage.GetPreserveAlpha(_element) &&
+                string.Equals(className, "Window", StringComparison.Ordinal))
+            {
+                data = ThemeImageProvider.GetAlphaNatural(className, part, state, windowHandle, subClass);
+            }
+            if (data == null)
+            {
+                data = ThemeImage.GetRenderMode(_element) == ThemeImage.ThemeImageRenderMode.Natural
+                    ? ThemeImageProvider.GetNatural(className, part, state, windowHandle, subClass, background)
+                    : ThemeImageProvider.GetSized(className, part, state, windowHandle, _pixelWidth, _pixelHeight, background, subClass);
+            }
 
             // Aero reports 3x3 for the TaskBar background, which is a solid fill
             // rather than a usable natural bitmap. Fall back to the sized render
