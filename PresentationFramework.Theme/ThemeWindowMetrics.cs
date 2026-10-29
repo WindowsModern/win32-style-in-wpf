@@ -156,24 +156,71 @@ namespace Microsoft.Windows.Themes
 
         private static double GetCornerRadius(int part)
         {
-            using (VisualStyleContext context = new VisualStyleContext())
-            using (VisualStyle style = context.Open("Window"))
+            // Measure the transparent corner pixels of the caption (top) and
+            // the bottom frame.  PreserveAlpha only controls rendering; this
+            // measurement is independent of that switch.
+            double top = MeasurePartCorner(part, true);
+            double bottom = MeasurePartCorner(part == 1 ? 9 : 12, false);
+            return Math.Max(0, Math.Max(top, bottom));
+        }
+
+        private static double MeasurePartCorner(int part, bool top)
+        {
+            ThemeImageData data = ThemeImageProvider.GetAlphaNatural(
+                "Window", part, 1, IntPtr.Zero);
+            if (data == null || data.Image == null)
+                return 0;
+
+            System.Windows.Media.Imaging.BitmapSource image = data.Image;
+            int width = image.PixelWidth;
+            int height = image.PixelHeight;
+            if (width < 3 || height < 3)
+                return 0;
+
+            int stride = width * 4;
+            var pixels = new byte[stride * height];
+            image.CopyPixels(pixels, stride, 0);
+
+            double left = MeasureEdge(pixels, width, height, stride, true, top);
+            double right = MeasureEdge(pixels, width, height, stride, false, top);
+            double radius = (left + right) / 2.0;
+            if (radius <= 0)
+                return 0;
+            return ToDip((int)Math.Round(radius));
+        }
+
+        private static double MeasureEdge(byte[] pixels, int width, int height, int stride, bool left, bool top)
+        {
+            // Walk the outer row and outer column until the first opaque pixel.
+            // For a rounded rectangle both distances approximate the radius.
+            int edgeY = top ? 0 : height - 1;
+            int edgeX = left ? 0 : width - 1;
+            int dx = left ? 1 : -1;
+            int dy = top ? 1 : -1;
+            int horizontal = 0;
+            for (int x = edgeX, i = 0; i < width; i++, x += dx)
             {
-                int widthPercent;
-                int heightPercent;
-                if (style != null &&
-                    style.TryGetInt(part, 1, 2404, out widthPercent) &&
-                    style.TryGetInt(part, 1, 2405, out heightPercent))
+                if (pixels[x * 4 + 3] > 16)
                 {
-                    double percent = Math.Min(widthPercent, heightPercent) / 100.0;
-                    double height = part == 2 ? ToolWindowTitleHeight : NormalWindowTitleHeight;
-                    return Math.Max(0, Math.Min(height / 2, height * percent));
+                    horizontal = i;
+                    break;
                 }
             }
 
-            return 0;
-        }
+            int vertical = 0;
+            for (int y = edgeY, i = 0; i < height; i++, y += dy)
+            {
+                if (pixels[y * stride + edgeX * 4 + 3] > 16)
+                {
+                    vertical = i;
+                    break;
+                }
+            }
 
+            if (horizontal == 0 && vertical == 0)
+                return 0;
+            return (horizontal + vertical) / 2.0;
+        }
         private static double ToDip(int pixels)
         {
             double scale = ThemeImageProvider.Dpi;
