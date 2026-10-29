@@ -345,41 +345,42 @@ namespace Microsoft.Windows.Themes
             if (width <= 0 || height <= 0)
                 return null;
 
-            System.Drawing.Color black = System.Drawing.Color.Black;
-            System.Drawing.Color control = System.Drawing.SystemColors.Control;
-            BitmapSource onBlack = ThemeDibRenderer.Render(width, height, DpiScale, black,
+            const int darkLevel = 63;
+            const int lightLevel = 191;
+            const int levelDelta = lightLevel - darkLevel;
+
+            System.Drawing.Color dark = System.Drawing.Color.FromArgb(darkLevel, darkLevel, darkLevel);
+            System.Drawing.Color light = System.Drawing.Color.FromArgb(lightLevel, lightLevel, lightLevel);
+            BitmapSource onDark = ThemeDibRenderer.Render(width, height, DpiScale, dark,
                 delegate(IntPtr hdc)
                 {
                     ThemeRenderer.TryDrawBackground(hdc, style, part, state,
                         new System.Drawing.Rectangle(0, 0, width, height));
                 });
-            BitmapSource onControl = ThemeDibRenderer.Render(width, height, DpiScale, control,
+            BitmapSource onLight = ThemeDibRenderer.Render(width, height, DpiScale, light,
                 delegate(IntPtr hdc)
                 {
                     ThemeRenderer.TryDrawBackground(hdc, style, part, state,
                         new System.Drawing.Rectangle(0, 0, width, height));
                 });
-            if (onBlack == null || onControl == null)
+            if (onDark == null || onLight == null)
                 return null;
 
             int stride = width * 4;
-            var blackPixels = new byte[stride * height];
-            var controlPixels = new byte[stride * height];
-            onBlack.CopyPixels(blackPixels, stride, 0);
-            onControl.CopyPixels(controlPixels, stride, 0);
+            var darkPixels = new byte[stride * height];
+            var lightPixels = new byte[stride * height];
+            onDark.CopyPixels(darkPixels, stride, 0);
+            onLight.CopyPixels(lightPixels, stride, 0);
 
             var output = new byte[stride * height];
-            for (int i = 0; i < blackPixels.Length; i += 4)
+            for (int i = 0; i < darkPixels.Length; i += 4)
             {
                 int alphaSum = 0;
                 for (int c = 0; c < 3; c++)
                 {
-                    int background = c == 0 ? control.B : c == 1 ? control.G : control.R;
-                    int dark = blackPixels[i + c];
-                    int light = controlPixels[i + c];
-                    int a = background == 0
-                        ? 255
-                        : 255 - (light - dark) * 255 / background;
+                    int darkValue = darkPixels[i + c];
+                    int lightValue = lightPixels[i + c];
+                    int a = 255 - (lightValue - darkValue) * 255 / levelDelta;
                     if (a < 0) a = 0;
                     if (a > 255) a = 255;
                     alphaSum += a;
@@ -396,9 +397,14 @@ namespace Microsoft.Windows.Themes
                 }
 
                 output[i + 3] = (byte)alpha;
-                output[i + 2] = (byte)Math.Min(255, (blackPixels[i + 2] * 255 + alpha / 2) / alpha);
-                output[i + 1] = (byte)Math.Min(255, (blackPixels[i + 1] * 255 + alpha / 2) / alpha);
-                output[i] = (byte)Math.Min(255, (blackPixels[i] * 255 + alpha / 2) / alpha);
+                int darkContribution = darkLevel * (255 - alpha);
+                for (int c = 0; c < 3; c++)
+                {
+                    int value = (darkPixels[i + c] * 255 - darkContribution) / alpha;
+                    if (value < 0) value = 0;
+                    if (value > 255) value = 255;
+                    output[i + c] = (byte)value;
+                }
             }
 
             BitmapSource image = BitmapSource.Create(width, height,
