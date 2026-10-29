@@ -64,6 +64,116 @@ Reference these assemblies: `PresentationFramework.Theme.dll`, `ThemeExplorer.Co
 > Merge the dictionary before creating windows/controls. Replacing it at runtime only affects
 > controls created afterwards.
 
+## Public resource keys
+
+Use the constants on `Microsoft.Windows.Themes.ThemeResourceKeys`; the XAML key is the string
+value of each constant. Add this namespace to use them with `x:Static`:
+
+```xml
+xmlns:th="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Theme"
+```
+
+### Taskbar and notification area
+
+| Constant | XAML key | Type |
+| --- | --- | --- |
+| `TaskbarBackgroundBottom` | `ThemeTaskbarBackgroundBottomTemplate` | `ControlTemplate` |
+| `TaskbarBackgroundRight` | `ThemeTaskbarBackgroundRightTemplate` | `ControlTemplate` |
+| `TaskbarSizingBarBottom` | `ThemeTaskbarSizingBarBottomTemplate` | `ControlTemplate` |
+| `TaskbarBackgroundBottomRotated` | `ThemeTaskbarBackgroundBottomRotatedTemplate` | `ControlTemplate` |
+| `TrayNotifyBackground` | `ThemeTrayNotifyBackgroundTemplate` | `ControlTemplate` |
+| `TaskbarForeground` | `ThemeTaskbarForegroundBrush` | `SolidColorBrush` |
+| `TrayNotifyForeground` | `ThemeTrayNotifyForegroundBrush` | `SolidColorBrush` |
+
+### Window border, title and client area
+
+| Constant | XAML key | Type |
+| --- | --- | --- |
+| `NormalWindowBorder` | `ThemeNormalWindowBorderTemplate` | `ControlTemplate` |
+| `ToolWindowBorder` | `ThemeToolWindowBorderTemplate` | `ControlTemplate` |
+| `NormalWindowForeground` | `ThemeNormalWindowForegroundBrush` | `SolidColorBrush` |
+| `ToolWindowForeground` | `ThemeToolWindowForegroundBrush` | `SolidColorBrush` |
+| `WindowContentBackground` | `ThemeWindowContentBackgroundTemplate` | `ControlTemplate` |
+| `WindowContentForeground` | `ThemeWindowContentForegroundBrush` | `SolidColorBrush` |
+
+### Window metrics and title font
+
+| Constant | XAML key | Type | Meaning |
+| --- | --- | --- | --- |
+| `NormalWindowContentMargin` | `ThemeNormalWindowContentMargin` | `Thickness` | left, caption height, right, bottom |
+| `ToolWindowContentMargin` | `ThemeToolWindowContentMargin` | `Thickness` | left, caption height, right, bottom |
+| `NormalWindowTitleHeight` | `ThemeNormalWindowTitleHeight` | `Double` | `SM_CYCAPTION` in DIP |
+| `ToolWindowTitleHeight` | `ThemeToolWindowTitleHeight` | `Double` | `SM_CYSMCAPTION` in DIP |
+| `WindowBorderWidth` | `ThemeWindowBorderWidth` | `Double` | left/right resize frame in DIP |
+| `WindowBorderHeight` | `ThemeWindowBorderHeight` | `Double` | bottom resize frame in DIP |
+| `NormalWindowTitleFontSize` | `ThemeNormalWindowTitleFontSize` | `Double` | `TMT_CAPTIONFONT` in DIP |
+| `ToolWindowTitleFontSize` | `ThemeToolWindowTitleFontSize` | `Double` | `TMT_SMALLCAPTIONFONT` in DIP |
+
+### Measured window corner radii
+
+These values are measured from the alpha pixels of the caption and bottom-frame theme parts.
+They are **radius values in DIP**, not `CornerRadius` objects. The border template itself does
+not automatically clip to these radii.
+
+| Constant | XAML key | Type |
+| --- | --- | --- |
+| `NormalWindowCornerRadius` | `ThemeNormalWindowCornerRadius` | `Double` (maximum of the four) |
+| `ToolWindowCornerRadius` | `ThemeToolWindowCornerRadius` | `Double` (maximum of the four) |
+| `NormalWindowTopLeftCornerRadius` | `ThemeNormalWindowTopLeftCornerRadius` | `Double` |
+| `NormalWindowTopRightCornerRadius` | `ThemeNormalWindowTopRightCornerRadius` | `Double` |
+| `NormalWindowBottomLeftCornerRadius` | `ThemeNormalWindowBottomLeftCornerRadius` | `Double` |
+| `NormalWindowBottomRightCornerRadius` | `ThemeNormalWindowBottomRightCornerRadius` | `Double` |
+| `ToolWindowTopLeftCornerRadius` | `ThemeToolWindowTopLeftCornerRadius` | `Double` |
+| `ToolWindowTopRightCornerRadius` | `ThemeToolWindowTopRightCornerRadius` | `Double` |
+| `ToolWindowBottomLeftCornerRadius` | `ThemeToolWindowBottomLeftCornerRadius` | `Double` |
+| `ToolWindowBottomRightCornerRadius` | `ThemeToolWindowBottomRightCornerRadius` | `Double` |
+
+The same values are available live from `ThemeWindowMetrics`, for example:
+
+```csharp
+double radius = ThemeWindowMetrics.NormalWindowTopLeftCornerRadius;
+```
+
+### Usage
+
+Apply a background template to a `Control`:
+
+```xml
+<Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarBackgroundBottom}}" />
+<Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowBorder}}" />
+```
+
+Use a foreground brush:
+
+```xml
+<TextBlock Foreground="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowForeground}}" />
+```
+
+Use a metric:
+
+```xml
+<Border Margin="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowContentMargin}}" />
+<RowDefinition Height="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowTitleHeight}}" />
+```
+
+Use a measured radius:
+
+```xml
+<Rectangle RadiusX="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowTopLeftCornerRadius}}"
+           RadiusY="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowTopLeftCornerRadius}}" />
+```
+
+`ThemeResourceKeys.FindTemplate(key, scope)` returns a template from the element's resource chain
+or from application resources:
+
+```csharp
+ControlTemplate template = ThemeResourceKeys.FindTemplate(
+    ThemeResourceKeys.TrayNotifyBackground, this);
+```
+
+`ThemeResourceKeys.All` contains the background-template keys; it does not include brushes,
+metrics or corner radii.
+
 ## Composing with existing styles
 
 WPF does not merge style setters from resource dictionaries. For an implicit style key such as

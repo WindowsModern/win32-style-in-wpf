@@ -56,6 +56,97 @@ TabControl / ScrollBar / StatusBar / ToolTip / ContextMenu：
 
 > 请在创建窗口/控件之前合并字典；运行中替换字典只影响之后创建的控件。
 
+## 公开资源键
+
+资源常量在 `Microsoft.Windows.Themes.ThemeResourceKeys` 中，常量值就是 XAML 资源键。
+
+```xml
+xmlns:th="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Theme"
+```
+
+### 任务栏与通知区域
+
+| 常量 | XAML 键 | 类型 |
+| --- | --- | --- |
+| `TaskbarBackgroundBottom` | `ThemeTaskbarBackgroundBottomTemplate` | `ControlTemplate` |
+| `TaskbarBackgroundRight` | `ThemeTaskbarBackgroundRightTemplate` | `ControlTemplate` |
+| `TaskbarSizingBarBottom` | `ThemeTaskbarSizingBarBottomTemplate` | `ControlTemplate` |
+| `TaskbarBackgroundBottomRotated` | `ThemeTaskbarBackgroundBottomRotatedTemplate` | `ControlTemplate` |
+| `TrayNotifyBackground` | `ThemeTrayNotifyBackgroundTemplate` | `ControlTemplate` |
+| `TaskbarForeground` | `ThemeTaskbarForegroundBrush` | `SolidColorBrush` |
+| `TrayNotifyForeground` | `ThemeTrayNotifyForegroundBrush` | `SolidColorBrush` |
+
+### 窗口边框、标题和内容区
+
+| 常量 | XAML 键 | 类型 |
+| --- | --- | --- |
+| `NormalWindowBorder` | `ThemeNormalWindowBorderTemplate` | `ControlTemplate` |
+| `ToolWindowBorder` | `ThemeToolWindowBorderTemplate` | `ControlTemplate` |
+| `NormalWindowForeground` | `ThemeNormalWindowForegroundBrush` | `SolidColorBrush` |
+| `ToolWindowForeground` | `ThemeToolWindowForegroundBrush` | `SolidColorBrush` |
+| `WindowContentBackground` | `ThemeWindowContentBackgroundTemplate` | `ControlTemplate` |
+| `WindowContentForeground` | `ThemeWindowContentForegroundBrush` | `SolidColorBrush` |
+
+### 窗口尺寸与标题字号
+
+| 常量 | XAML 键 | 类型 | 含义 |
+| --- | --- | --- | --- |
+| `NormalWindowContentMargin` | `ThemeNormalWindowContentMargin` | `Thickness` | 左、标题高度、右、底 |
+| `ToolWindowContentMargin` | `ThemeToolWindowContentMargin` | `Thickness` | 左、标题高度、右、底 |
+| `NormalWindowTitleHeight` | `ThemeNormalWindowTitleHeight` | `Double` | `SM_CYCAPTION`，DIP |
+| `ToolWindowTitleHeight` | `ThemeToolWindowTitleHeight` | `Double` | `SM_CYSMCAPTION`，DIP |
+| `WindowBorderWidth` | `ThemeWindowBorderWidth` | `Double` | 左右边框宽度，DIP |
+| `WindowBorderHeight` | `ThemeWindowBorderHeight` | `Double` | 底边框高度，DIP |
+| `NormalWindowTitleFontSize` | `ThemeNormalWindowTitleFontSize` | `Double` | `TMT_CAPTIONFONT`，DIP |
+| `ToolWindowTitleFontSize` | `ThemeToolWindowTitleFontSize` | `Double` | `TMT_SMALLCAPTIONFONT`，DIP |
+
+### 测算的窗口圆角半径
+
+这些值通过分析标题栏和底边主题图片的 alpha 像素得到，单位是 DIP，类型是 Radius，不是
+`CornerRadius` 对象。边框模板不会自动按这些半径裁剪。
+
+| 常量 | XAML 键 | 类型 |
+| --- | --- | --- |
+| `NormalWindowCornerRadius` | `ThemeNormalWindowCornerRadius` | `Double`，四个圆角最大值 |
+| `ToolWindowCornerRadius` | `ThemeToolWindowCornerRadius` | `Double`，四个圆角最大值 |
+| `NormalWindowTopLeftCornerRadius` | `ThemeNormalWindowTopLeftCornerRadius` | `Double` |
+| `NormalWindowTopRightCornerRadius` | `ThemeNormalWindowTopRightCornerRadius` | `Double` |
+| `NormalWindowBottomLeftCornerRadius` | `ThemeNormalWindowBottomLeftCornerRadius` | `Double` |
+| `NormalWindowBottomRightCornerRadius` | `ThemeNormalWindowBottomRightCornerRadius` | `Double` |
+| `ToolWindowTopLeftCornerRadius` | `ThemeToolWindowTopLeftCornerRadius` | `Double` |
+| `ToolWindowTopRightCornerRadius` | `ThemeToolWindowTopRightCornerRadius` | `Double` |
+| `ToolWindowBottomLeftCornerRadius` | `ThemeToolWindowBottomLeftCornerRadius` | `Double` |
+| `ToolWindowBottomRightCornerRadius` | `ThemeToolWindowBottomRightCornerRadius` | `Double` |
+
+也可以直接读取 `ThemeWindowMetrics`，例如：
+
+```csharp
+double radius = ThemeWindowMetrics.NormalWindowTopLeftCornerRadius;
+```
+
+### 用法
+
+```xml
+<Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarBackgroundBottom}}" />
+<Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowBorder}}" />
+
+<TextBlock Foreground="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowForeground}}" />
+
+<Border Margin="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowContentMargin}}" />
+
+<Rectangle RadiusX="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowTopLeftCornerRadius}}"
+           RadiusY="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowTopLeftCornerRadius}}" />
+```
+
+C#：
+
+```csharp
+ControlTemplate template = ThemeResourceKeys.FindTemplate(
+    ThemeResourceKeys.TrayNotifyBackground, this);
+```
+
+`ThemeResourceKeys.All` 只包含背景模板键，不包含画刷、尺寸和圆角。
+
 ## 与已有样式组合
 
 WPF 的资源字典不会合并 Style 的 Setter。对于隐式样式键 `{x:Type Button}`，同一个键最终只有一个字典生效：后合并的字典覆盖前面的字典。`DynamicResource` 也只是解析一个键，不会合并样式。
