@@ -440,6 +440,8 @@ namespace ThemeDemo
             log.Add("window-title-font-size-tool=" + ThemeWindowMetrics.ToolWindowTitleFontSize.ToString("R", CultureInfo.InvariantCulture));
             log.Add("window-title-height-normal=" + ThemeWindowMetrics.NormalWindowTitleHeight.ToString("R", CultureInfo.InvariantCulture));
             log.Add("window-title-height-tool=" + ThemeWindowMetrics.ToolWindowTitleHeight.ToString("R", CultureInfo.InvariantCulture));
+            log.Add("window-border-width=" + ThemeWindowMetrics.WindowBorderWidth.ToString("R", CultureInfo.InvariantCulture));
+            log.Add("window-border-height=" + ThemeWindowMetrics.WindowBorderHeight.ToString("R", CultureInfo.InvariantCulture));
             log.Add("window-title-system-active-caption-text=" + FormatColor(SystemColors.ActiveCaptionTextColor));
             log.Add("window-title-system-window-text=" + FormatColor(SystemColors.WindowTextColor));
 

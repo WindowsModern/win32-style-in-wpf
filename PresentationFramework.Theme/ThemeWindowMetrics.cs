@@ -1,16 +1,25 @@
 using System;
+using System.Runtime.InteropServices;
 using System.Windows;
 using ThemeExplorer.Core;
-using DrawingSize = System.Drawing.Size;
 
 namespace Microsoft.Windows.Themes
 {
     /// <summary>
-    /// Window non-client metrics taken from the active UXTHEME Window class.
-    /// <para xml:lang="zh-CN">从当前 UXTHEME Window 类取得的窗口非客户区尺寸。</para>
+    /// Window non-client metrics taken from the current system metrics.
+    /// <para xml:lang="zh-CN">从当前系统度量取得的窗口非客户区尺寸。</para>
     /// </summary>
     public static class ThemeWindowMetrics
     {
+        private const int SmCyCaption = 4;
+        private const int SmCxSizeFrame = 32;
+        private const int SmCySizeFrame = 33;
+        private const int SmCySmCaption = 52;
+        private const int SmCxPaddedBorder = 92;
+
+        [DllImport("user32.dll")]
+        private static extern int GetSystemMetrics(int nIndex);
+
         /// <summary>
         /// Content margin for an active normal window:
         /// left, title height, right, bottom.
@@ -32,12 +41,42 @@ namespace Microsoft.Windows.Themes
         }
 
         /// <summary>
+        /// Width of the native resize frame at the left and right edges.
+        /// <para xml:lang="zh-CN">原生窗口左右缩放边框宽度。</para>
+        /// </summary>
+        public static double WindowBorderWidth
+        {
+            get
+            {
+                int width = GetSystemMetrics(SmCxSizeFrame) + GetSystemMetrics(SmCxPaddedBorder);
+                return width > 0 ? ToDip(width) : SystemParameters.ResizeFrameVerticalBorderWidth;
+            }
+        }
+
+        /// <summary>
+        /// Height of the native resize frame at the bottom edge.
+        /// <para xml:lang="zh-CN">原生窗口底边缩放边框高度。</para>
+        /// </summary>
+        public static double WindowBorderHeight
+        {
+            get
+            {
+                int height = GetSystemMetrics(SmCySizeFrame) + GetSystemMetrics(SmCxPaddedBorder);
+                return height > 0 ? ToDip(height) : SystemParameters.ResizeFrameHorizontalBorderHeight;
+            }
+        }
+
+        /// <summary>
         /// Height of an active normal-window title area.
         /// <para xml:lang="zh-CN">活动普通窗口标题区高度。</para>
         /// </summary>
         public static double NormalWindowTitleHeight
         {
-            get { return GetPartDimension(1, true); }
+            get
+            {
+                int height = GetSystemMetrics(SmCyCaption);
+                return height > 0 ? ToDip(height) : SystemParameters.WindowCaptionHeight;
+            }
         }
 
         /// <summary>
@@ -46,7 +85,11 @@ namespace Microsoft.Windows.Themes
         /// </summary>
         public static double ToolWindowTitleHeight
         {
-            get { return GetPartDimension(2, true); }
+            get
+            {
+                int height = GetSystemMetrics(SmCySmCaption);
+                return height > 0 ? ToDip(height) : NormalWindowTitleHeight;
+            }
         }
 
         /// <summary>
@@ -88,41 +131,9 @@ namespace Microsoft.Windows.Themes
 
         private static Thickness GetContentMargin(bool toolWindow)
         {
-            double left = GetPartDimension(toolWindow ? 10 : 7, false);
-            double title = GetPartDimension(toolWindow ? 2 : 1, true);
-            double right = GetPartDimension(toolWindow ? 11 : 8, false);
-            double bottom = GetPartDimension(toolWindow ? 12 : 9, true);
-            return new Thickness(left, title, right, bottom);
-        }
-
-        private static double GetPartDimension(int part, bool height)
-        {
-            DrawingSize size;
-            if (TryGetPartSize(part, out size))
-                return ToDip(height ? size.Height : size.Width);
-
-            // Conservative XP defaults when the current visual style does not
-            // expose a Window part.
-            if (part == 1)
-                return 28;
-            if (part == 2)
-                return 18;
-            return 4;
-        }
-
-        private static bool TryGetPartSize(int part, out DrawingSize size)
-        {
-            using (VisualStyleContext context = new VisualStyleContext())
-            using (VisualStyle style = context.Open("Window"))
-            {
-                if (style != null &&
-                    (style.TryGetPartSize(part, 1, ThemeSize.True, out size) ||
-                     style.TryGetPartSize(part, 1, ThemeSize.Min, out size)))
-                    return true;
-            }
-
-            size = DrawingSize.Empty;
-            return false;
+            double border = WindowBorderWidth;
+            double title = toolWindow ? ToolWindowTitleHeight : NormalWindowTitleHeight;
+            return new Thickness(border, title, border, WindowBorderHeight);
         }
 
         private static double ToDip(int pixels)

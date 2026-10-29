@@ -148,6 +148,18 @@ namespace Microsoft.Windows.Themes
         public const string ToolWindowTitleHeight = "ThemeToolWindowTitleHeight";
 
         /// <summary>
+        /// Width of the native left/right resize frame.
+        /// <para xml:lang="zh-CN">原生窗口左右缩放边框宽度。</para>
+        /// </summary>
+        public const string WindowBorderWidth = "ThemeWindowBorderWidth";
+
+        /// <summary>
+        /// Height of the native bottom resize frame.
+        /// <para xml:lang="zh-CN">原生窗口底边缩放边框高度。</para>
+        /// </summary>
+        public const string WindowBorderHeight = "ThemeWindowBorderHeight";
+
+        /// <summary>
         /// Caption font size for an active normal window.
         /// <para xml:lang="zh-CN">活动普通窗口标题栏字号。</para>
         /// </summary>
