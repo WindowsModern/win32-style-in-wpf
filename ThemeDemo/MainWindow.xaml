@@ -222,8 +222,16 @@
                         <StackPanel Margin="0,0,18,12">
                             <TextBlock Text="Normal active window" FontWeight="SemiBold" />
                             <TextBlock Text="caption + left/right/bottom from system non-client metrics" FontSize="10" Foreground="Gray" Margin="0,1,0,2" />
-                            <TextBlock Text="{Binding Source={x:Static th:ThemeWindowMetrics.NormalWindowCornerRadius}, StringFormat=Measured corner radius: {0:0.##}}"
-                                       FontSize="10" Foreground="Gray" Margin="0,0,0,4" />
+                            <TextBlock FontSize="10" Foreground="Gray" Margin="0,0,0,4">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="Measured corners: TL {0:0.##}  TR {1:0.##}  BL {2:0.##}  BR {3:0.##}">
+                                        <Binding Source="{x:Static th:ThemeWindowMetrics.NormalWindowTopLeftCornerRadius}" />
+                                        <Binding Source="{x:Static th:ThemeWindowMetrics.NormalWindowTopRightCornerRadius}" />
+                                        <Binding Source="{x:Static th:ThemeWindowMetrics.NormalWindowBottomLeftCornerRadius}" />
+                                        <Binding Source="{x:Static th:ThemeWindowMetrics.NormalWindowBottomRightCornerRadius}" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
                             <Grid Width="280" Height="170">
                                 <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowBorder}}" />
                                 <Grid VerticalAlignment="Top" Height="{DynamicResource {x:Static th:ThemeResourceKeys.NormalWindowTitleHeight}}">
@@ -238,8 +246,16 @@
                         <StackPanel Margin="0,0,18,12">
                             <TextBlock Text="Tool window (active)" FontWeight="SemiBold" />
                             <TextBlock Text="small caption + system non-client metrics" FontSize="10" Foreground="Gray" Margin="0,1,0,2" />
-                            <TextBlock Text="{Binding Source={x:Static th:ThemeWindowMetrics.ToolWindowCornerRadius}, StringFormat=Measured corner radius: {0:0.##}}"
-                                       FontSize="10" Foreground="Gray" Margin="0,0,0,4" />
+                            <TextBlock FontSize="10" Foreground="Gray" Margin="0,0,0,4">
+                                <TextBlock.Text>
+                                    <MultiBinding StringFormat="Measured corners: TL {0:0.##}  TR {1:0.##}  BL {2:0.##}  BR {3:0.##}">
+                                        <Binding Source="{x:Static th:ThemeWindowMetrics.ToolWindowTopLeftCornerRadius}" />
+                                        <Binding Source="{x:Static th:ThemeWindowMetrics.ToolWindowTopRightCornerRadius}" />
+                                        <Binding Source="{x:Static th:ThemeWindowMetrics.ToolWindowBottomLeftCornerRadius}" />
+                                        <Binding Source="{x:Static th:ThemeWindowMetrics.ToolWindowBottomRightCornerRadius}" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
                             <Grid Width="280" Height="170">
                                 <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.ToolWindowBorder}}" />
                                 <Grid VerticalAlignment="Top" Height="{DynamicResource {x:Static th:ThemeResourceKeys.ToolWindowTitleHeight}}">

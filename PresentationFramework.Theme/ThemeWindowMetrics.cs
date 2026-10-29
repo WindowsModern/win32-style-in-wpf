@@ -67,21 +67,69 @@ namespace Microsoft.Windows.Themes
         }
 
         /// <summary>
-        /// Caption corner radius for an active normal window.
-        /// <para xml:lang="zh-CN">活动普通窗口标题栏圆角半径。</para>
+        /// Largest measured corner radius for a normal window.
+        /// <para xml:lang="zh-CN">普通窗口四个圆角中的最大半径。</para>
         /// </summary>
         public static double NormalWindowCornerRadius
         {
-            get { return GetCornerRadius(1); }
+            get { return GetMaxCornerRadius(1); }
         }
 
         /// <summary>
-        /// Caption corner radius for an active tool window.
-        /// <para xml:lang="zh-CN">活动工具窗口标题栏圆角半径。</para>
+        /// Largest measured corner radius for a tool window.
+        /// <para xml:lang="zh-CN">工具窗口四个圆角中的最大半径。</para>
         /// </summary>
         public static double ToolWindowCornerRadius
         {
-            get { return GetCornerRadius(2); }
+            get { return GetMaxCornerRadius(2); }
+        }
+
+        /// <summary>Measured top-left caption corner radius of a normal window.</summary>
+        public static double NormalWindowTopLeftCornerRadius
+        {
+            get { return MeasureCorner(1, true, true); }
+        }
+
+        /// <summary>Measured top-right caption corner radius of a normal window.</summary>
+        public static double NormalWindowTopRightCornerRadius
+        {
+            get { return MeasureCorner(1, false, true); }
+        }
+
+        /// <summary>Measured bottom-left corner radius of a normal window.</summary>
+        public static double NormalWindowBottomLeftCornerRadius
+        {
+            get { return MeasureCorner(9, true, false); }
+        }
+
+        /// <summary>Measured bottom-right corner radius of a normal window.</summary>
+        public static double NormalWindowBottomRightCornerRadius
+        {
+            get { return MeasureCorner(9, false, false); }
+        }
+
+        /// <summary>Measured top-left caption corner radius of a tool window.</summary>
+        public static double ToolWindowTopLeftCornerRadius
+        {
+            get { return MeasureCorner(2, true, true); }
+        }
+
+        /// <summary>Measured top-right caption corner radius of a tool window.</summary>
+        public static double ToolWindowTopRightCornerRadius
+        {
+            get { return MeasureCorner(2, false, true); }
+        }
+
+        /// <summary>Measured bottom-left corner radius of a tool window.</summary>
+        public static double ToolWindowBottomLeftCornerRadius
+        {
+            get { return MeasureCorner(12, true, false); }
+        }
+
+        /// <summary>Measured bottom-right corner radius of a tool window.</summary>
+        public static double ToolWindowBottomRightCornerRadius
+        {
+            get { return MeasureCorner(12, false, false); }
         }
 
         /// <summary>
@@ -154,17 +202,17 @@ namespace Microsoft.Windows.Themes
             return new Thickness(border, title, border, WindowBorderHeight);
         }
 
-        private static double GetCornerRadius(int part)
+        private static double GetMaxCornerRadius(int captionPart)
         {
-            // Measure the transparent corner pixels of the caption (top) and
-            // the bottom frame.  PreserveAlpha only controls rendering; this
-            // measurement is independent of that switch.
-            double top = MeasurePartCorner(part, true);
-            double bottom = MeasurePartCorner(part == 1 ? 9 : 12, false);
-            return Math.Max(0, Math.Max(top, bottom));
+            int bottomPart = captionPart == 2 ? 12 : 9;
+            double topLeft = MeasureCorner(captionPart, true, true);
+            double topRight = MeasureCorner(captionPart, false, true);
+            double bottomLeft = MeasureCorner(bottomPart, true, false);
+            double bottomRight = MeasureCorner(bottomPart, false, false);
+            return Math.Max(Math.Max(topLeft, topRight), Math.Max(bottomLeft, bottomRight));
         }
 
-        private static double MeasurePartCorner(int part, bool top)
+        private static double MeasureCorner(int part, bool left, bool top)
         {
             ThemeImageData data = ThemeImageProvider.GetAlphaNatural(
                 "Window", part, 1, IntPtr.Zero);
@@ -181,12 +229,8 @@ namespace Microsoft.Windows.Themes
             var pixels = new byte[stride * height];
             image.CopyPixels(pixels, stride, 0);
 
-            double left = MeasureEdge(pixels, width, height, stride, true, top);
-            double right = MeasureEdge(pixels, width, height, stride, false, top);
-            double radius = (left + right) / 2.0;
-            if (radius <= 0)
-                return 0;
-            return ToDip((int)Math.Round(radius));
+            double radius = MeasureEdge(pixels, width, height, stride, left, top);
+            return radius > 0 ? ToDip((int)Math.Round(radius)) : 0;
         }
 
         private static double MeasureEdge(byte[] pixels, int width, int height, int stride, bool left, bool top)

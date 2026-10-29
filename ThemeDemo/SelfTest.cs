@@ -444,6 +444,14 @@ namespace ThemeDemo
             log.Add("window-border-height=" + ThemeWindowMetrics.WindowBorderHeight.ToString("R", CultureInfo.InvariantCulture));
             log.Add("window-corner-radius-normal=" + ThemeWindowMetrics.NormalWindowCornerRadius.ToString("R", CultureInfo.InvariantCulture));
             log.Add("window-corner-radius-tool=" + ThemeWindowMetrics.ToolWindowCornerRadius.ToString("R", CultureInfo.InvariantCulture));
+            log.Add("window-corner-normal-tl=" + ThemeWindowMetrics.NormalWindowTopLeftCornerRadius.ToString("R", CultureInfo.InvariantCulture));
+            log.Add("window-corner-normal-tr=" + ThemeWindowMetrics.NormalWindowTopRightCornerRadius.ToString("R", CultureInfo.InvariantCulture));
+            log.Add("window-corner-normal-bl=" + ThemeWindowMetrics.NormalWindowBottomLeftCornerRadius.ToString("R", CultureInfo.InvariantCulture));
+            log.Add("window-corner-normal-br=" + ThemeWindowMetrics.NormalWindowBottomRightCornerRadius.ToString("R", CultureInfo.InvariantCulture));
+            log.Add("window-corner-tool-tl=" + ThemeWindowMetrics.ToolWindowTopLeftCornerRadius.ToString("R", CultureInfo.InvariantCulture));
+            log.Add("window-corner-tool-tr=" + ThemeWindowMetrics.ToolWindowTopRightCornerRadius.ToString("R", CultureInfo.InvariantCulture));
+            log.Add("window-corner-tool-bl=" + ThemeWindowMetrics.ToolWindowBottomLeftCornerRadius.ToString("R", CultureInfo.InvariantCulture));
+            log.Add("window-corner-tool-br=" + ThemeWindowMetrics.ToolWindowBottomRightCornerRadius.ToString("R", CultureInfo.InvariantCulture));
             log.Add("window-title-system-active-caption-text=" + FormatColor(SystemColors.ActiveCaptionTextColor));
             log.Add("window-title-system-window-text=" + FormatColor(SystemColors.WindowTextColor));
 

@@ -171,6 +171,15 @@ namespace Microsoft.Windows.Themes
         /// </summary>
         public const string ToolWindowCornerRadius = "ThemeToolWindowCornerRadius";
 
+        public const string NormalWindowTopLeftCornerRadius = "ThemeNormalWindowTopLeftCornerRadius";
+        public const string NormalWindowTopRightCornerRadius = "ThemeNormalWindowTopRightCornerRadius";
+        public const string NormalWindowBottomLeftCornerRadius = "ThemeNormalWindowBottomLeftCornerRadius";
+        public const string NormalWindowBottomRightCornerRadius = "ThemeNormalWindowBottomRightCornerRadius";
+        public const string ToolWindowTopLeftCornerRadius = "ThemeToolWindowTopLeftCornerRadius";
+        public const string ToolWindowTopRightCornerRadius = "ThemeToolWindowTopRightCornerRadius";
+        public const string ToolWindowBottomLeftCornerRadius = "ThemeToolWindowBottomLeftCornerRadius";
+        public const string ToolWindowBottomRightCornerRadius = "ThemeToolWindowBottomRightCornerRadius";
+
         /// <summary>
         /// Caption font size for an active normal window.
         /// <para xml:lang="zh-CN">活动普通窗口标题栏字号。</para>
