@@ -93,6 +93,8 @@ xmlns:th="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.
 | --- | --- | --- | --- |
 | `NormalWindowContentMargin` | `ThemeNormalWindowContentMargin` | `Thickness` | 左、标题高度、右、底 |
 | `ToolWindowContentMargin` | `ThemeToolWindowContentMargin` | `Thickness` | 左、标题高度、右、底 |
+| `NormalWindowTitleMargin` | `ThemeNormalWindowTitleMargin` | `Thickness` | 仅左、右 |
+| `ToolWindowTitleMargin` | `ThemeToolWindowTitleMargin` | `Thickness` | 仅左、右 |
 | `NormalWindowTitleHeight` | `ThemeNormalWindowTitleHeight` | `Double` | `SM_CYCAPTION`，DIP |
 | `ToolWindowTitleHeight` | `ThemeToolWindowTitleHeight` | `Double` | `SM_CYSMCAPTION`，DIP |
 | `WindowBorderWidth` | `ThemeWindowBorderWidth` | `Double` | 左右边框宽度，DIP |

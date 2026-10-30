@@ -135,6 +135,12 @@ namespace Microsoft.Windows.Themes
         /// </summary>
         public const string ToolWindowContentMargin = "ThemeToolWindowContentMargin";
 
+        /// <summary>Left/right margin for a normal-window title.</summary>
+        public const string NormalWindowTitleMargin = "ThemeNormalWindowTitleMargin";
+
+        /// <summary>Left/right margin for a tool-window title.</summary>
+        public const string ToolWindowTitleMargin = "ThemeToolWindowTitleMargin";
+
         /// <summary>
         /// Title height for an active normal window.
         /// <para xml:lang="zh-CN">活动普通窗口标题区高度。</para>

@@ -102,6 +102,8 @@ xmlns:th="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.
 | --- | --- | --- | --- |
 | `NormalWindowContentMargin` | `ThemeNormalWindowContentMargin` | `Thickness` | left, caption height, right, bottom |
 | `ToolWindowContentMargin` | `ThemeToolWindowContentMargin` | `Thickness` | left, caption height, right, bottom |
+| `NormalWindowTitleMargin` | `ThemeNormalWindowTitleMargin` | `Thickness` | left, right only |
+| `ToolWindowTitleMargin` | `ThemeToolWindowTitleMargin` | `Thickness` | left, right only |
 | `NormalWindowTitleHeight` | `ThemeNormalWindowTitleHeight` | `Double` | `SM_CYCAPTION` in DIP |
 | `ToolWindowTitleHeight` | `ThemeToolWindowTitleHeight` | `Double` | `SM_CYSMCAPTION` in DIP |
 | `WindowBorderWidth` | `ThemeWindowBorderWidth` | `Double` | left/right resize frame in DIP |

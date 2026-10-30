@@ -41,6 +41,24 @@ namespace Microsoft.Windows.Themes
         }
 
         /// <summary>
+        /// Left and right margins for a normal-window title.
+        /// <para xml:lang="zh-CN">普通窗口标题区域左右边距。</para>
+        /// </summary>
+        public static Thickness NormalWindowTitleMargin
+        {
+            get { return new Thickness(WindowBorderWidth, 0, WindowBorderWidth, 0); }
+        }
+
+        /// <summary>
+        /// Left and right margins for a tool-window title.
+        /// <para xml:lang="zh-CN">工具窗口标题区域左右边距。</para>
+        /// </summary>
+        public static Thickness ToolWindowTitleMargin
+        {
+            get { return new Thickness(WindowBorderWidth, 0, WindowBorderWidth, 0); }
+        }
+
+        /// <summary>
         /// Width of the native resize frame at the left and right edges.
         /// <para xml:lang="zh-CN">原生窗口左右缩放边框宽度。</para>
         /// </summary>
