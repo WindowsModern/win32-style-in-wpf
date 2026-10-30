@@ -82,6 +82,12 @@ namespace Microsoft.Windows.Themes
         public const string TaskbarForeground = "ThemeTaskbarForegroundBrush";
 
         /// <summary>
+        /// General shell foreground brush, using the taskbar foreground color.
+        /// <para xml:lang="zh-CN">通用外壳前景色画刷，使用任务栏前景色。</para>
+        /// </summary>
+        public const string GlobalForeground = "GlobalForegroundBrush";
+
+        /// <summary>
         /// Notification-area foreground brush, from <c>TrayNotify [TrayNotifyHoriz]</c>.
         /// <para xml:lang="zh-CN">通知区域前景色画刷，来自 <c>TrayNotify [TrayNotifyHoriz]</c>。</para>
         /// </summary>

@@ -75,6 +75,7 @@ xmlns:th="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.
 | `TrayNotifyBackground` | `ThemeTrayNotifyBackgroundTemplate` | `ControlTemplate` |
 | `TaskbarForeground` | `ThemeTaskbarForegroundBrush` | `SolidColorBrush` |
 | `TrayNotifyForeground` | `ThemeTrayNotifyForegroundBrush` | `SolidColorBrush` |
+| `GlobalForeground` | `GlobalForegroundBrush` | `SolidColorBrush` |
 
 ### 窗口边框、标题和内容区
 

@@ -84,6 +84,7 @@ xmlns:th="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.
 | `TrayNotifyBackground` | `ThemeTrayNotifyBackgroundTemplate` | `ControlTemplate` |
 | `TaskbarForeground` | `ThemeTaskbarForegroundBrush` | `SolidColorBrush` |
 | `TrayNotifyForeground` | `ThemeTrayNotifyForegroundBrush` | `SolidColorBrush` |
+| `GlobalForeground` | `GlobalForegroundBrush` | `SolidColorBrush` |
 
 ### Window border, title and client area
 
