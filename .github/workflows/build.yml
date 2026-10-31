@@ -154,21 +154,25 @@ jobs:
           user: ${{ secrets.NUGET_USER }}
 
       - name: Unlist superseded versions
-        continue-on-error: true
         shell: pwsh
         run: |
           # 1.0.1 was superseded straight away.  1.0.5 and 1.0.6 shipped the HackBorder
           # measurement defect: the inner art claimed the bitmap's natural size, so WPF's
           # ArrangeCore refused to shrink it and the art spilled out of a small border.
-          # Unlisting keeps them installable by exact version but hides them from search
-          # and from "latest".
-          $superseded = @('1.0.1', '1.0.5', '1.0.6')
-          foreach ($old in $superseded) {
+          #
+          # `nuget delete` has to target the V2 endpoint.  Against the V3 index nuget.exe
+          # gets a 405 back, which is why the earlier version of this step never unlisted
+          # anything -- continue-on-error turned that into a green tick.
+          $source = 'https://www.nuget.org/api/v2/package'
+          foreach ($old in @('1.0.1', '1.0.5', '1.0.6')) {
             Write-Output "unlisting $old"
             nuget delete Win32ThemeStyle.WPF $old `
-              -Source https://api.nuget.org/v3/index.json `
+              -Source $source `
               -ApiKey ${{ steps.nuget-login.outputs.NUGET_API_KEY }} `
-              -NonInteractive
+              -NonInteractive 2>&1 | Write-Output
+            if ($LASTEXITCODE -ne 0) {
+              Write-Output "::warning title=NuGet unlist::$old exited with $LASTEXITCODE"
+            }
           }
 
       - name: Push to nuget.org
