@@ -153,6 +153,25 @@ jobs:
         with:
           user: ${{ secrets.NUGET_USER }}
 
+      - name: Push to nuget.org
+        shell: pwsh
+        run: |
+          $version = $env:GITHUB_REF_NAME -replace '^v', ''
+          $package = ".\artifacts\nuget\Win32ThemeStyle.WPF.$version.nupkg"
+          if (-not (Test-Path $package)) {
+            throw "Package not found: $package"
+          }
+          $pushLog = Join-Path $env:GITHUB_WORKSPACE 'push.log'
+          nuget push $package `
+            -Source https://api.nuget.org/v3/index.json `
+            -ApiKey ${{ steps.nuget-login.outputs.NUGET_API_KEY }} `
+            -SkipDuplicate 2>&1 |
+            Tee-Object -FilePath $pushLog
+          if ($LASTEXITCODE -ne 0) {
+            Get-Content $pushLog | ForEach-Object { Write-Output "::error title=NuGet push::$_" }
+            throw "nuget push exited with $LASTEXITCODE"
+          }
+
       - name: Unlist superseded versions
         shell: pwsh
         run: |
@@ -175,21 +194,7 @@ jobs:
             }
           }
 
-      - name: Push to nuget.org
-        shell: pwsh
-        run: |
-          $version = $env:GITHUB_REF_NAME -replace '^v', ''
-          $package = ".\artifacts\nuget\Win32ThemeStyle.WPF.$version.nupkg"
-          if (-not (Test-Path $package)) {
-            throw "Package not found: $package"
-          }
-          $pushLog = Join-Path $env:GITHUB_WORKSPACE 'push.log'
-          nuget push $package `
-            -Source https://api.nuget.org/v3/index.json `
-            -ApiKey ${{ steps.nuget-login.outputs.NUGET_API_KEY }} `
-            -SkipDuplicate 2>&1 |
-            Tee-Object -FilePath $pushLog
-          if ($LASTEXITCODE -ne 0) {
-            Get-Content $pushLog | ForEach-Object { Write-Output "::error title=NuGet push::$_" }
-            throw "nuget push exited with $LASTEXITCODE"
-          }
+          # Unlisting is housekeeping: the package is already published by the step above, so a
+          # failure here must not fail the build.  GitHub appends `exit $LASTEXITCODE` to a pwsh
+          # step, which is what turned the previous attempt red -- clear it explicitly.
+          exit 0
