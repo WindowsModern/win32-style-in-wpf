@@ -526,6 +526,8 @@ namespace ThemeDemo
             }
 
             log.Add("taskbar-resource=" + DescribeBrush(window.TryFindResource(ThemeResourceKeys.TaskbarForeground)));
+            log.Add("flyout-foreground-resource=" + DescribeBrush(window.TryFindResource(ThemeResourceKeys.GlobalFlyoutForeground)));
+            log.Add("window-content-foreground-resource=" + DescribeBrush(window.TryFindResource(ThemeResourceKeys.WindowContentForeground)));
             foreach (TextBlock text in FindVisualChildren<TextBlock>(window))
             {
                 if (!string.Equals(text.Text, "Taskbar foreground", StringComparison.Ordinal))

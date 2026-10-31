@@ -120,6 +120,12 @@ namespace Microsoft.Windows.Themes
         public const string GlobalForeground = "GlobalForegroundBrush";
 
         /// <summary>
+        /// Flyout foreground brush, using the window-content foreground color.
+        /// <para xml:lang="zh-CN">浮出控件前景色画刷，使用窗口内容区前景色。</para>
+        /// </summary>
+        public const string GlobalFlyoutForeground = "GlobalFlyoutForegroundBrush";
+
+        /// <summary>
         /// Notification-area foreground brush, from <c>TrayNotify [TrayNotifyHoriz]</c>.
         /// <para xml:lang="zh-CN">通知区域前景色画刷，来自 <c>TrayNotify [TrayNotifyHoriz]</c>。</para>
         /// </summary>

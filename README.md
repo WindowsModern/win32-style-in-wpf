@@ -96,6 +96,7 @@ xmlns:th="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.
 | `ToolWindowForeground` | `ThemeToolWindowForegroundBrush` | `SolidColorBrush` |
 | `WindowContentBackground` | `ThemeWindowContentBackgroundTemplate` | `ControlTemplate` |
 | `WindowContentForeground` | `ThemeWindowContentForegroundBrush` | `SolidColorBrush` |
+| `GlobalFlyoutForeground` | `GlobalFlyoutForegroundBrush` | `SolidColorBrush` |
 
 ### Window metrics and title font
 

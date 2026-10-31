@@ -31,6 +31,7 @@ namespace Microsoft.Windows.Themes
                 changed += RefreshBrush(dictionary, ThemeResourceKeys.NormalWindowForeground, ThemeColors.NormalWindowForeground);
                 changed += RefreshBrush(dictionary, ThemeResourceKeys.ToolWindowForeground, ThemeColors.ToolWindowForeground);
                 changed += RefreshBrush(dictionary, ThemeResourceKeys.WindowContentForeground, ThemeColors.WindowContentForeground);
+                changed += RefreshBrush(dictionary, ThemeResourceKeys.GlobalFlyoutForeground, ThemeColors.WindowContentForeground);
 
                 changed += RefreshDouble(dictionary, ThemeResourceKeys.NormalWindowTitleFontSize, ThemeWindowMetrics.NormalWindowTitleFontSize);
                 changed += RefreshDouble(dictionary, ThemeResourceKeys.ToolWindowTitleFontSize, ThemeWindowMetrics.ToolWindowTitleFontSize);
