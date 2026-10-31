@@ -192,22 +192,26 @@ namespace System.Windows.Controls
         /// <inheritdoc/>
         protected override Size MeasureOverride (Size constraint)
         {
-            // Measure the art with an INFINITE constraint so it reports its natural size instead of
-            // claiming the offered space. HackImage hands `availableSize` back when it is finite, and
+            // Same contract as Slice9Image: the bitmap never claims its natural size.  The only
+            // thing the art contributes is the fixed slice border (HackThickness), because that is
+            // what the nine-grid keeps at a constant pixel size no matter how large the control is.
+            // Measure the art with an INFINITE constraint only to learn its natural size, which is
+            // kept for diagnostics -- HackImage hands `availableSize` back when it is finite, and
             // letting that reach the layout would push a SizeToContent window to the work area.
             _art.Measure (new Size (double.PositiveInfinity, double.PositiveInfinity));
             _artNatural = _art.DesiredSize;
 
             Size content = base.MeasureOverride (constraint);
 
-            // The art only widens the control when there is no child to size to; with a child the
-            // Border behaviour wins, which is what "used like a Border" means.
-            double width = Math.Max (content.Width, _artNatural.Width + BorderThickness.Left + BorderThickness.Right);
-            double height = Math.Max (content.Height, _artNatural.Height + BorderThickness.Top + BorderThickness.Bottom);
-
-            // Never exceed what the parent actually offers.
-            if (!double.IsInfinity (constraint.Width)) width = Math.Min (width, constraint.Width);
-            if (!double.IsInfinity (constraint.Height)) height = Math.Min (height, constraint.Height);
+            // Slice9Image is a Grid whose outer tracks are the slice thickness, so its desired size
+            // is the sum of those tracks and nothing else.  Content (if any) can ask for more, as
+            // it can in any Border.  Note there is deliberately no clamp to `constraint`: the
+            // reference does not clamp either -- a smaller parent squeezes the slices at arrange
+            // time instead of changing the measurement.
+            double width = Math.Max (content.Width,
+                HackThickness.Left + HackThickness.Right + BorderThickness.Left + BorderThickness.Right);
+            double height = Math.Max (content.Height,
+                HackThickness.Top + HackThickness.Bottom + BorderThickness.Top + BorderThickness.Bottom);
 
             return new Size (width, height);
         }

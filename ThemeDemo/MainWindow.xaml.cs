@@ -40,6 +40,22 @@ namespace ThemeDemo
 
             _progressValue = 0;
             Loaded += delegate { SetProgressValues(_progressValue); };
+
+            // HackImage only invalidates its visual when the theme part finally arrives, so the
+            // first layout pass measured it while the bitmap was still null and its box stayed at
+            // the border thickness.  Nudge the measure once the dispatcher has drained; HackBorder
+            // needs no such nudge because its floor comes from HackThickness, not the bitmap.
+            var measureNudge = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(300)
+            };
+            measureNudge.Tick += delegate
+            {
+                measureNudge.Stop();
+                if (MeasureImageBox != null)
+                    MeasureImageBox.InvalidateMeasure();
+            };
+            measureNudge.Start();
             _progressTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromSeconds(1)

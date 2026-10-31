@@ -69,6 +69,7 @@
     </Compile>
     <Compile Include="HoverProbe.cs" />
     <Compile Include="HackButtonProbe.cs" />
+    <Compile Include="BorderProbe.cs" />
     <Compile Include="LayoutProbe.cs" />
     <Compile Include="HackButtonDemoSources.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

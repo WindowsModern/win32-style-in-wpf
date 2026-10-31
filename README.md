@@ -319,6 +319,11 @@ Use `ThemeImage` attached properties on any `HackImage`:
 `HackBorder` derives from `Border`, so `Background`, `BorderBrush`, `BorderThickness`,
 `CornerRadius` and `Padding` behave exactly as they do on a `Border`. The theme part is painted
 inside the border line and clipped to the corner radius; the single child sits in `Padding`.
+Measurement follows the reference `Slice9Image`, not the bitmap: the desired size is the fixed slice
+border (`HackThickness` plus `BorderThickness`) or the child, whichever is larger — the part itself
+never claims its natural size, and the measurement is not clamped to the parent. A `HackBorder` with
+no child and no `HackThickness` therefore measures 0 x 0 and simply fills whatever it is given.
+
 Write the descriptors on the border itself — the inner image follows it:
 
 ```xml

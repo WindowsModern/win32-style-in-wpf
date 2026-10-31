@@ -218,19 +218,19 @@
                         <!-- ============ HackImage vs HackBorder: measurement ============ -->
                         <TextBlock Text="HackImage vs HackBorder &#8212; measurement" FontWeight="SemiBold" Margin="0,12,0,4" />
                         <TextBlock TextWrapping="Wrap" Foreground="Gray" Margin="0,0,0,8"
-                                   Text="Same ControlTemplate content, same uxTheme part; only the element type differs. Each box below is Auto-width (HorizontalAlignment=Left) and sits directly in a vertical StackPanel, so the panel offers it a finite width and the box's width IS the element's DesiredSize. HackImage hands the offered width back as its desired size, so its box spans the whole row; HackBorder reports the image's natural width, so its box stops at the bitmap. That single difference is why a SizeToContent window grows with one and not the other. The printed widths are ActualWidth bindings, so the numbers come from the layout pass rather than from this caption." />
+                                   Text="Same ControlTemplate content, same uxTheme part; only the element type differs. Each box below is Auto-width (HorizontalAlignment=Left) and sits directly in a vertical StackPanel, so the panel offers it a finite width and the box's width IS the element's DesiredSize. HackImage hands the offered width back as its desired size (once its part has loaded), so its box can span the whole row. HackBorder no longer claims the bitmap at all: like the reference Slice9Image it reports only the fixed slice border (HackThickness plus BorderThickness), so its box collapses to that floor and the parent decides the rest. With a slice thickness of 3 the floor is 6 px, so the box collapses to the slice border; the parent decides the rest. That is why a SizeToContent window grows with one and not the other. The printed widths are ActualWidth bindings, so the numbers come from the layout pass rather than from this caption." />
                         <TextBlock Text="HackImage (values the offered size back)" FontWeight="SemiBold" />
                         <Border x:Name="MeasureImageBox" HorizontalAlignment="Left" BorderBrush="#FF808080" BorderThickness="1" Background="#FFFFF0C0">
                             <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarBackgroundBottom}}" />
                         </Border>
                         <TextBlock Text="{Binding ActualWidth, ElementName=MeasureImageBox, StringFormat=measured width {0:F0} px}" Foreground="Gray" FontSize="10" Margin="0,2,0,0" />
-                        <TextBlock Text="HackBorder (clamps to the image)" FontWeight="SemiBold" Margin="0,8,0,0" />
+                        <TextBlock Text="HackBorder (only the slice border, like Slice9Image)" FontWeight="SemiBold" Margin="0,8,0,0" />
                         <Border x:Name="MeasureBorderBox" HorizontalAlignment="Left" BorderBrush="#FF808080" BorderThickness="1" Background="#FFFFF0C0">
-                            <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarBackgroundBottomBounded}}" />
+                            <pt:HackBorder HackThickness="3" th:ThemeImage.Class="TaskBar" th:ThemeImage.Part="1" th:ThemeImage.State="0" th:ThemeImage.RenderMode="Natural" th:ThemeImage.PreserveAlpha="True" />
                         </Border>
                         <TextBlock Text="{Binding ActualWidth, ElementName=MeasureBorderBox, StringFormat=measured width {0:F0} px}" Foreground="Gray" FontSize="10" Margin="0,2,0,0" />
                         <TextBlock TextWrapping="Wrap" Foreground="Gray" FontSize="10" Margin="0,6,0,0"
-                                   Text="The bounded variants also exist for the other two backgrounds: TaskbarBackgroundRightBounded and TrayNotifyBackgroundBounded. Rendering is identical to the HackImage family; only measurement differs." />
+                                   Text="The bounded variants also exist for the other two backgrounds: TaskbarBackgroundRightBounded and TrayNotifyBackgroundBounded. Rendering is identical to the HackImage family; only measurement differs, and the floor is HackThickness (3 px here) plus the border line." />
 
                         <!-- ============ HackBorder: Border semantics + theme part ============ -->
                         <TextBlock Text="HackBorder &#8212; Border semantics plus a theme part" FontWeight="SemiBold" Margin="0,12,0,4" />

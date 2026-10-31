@@ -274,7 +274,13 @@ images-cached-after-close=0        # 关闭 + GC 后缓存归零
 
 `HackBorder` 继承自 `Border`，`Background`、`BorderBrush`、`BorderThickness`、`CornerRadius`、
 `Padding` 全部按 `Border` 的语义工作；主题部件画在边框线内侧、按圆角裁剪，唯一的子节点放在
-`Padding` 内。描述符直接写在边框上即可，内部那张图会跟着它走：
+`Padding` 内。
+
+布局与参考实现 `Slice9Image` 一致、与位图无关：期望尺寸取「固定切片边（`HackThickness` 加
+`BorderThickness`）」与子节点尺寸中较大者，部件本身从不主张自己的自然尺寸，也不按父约束截断。
+因此没有子节点、也没设 `HackThickness` 的 `HackBorder` 量出来是 0 x 0，给它多少空间就填多少。
+
+描述符直接写在边框上即可，内部那张图会跟着它走：
 
 ```xml
 <pt:HackBorder th:ThemeImage.Class="TaskBar" th:ThemeImage.Part="1"
