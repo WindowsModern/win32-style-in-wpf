@@ -192,25 +192,6 @@ jobs:
             throw "nuget push exited with $LASTEXITCODE"
           }
 
-      - name: Verify publication
-        shell: pwsh
-        run: |
-          # The 1.0.8 attempt reported a successful push but never appeared on nuget.org,
-          # so the pipeline now proves publication instead of trusting the exit code.
-          $version = $env:GITHUB_REF_NAME -replace '^v', ''
-          $uri = "https://www.nuget.org/api/v2/Packages()?`$filter=Id eq 'Win32ThemeStyle.WPF' and Version eq '$version'"
-          for ($i = 1; $i -le 12; $i++) {
-            Start-Sleep -Seconds 10
-            $raw = (Invoke-WebRequest -Uri $uri -UseBasicParsing).Content
-            $count = ([xml]$raw).feed.'m:count'
-            Write-Output "attempt $i : count=$count"
-            if ([int]$count -gt 0) {
-              Write-Output "$version is live on nuget.org"
-              exit 0
-            }
-          }
-          throw "$version never appeared on nuget.org"
-
       - name: Unlist superseded versions
         shell: pwsh
         run: |
@@ -237,3 +218,26 @@ jobs:
           # failure here must not fail the build.  GitHub appends `exit $LASTEXITCODE` to a pwsh
           # step, which is what turned the previous attempt red -- clear it explicitly.
           exit 0
+
+      - name: Verify publication
+        shell: pwsh
+        run: |
+          # `nuget push` can exit 0 and publish nothing, so prove the package is really live.
+          # This runs last on purpose: unlisting is housekeeping and must not be skipped just
+          # because a probe failed.  `$doc.feed.'m:count'` gives the element, not its text, and
+          # [int] on an element is 0 -- which is why this step failed for a package that was
+          # published all along.
+          $version = $env:GITHUB_REF_NAME -replace '^v', ''
+          $uri = "https://www.nuget.org/api/v2/Packages()?`$filter=Id eq 'Win32ThemeStyle.WPF' and Version eq '$version'"
+          for ($i = 1; $i -le 12; $i++) {
+            Start-Sleep -Seconds 10
+            $doc = New-Object System.Xml.XmlDocument
+            $doc.LoadXml((Invoke-WebRequest -Uri $uri -UseBasicParsing).Content)
+            $count = [int]$doc.feed.'m:count'.InnerText
+            Write-Output "attempt ${i} : count=$count"
+            if ($count -gt 0) {
+              Write-Output "$version is live on nuget.org"
+              exit 0
+            }
+          }
+          throw "$version never appeared on nuget.org"
