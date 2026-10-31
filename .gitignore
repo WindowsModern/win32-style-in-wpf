@@ -8,3 +8,7 @@ artifacts/
 Backup/
 
 recover/
+
+build.log
+TestDemo/out/
+TestDemo/*.log

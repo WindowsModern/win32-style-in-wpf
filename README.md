@@ -314,6 +314,38 @@ Use `ThemeImage` attached properties on any `HackImage`:
 - Transitions only apply to `HackImage` (`Image` has no intermediate buffer);
   `TransitionDuration` of 0 switches immediately.
 
+## HackBorder and convenience controls
+
+`HackBorder` derives from `Border`, so `Background`, `BorderBrush`, `BorderThickness`,
+`CornerRadius` and `Padding` behave exactly as they do on a `Border`. The theme part is painted
+inside the border line and clipped to the corner radius; the single child sits in `Padding`.
+Write the descriptors on the border itself — the inner image follows it:
+
+```xml
+<pt:HackBorder th:ThemeImage.Class="TaskBar" th:ThemeImage.Part="1"
+               th:ThemeImage.TransitionDuration="0:0:0.15"
+               CornerRadius="4" Padding="6">
+  <TextBlock Text="inside the part" />
+</pt:HackBorder>
+```
+
+`HackButton`, `HackRepeatButton` and `HackToggleButton` are convenience wrappers for "one bitmap
+per state". They use no `ControlTemplate` and are deliberately not part of the theme; you supply
+the images yourself:
+
+| Control | Image sources |
+|---|---|
+| `HackButton`, `HackRepeatButton` | `NormalSource`, `HoverSource`, `ActiveSource`, `FocusSource`, `DisabledSource` |
+| `HackToggleButton` | those five plus `CheckedNormalSource`, `CheckedHoverSource`, `CheckedActiveSource`, `CheckedFocusSource`, `CheckedDisabledSource` |
+
+- All of them take the same `HackThickness`: nine-grid slices in image pixels.
+- State order is disabled > pressed > hover > focus > normal. A missing image falls back to the
+  resting image, so `NormalSource` alone is enough to get started.
+- As soon as one `Checked*` image is supplied, the checked state uses its own set and a missing
+  checked variant falls back to `CheckedNormalSource` — never to the unchecked image of that state.
+- `TransitionDuration` / `TransitionEasing` cross-fade between states through the same
+  `HackImageTransitions` code path as the attached properties; 0 switches immediately.
+
 ## Diagnostics API
 
 ```csharp

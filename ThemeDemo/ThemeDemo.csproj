@@ -54,6 +54,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Resource Include="Images\PNGFILE1150_1.png" />
+    <Resource Include="Images\PNGFILE1151_1.png" />
+    <Resource Include="Images\PNGFILE1152_1.png" />
+    <Resource Include="Images\PNGFILE1153_1.png" />
+    <Resource Include="Images\PNGFILE1154_1.png" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -62,6 +67,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="HoverProbe.cs" />
+    <Compile Include="HackButtonProbe.cs" />
+    <Compile Include="LayoutProbe.cs" />
+    <Compile Include="HackButtonDemoSources.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SelfTest.cs" />
     <None Include="app.manifest" />

@@ -114,7 +114,7 @@ namespace Microsoft.Windows.Themes
         public static string GetClass(DependencyObject element)
         {
             if (element == null) throw new ArgumentNullException(nameof(element));
-            return (string)element.GetValue(ClassProperty);
+            return (string)GetValueFollowingSource(element, ClassProperty);
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace Microsoft.Windows.Themes
         public static string GetSubClass(DependencyObject element)
         {
             if (element == null) throw new ArgumentNullException(nameof(element));
-            return (string)element.GetValue(SubClassProperty);
+            return (string)GetValueFollowingSource(element, SubClassProperty);
         }
 
         /// <summary>
@@ -154,7 +154,7 @@ namespace Microsoft.Windows.Themes
         public static int GetRotation(DependencyObject element)
         {
             if (element == null) throw new ArgumentNullException(nameof(element));
-            return (int)element.GetValue(RotationProperty);
+            return (int)GetValueFollowingSource(element, RotationProperty);
         }
 
         /// <summary>
@@ -174,7 +174,7 @@ namespace Microsoft.Windows.Themes
         public static int GetPart(DependencyObject element)
         {
             if (element == null) throw new ArgumentNullException(nameof(element));
-            return (int)element.GetValue(PartProperty);
+            return (int)GetValueFollowingSource(element, PartProperty);
         }
 
         /// <summary>
@@ -194,7 +194,7 @@ namespace Microsoft.Windows.Themes
         public static int GetState(DependencyObject element)
         {
             if (element == null) throw new ArgumentNullException(nameof(element));
-            return (int)element.GetValue(StateProperty);
+            return (int)GetValueFollowingSource(element, StateProperty);
         }
 
         /// <summary>
@@ -210,7 +210,7 @@ namespace Microsoft.Windows.Themes
         public static Thickness GetChunkMargin(DependencyObject element)
         {
             if (element == null) throw new ArgumentNullException(nameof(element));
-            return (Thickness)element.GetValue(ChunkMarginProperty);
+            return (Thickness)GetValueFollowingSource(element, ChunkMarginProperty);
         }
 
         public static void SetChunkMargin(DependencyObject element, Thickness value)
@@ -223,7 +223,7 @@ namespace Microsoft.Windows.Themes
             new FrameworkPropertyMetadata(false, OnDescriptorChanged));
         public static bool GetPreserveAlpha(DependencyObject element)
         {
-            return (bool)element.GetValue(PreserveAlphaProperty);
+            return (bool)GetValueFollowingSource(element, PreserveAlphaProperty);
         }
 
         public static void SetPreserveAlpha(DependencyObject element, bool value)
@@ -232,7 +232,7 @@ namespace Microsoft.Windows.Themes
         }
         public static bool GetCropProgressSpace(DependencyObject element)
         {
-            return (bool)element.GetValue(CropProgressSpaceProperty);
+            return (bool)GetValueFollowingSource(element, CropProgressSpaceProperty);
         }
 
         public static void SetCropProgressSpace(DependencyObject element, bool value)
@@ -242,7 +242,7 @@ namespace Microsoft.Windows.Themes
         public static Thickness GetHackThickness(DependencyObject element)
         {
             if (element == null) throw new ArgumentNullException(nameof(element));
-            return (Thickness)element.GetValue(HackThicknessProperty);
+            return (Thickness)GetValueFollowingSource(element, HackThicknessProperty);
         }
 
         public static void SetHackThickness(DependencyObject element, Thickness value)
@@ -253,7 +253,7 @@ namespace Microsoft.Windows.Themes
         public static ThemeImageRenderMode GetRenderMode(DependencyObject element)
         {
             if (element == null) throw new ArgumentNullException(nameof(element));
-            return (ThemeImageRenderMode)element.GetValue(RenderModeProperty);
+            return (ThemeImageRenderMode)GetValueFollowingSource(element, RenderModeProperty);
         }
 
         public static void SetRenderMode(DependencyObject element, ThemeImageRenderMode value)
@@ -268,7 +268,7 @@ namespace Microsoft.Windows.Themes
         public static TimeSpan GetTransitionDuration(DependencyObject element)
         {
             if (element == null) throw new ArgumentNullException(nameof(element));
-            return (TimeSpan)element.GetValue(TransitionDurationProperty);
+            return (TimeSpan)GetValueFollowingSource(element, TransitionDurationProperty);
         }
 
         /// <summary>
@@ -281,9 +281,43 @@ namespace Microsoft.Windows.Themes
             element.SetValue(TransitionDurationProperty, value);
         }
 
-        private static void OnDescriptorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        /// <summary>
+        /// Follows <see cref="HackImage.ThemeDescriptorSource"/> so a container can carry the
+        /// descriptors while a child <see cref="HackImage"/> performs the loading.
+        /// <para xml:lang="zh-CN">跟随指针：容器承载描述符，子 <see cref="HackImage"/> 负责实际加载。</para>
+        /// </summary>
+        private static DependencyObject ResolveDescriptorSource(DependencyObject element)
         {
-            var element = d as FrameworkElement;
+            HackImage image = element as HackImage;
+            if (image != null && image.ThemeDescriptorSource != null)
+            {
+                return image.ThemeDescriptorSource;
+            }
+            return element;
+        }
+
+        /// <summary>
+        /// Reads a descriptor through the indirection. Every getter goes through here, which is
+        /// what makes <see cref="ThemeImageHost"/> work unchanged: it reads via the getters.
+        /// <para xml:lang="zh-CN">经指针读取描述符。所有 getter 都走这里，因此 <see cref="ThemeImageHost"/> 无需改动。</para>
+        /// </summary>
+        private static object GetValueFollowingSource(DependencyObject element, DependencyProperty property)
+        {
+            return ResolveDescriptorSource(element).GetValue(property);
+        }
+
+        /// <summary>
+        /// Creates the host on, or invalidates the host of, the element that will actually load.
+        /// </summary>
+        /// <remarks>
+        /// When the descriptors live on a container instead of the image, the change notification
+        /// arrives on the container. Loading happens on the image, so the host has to be refreshed
+        /// there; leaving it on the container would build a host that can never resolve anything
+        /// (the container is not a <see cref="HackImage"/>).
+        /// </remarks>
+        private static void RefreshHost(DependencyObject owner)
+        {
+            var element = owner as FrameworkElement;
             if (element == null)
                 return;
 
@@ -297,6 +331,19 @@ namespace Microsoft.Windows.Themes
             }
 
             host.Invalidate();
+        }
+
+        private static void OnDescriptorChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            // Redirect to the loading element when a container is only the descriptor bearer.
+            var relay = d as IThemeImageHostRelay;
+            if (relay != null && relay.ThemeImageTarget != null)
+            {
+                RefreshHost(relay.ThemeImageTarget);
+                return;
+            }
+
+            RefreshHost(d);
         }
     }
 }

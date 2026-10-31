@@ -43,7 +43,13 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HackImage.cs" />
+    <Compile Include="HackBorder.cs" />
+    <Compile Include="HackButton.cs" />
+    <Compile Include="HackButtonChrome.cs" />
+    <Compile Include="HackRepeatButton.cs" />
+    <Compile Include="HackToggleButton.cs" />
+  <Compile Include="HackImage.cs" />
+  <Compile Include="IThemeImageHostRelay.cs" />
     <Compile Include="HackImageTransition.cs" />
     <Compile Include="HackImageTransitions.cs" />
     <Compile Include="Interop\NativeGdi.cs" />

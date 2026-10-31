@@ -75,6 +75,38 @@ namespace Microsoft.Windows.Themes
         /// </summary>
         public const string TrayNotifyBackground = "ThemeTrayNotifyBackgroundTemplate";
 
+        // ---------------------------------------------------------------------------------
+        // The same three backgrounds again, rendered by HackBorder instead of HackImage.
+        //
+        // Identical pixels; the difference is measurement. HackImage returns the offered size as
+        // its desired size, so under SizeToContent it claims the whole work area and the window
+        // grows to fill the screen. HackBorder reports the image's natural size clamped to what is
+        // offered, which is how Sidebar's Slice9Image behaves.
+        //
+        // Both families are kept because which one is correct depends on the host: a bar filling a
+        // fixed slot wants HackImage, a window that sizes to its content wants HackBorder. Leaving
+        // the choice at the resource-key level keeps it out of every call site.
+        // ---------------------------------------------------------------------------------
+
+        /// <summary>
+        /// Taskbar background, bottom edge, measured by <see cref="HackBorder"/> so it does not
+        /// expand a <c>SizeToContent</c> window.
+        /// <para xml:lang="zh-CN">任务栏背景（底边），由 <see cref="HackBorder"/> 测量，不会撑大 <c>SizeToContent</c> 窗口。</para>
+        /// </summary>
+        public const string TaskbarBackgroundBottomBounded = "ThemeTaskbarBackgroundBottomBorderTemplate";
+
+        /// <summary>
+        /// Taskbar background, right edge, measured by <see cref="HackBorder"/>.
+        /// <para xml:lang="zh-CN">任务栏背景（右边），由 <see cref="HackBorder"/> 测量。</para>
+        /// </summary>
+        public const string TaskbarBackgroundRightBounded = "ThemeTaskbarBackgroundRightBorderTemplate";
+
+        /// <summary>
+        /// Notification-area (tray) background, bottom edge, measured by <see cref="HackBorder"/>.
+        /// <para xml:lang="zh-CN">通知区域（托盘）背景（底边），由 <see cref="HackBorder"/> 测量。</para>
+        /// </summary>
+        public const string TrayNotifyBackgroundBounded = "ThemeTrayNotifyBackgroundBorderTemplate";
+
         /// <summary>
         /// Taskbar foreground brush, derived from the current theme.
         /// <para xml:lang="zh-CN">任务栏前景色画刷，来自当前主题。</para>
@@ -213,6 +245,9 @@ namespace Microsoft.Windows.Themes
             TaskbarSizingBarBottom,
             TaskbarBackgroundBottomRotated,
             TrayNotifyBackground,
+            TaskbarBackgroundBottomBounded,
+            TaskbarBackgroundRightBounded,
+            TrayNotifyBackgroundBounded,
             NormalWindowBorder,
             ToolWindowBorder
         };

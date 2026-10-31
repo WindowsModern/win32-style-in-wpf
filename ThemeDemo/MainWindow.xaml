@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:pt="clr-namespace:System.Windows.Controls;assembly=PresentationFramework.Theme"
         xmlns:th="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Theme"
+        xmlns:local="clr-namespace:ThemeDemo"
         Title="PresentationFramework.Theme Gallery"
         Width="1120" Height="1320"
         FontFamily="{x:Static SystemFonts.MessageFontFamily}"
@@ -213,7 +214,257 @@
                             </Border>
                             <TextBlock Text="ThemeTaskbarForegroundBrush / ThemeTrayNotifyForegroundBrush" Foreground="Gray" FontSize="10" VerticalAlignment="Center" Margin="10,0,0,0" />
                         </StackPanel>
+
+                        <!-- ============ HackImage vs HackBorder: measurement ============ -->
+                        <TextBlock Text="HackImage vs HackBorder &#8212; measurement" FontWeight="SemiBold" Margin="0,12,0,4" />
+                        <TextBlock TextWrapping="Wrap" Foreground="Gray" Margin="0,0,0,8"
+                                   Text="Same ControlTemplate content, same uxTheme part; only the element type differs. Each box below is Auto-width (HorizontalAlignment=Left) and sits directly in a vertical StackPanel, so the panel offers it a finite width and the box's width IS the element's DesiredSize. HackImage hands the offered width back as its desired size, so its box spans the whole row; HackBorder reports the image's natural width, so its box stops at the bitmap. That single difference is why a SizeToContent window grows with one and not the other. The printed widths are ActualWidth bindings, so the numbers come from the layout pass rather than from this caption." />
+                        <TextBlock Text="HackImage (values the offered size back)" FontWeight="SemiBold" />
+                        <Border x:Name="MeasureImageBox" HorizontalAlignment="Left" BorderBrush="#FF808080" BorderThickness="1" Background="#FFFFF0C0">
+                            <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarBackgroundBottom}}" />
+                        </Border>
+                        <TextBlock Text="{Binding ActualWidth, ElementName=MeasureImageBox, StringFormat=measured width {0:F0} px}" Foreground="Gray" FontSize="10" Margin="0,2,0,0" />
+                        <TextBlock Text="HackBorder (clamps to the image)" FontWeight="SemiBold" Margin="0,8,0,0" />
+                        <Border x:Name="MeasureBorderBox" HorizontalAlignment="Left" BorderBrush="#FF808080" BorderThickness="1" Background="#FFFFF0C0">
+                            <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarBackgroundBottomBounded}}" />
+                        </Border>
+                        <TextBlock Text="{Binding ActualWidth, ElementName=MeasureBorderBox, StringFormat=measured width {0:F0} px}" Foreground="Gray" FontSize="10" Margin="0,2,0,0" />
+                        <TextBlock TextWrapping="Wrap" Foreground="Gray" FontSize="10" Margin="0,6,0,0"
+                                   Text="The bounded variants also exist for the other two backgrounds: TaskbarBackgroundRightBounded and TrayNotifyBackgroundBounded. Rendering is identical to the HackImage family; only measurement differs." />
+
+                        <!-- ============ HackBorder: Border semantics + theme part ============ -->
+                        <TextBlock Text="HackBorder &#8212; Border semantics plus a theme part" FontWeight="SemiBold" Margin="0,12,0,4" />
+                        <TextBlock TextWrapping="Wrap" Foreground="Gray" Margin="0,0,0,8"
+                                   Text="HackBorder derives from Border, so Background, BorderBrush, BorderThickness, CornerRadius and Padding are the real Border properties, and the child is written directly in XAML. The theme part (TaskBar part 1) is painted inside the border line and clipped to the corner radius; Padding affects only the child. The second box sets Foreground on the HackBorder and does not set it on the TextBlock, so the inherited text colour proves the Foreground property forwards to TextElement.Foreground." />
+                        <WrapPanel>
+                            <StackPanel Margin="0,0,16,10">
+                                <TextBlock Text="theme part, no child" FontSize="10" Foreground="Gray" Margin="0,0,0,4" />
+                                <pt:HackBorder Width="240" Height="36" Background="#FFFFF0C0" BorderBrush="#FF6080A0"
+                                               BorderThickness="2" CornerRadius="8"
+                                               th:ThemeImage.Class="TaskBar" th:ThemeImage.Part="1" th:ThemeImage.State="0" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,16,10">
+                                <TextBlock Text="child + Padding=12 + Foreground" FontSize="10" Foreground="Gray" Margin="0,0,0,4" />
+                                <pt:HackBorder Width="240" Height="72" Background="#FFFFF0C0" BorderBrush="#FF6080A0"
+                                               BorderThickness="2" CornerRadius="8" Padding="12"
+                                               Foreground="#FF203040"
+                                               th:ThemeImage.Class="TaskBar" th:ThemeImage.Part="1" th:ThemeImage.State="0">
+                                    <TextBlock TextWrapping="Wrap" Text="child content inherits Foreground, inset by Padding" />
+                                </pt:HackBorder>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,16,10">
+                                <TextBlock Text="SubClass reaches the part" FontSize="10" Foreground="Gray" Margin="0,0,0,4" />
+                                <pt:HackBorder Width="240" Height="36" Background="#FFFFF0C0" BorderBrush="#FF6080A0"
+                                               BorderThickness="2" CornerRadius="8"
+                                               th:ThemeImage.Class="TrayNotify" th:ThemeImage.SubClass="TrayNotifyHoriz"
+                                               th:ThemeImage.Part="1" th:ThemeImage.State="0" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,16,10">
+                                <TextBlock Text="no theme part: Background only" FontSize="10" Foreground="Gray" Margin="0,0,0,4" />
+                                <pt:HackBorder Width="240" Height="36" Background="#FFC8DCF0" BorderBrush="#FF6080A0"
+                                               BorderThickness="2" CornerRadius="8" Padding="12">
+                                    <TextBlock Text="plain Border usage" />
+                                </pt:HackBorder>
+                            </StackPanel>
+                        </WrapPanel>
+
+                        <!-- ============ All three bounded HackBorder keys ============ -->
+                        <TextBlock Text="Bounded HackBorder keys &#8212; all three backgrounds" FontWeight="SemiBold" Margin="0,12,0,4" />
+                        <TextBlock TextWrapping="Wrap" Foreground="Gray" Margin="0,0,0,8"
+                                   Text="The three HackBorder-based ControlTemplate keys, consumed the same way as the HackImage family (x:Static on ThemeResourceKeys, applied via Template). Rendering is identical; measurement is the difference. TaskbarBackgroundBottomBounded and TaskbarBackgroundRightBounded cover the two edges the taskbar can dock against; TrayNotifyBackgroundBounded is the notification area." />
+                        <WrapPanel>
+                            <StackPanel Margin="0,0,16,10">
+                                <TextBlock Text="TaskbarBackgroundBottomBounded" FontSize="10" Foreground="Gray" Margin="0,0,0,4" />
+                                <Border Width="240" Height="36" BorderBrush="#FF808080" BorderThickness="1" Background="#FFFFF0C0">
+                                    <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarBackgroundBottomBounded}}" />
+                                </Border>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,16,10">
+                                <TextBlock Text="TaskbarBackgroundRightBounded" FontSize="10" Foreground="Gray" Margin="0,0,0,4" />
+                                <Border Width="60" Height="120" BorderBrush="#FF808080" BorderThickness="1" Background="#FFFFF0C0">
+                                    <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.TaskbarBackgroundRightBounded}}" />
+                                </Border>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,16,10">
+                                <TextBlock Text="TrayNotifyBackgroundBounded" FontSize="10" Foreground="Gray" Margin="0,0,0,4" />
+                                <Border Width="200" Height="36" BorderBrush="#FF808080" BorderThickness="1" Background="#FFFFF0C0">
+                                    <Control Template="{DynamicResource {x:Static th:ThemeResourceKeys.TrayNotifyBackgroundBounded}}" />
+                                </Border>
+                            </StackPanel>
+                        </WrapPanel>
+
+                        <!-- ============ HackBorder + ThemeImage.TransitionDuration ============ -->
+                        <TextBlock Text="HackBorder + ThemeImage.TransitionDuration" FontWeight="SemiBold" Margin="0,12,0,4" />
+                        <TextBlock TextWrapping="Wrap" Foreground="Gray" Margin="0,0,0,8"
+                                   Text="Hover the box: the state goes 1 to 2 through a Style trigger on the HackBorder itself. That exercises the whole descriptor path — the trigger writes ThemeImage.State on the border, the indirection hands it to the inner HackImage, and the cross-fade runs there. It uses Button part 1 (BP_PUSHBUTTON) because that part actually defines both states; a hover on a taskbar part proves nothing. The fade length comes from the ThemeTransitionDuration resource: 0 in the plain theme (instant switch) and 0.15s in theme.withtransition, so run with --transition to see the animation." />
+                        <pt:HackBorder x:Name="TransitionProbe" Width="240" Height="40" Background="#FFFFF0C0" BorderBrush="#FF6080A0"
+                                       BorderThickness="2" CornerRadius="8"
+                                       th:ThemeImage.Class="Button" th:ThemeImage.Part="1"
+                                       th:ThemeImage.TransitionDuration="{DynamicResource ThemeTransitionDuration}">
+                            <pt:HackBorder.Style>
+                                <Style TargetType="pt:HackBorder">
+                                    <!-- Default state must be a Style SETTER here, never a local attribute
+                                         on the HackBorder element. A local value outranks Style triggers,
+                                         so writing th:ThemeImage.State on the element itself pins it and
+                                         the trigger below can never win (WPF precedence, local > trigger). -->
+                                    <Setter Property="th:ThemeImage.State" Value="1" />
+                                    <Style.Triggers>
+                                        <Trigger Property="UIElement.IsMouseOver" Value="True">
+                                            <Setter Property="th:ThemeImage.State" Value="2" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </pt:HackBorder.Style>
+                        </pt:HackBorder>
+
+                        <!-- The two Aero states differ only slightly in fill (E1E1E1 to E5F1FB), so the
+                             number is the reliable way to see that the trigger really fired. -->
+                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                            <TextBlock Text="ThemeImage.State right now: " Foreground="Gray" />
+                            <TextBlock x:Name="StateReadout" FontWeight="Bold" Foreground="#FF005499"
+                                       Text="{Binding Path=(th:ThemeImage.State), ElementName=TransitionProbe}" />
+                            <TextBlock Text="   (1 = normal, 2 = hot)" Foreground="Gray" />
+                        </StackPanel>
+
+                        <!-- ============ A Button whose whole visual is one HackBorder ============ -->
+                        <TextBlock Text="Button built from a single HackBorder" FontWeight="SemiBold" Margin="0,14,0,4" />
+                        <TextBlock TextWrapping="Wrap" Foreground="Gray" Margin="0,0,0,8"
+                                   Text="A normal Button whose ControlTemplate root is one pt:HackBorder and nothing else: no Button chrome, no Border, no theme Button style. Everything visible comes from HackBorder — Background, BorderBrush, BorderThickness, CornerRadius and Padding are Border properties, the surface is Button part 1, and the label is the Button's Content going through the HackBorder child slot. The three states are driven from the templated parent: hover goes to 2, pressed to 3, disabled to 4. Hover it to see the cross-fade when running with --transition." />
+                        <WrapPanel>
+                            <Button Padding="0" Background="Transparent" BorderThickness="0" Cursor="Hand"
+                                    HorizontalAlignment="Left" VerticalAlignment="Center">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <pt:HackBorder Background="#FFFFF0C0" BorderBrush="#FF6080A0"
+                                                       BorderThickness="1" CornerRadius="6" Padding="16,7"
+                                                       th:ThemeImage.Class="Button" th:ThemeImage.Part="1"
+                                                       th:ThemeImage.RenderMode="Natural" th:ThemeImage.PreserveAlpha="True"
+                                                       th:ThemeImage.TransitionDuration="{DynamicResource ThemeTransitionDuration}">
+                                            <pt:HackBorder.Style>
+                                                <Style TargetType="pt:HackBorder">
+                                                    <Setter Property="th:ThemeImage.State" Value="1" />
+                                                    <Style.Triggers>
+                                                        <Trigger Property="UIElement.IsMouseOver" Value="True">
+                                                            <Setter Property="th:ThemeImage.State" Value="2" />
+                                                        </Trigger>
+                                                        <DataTrigger Binding="{Binding IsPressed, RelativeSource={RelativeSource TemplatedParent}}" Value="True">
+                                                            <Setter Property="th:ThemeImage.State" Value="3" />
+                                                        </DataTrigger>
+                                                        <Trigger Property="UIElement.IsEnabled" Value="False">
+                                                            <Setter Property="th:ThemeImage.State" Value="4" />
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </pt:HackBorder.Style>
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </pt:HackBorder>
+                                    </ControlTemplate>
+                                </Button.Template>
+                                <TextBlock Text="HackBorder button" />
+                            </Button>
+                            <Button Padding="0" Background="Transparent" BorderThickness="0"
+                                    HorizontalAlignment="Left" VerticalAlignment="Center" Margin="12,0,0,0"
+                                    IsEnabled="False">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <pt:HackBorder Background="#FFFFF0C0" BorderBrush="#FF6080A0"
+                                                       BorderThickness="1" CornerRadius="6" Padding="16,7"
+                                                       th:ThemeImage.Class="Button" th:ThemeImage.Part="1"
+                                                       th:ThemeImage.RenderMode="Natural" th:ThemeImage.PreserveAlpha="True">
+                                            <pt:HackBorder.Style>
+                                                <Style TargetType="pt:HackBorder">
+                                                    <Setter Property="th:ThemeImage.State" Value="1" />
+                                                    <Style.Triggers>
+                                                        <Trigger Property="UIElement.IsEnabled" Value="False">
+                                                            <Setter Property="th:ThemeImage.State" Value="4" />
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </pt:HackBorder.Style>
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </pt:HackBorder>
+                                    </ControlTemplate>
+                                </Button.Template>
+                                <TextBlock Text="disabled" />
+                            </Button>
+                        </WrapPanel>
                     </StackPanel>
+                </Border>
+
+                <!-- ============ HackButton / HackRepeatButton / HackToggleButton ============ -->
+                <TextBlock Text="HackButton / HackRepeatButton / HackToggleButton" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,6" />
+                <Border BorderBrush="#FFB8B8B8" BorderThickness="1" Padding="12" Margin="0,0,0,14">
+                <StackPanel>
+                    <StackPanel.Resources>
+                        <Style x:Key="DemoHackButton" TargetType="{x:Type pt:HackButton}">
+                            <Setter Property="NormalSource" Value="{x:Static local:HackButtonDemoSources.Normal}" />
+                            <Setter Property="HoverSource" Value="{x:Static local:HackButtonDemoSources.Hover}" />
+                            <Setter Property="ActiveSource" Value="{x:Static local:HackButtonDemoSources.Active}" />
+                            <Setter Property="FocusSource" Value="{x:Static local:HackButtonDemoSources.Focus}" />
+                            <Setter Property="DisabledSource" Value="{x:Static local:HackButtonDemoSources.Disabled}" />
+                            <Setter Property="HackThickness" Value="3" />
+                            <Setter Property="TransitionDuration" Value="0:0:0.15" />
+                            <Setter Property="Foreground" Value="White" />
+                            <Setter Property="Padding" Value="14,6" />
+                            <Setter Property="MinWidth" Value="120" />
+                            <Setter Property="Margin" Value="0,0,8,8" />
+                            <Setter Property="Cursor" Value="Hand" />
+                        </Style>
+                        <Style x:Key="DemoHackRepeatButton" TargetType="{x:Type pt:HackRepeatButton}">
+                            <Setter Property="NormalSource" Value="{x:Static local:HackButtonDemoSources.Normal}" />
+                            <Setter Property="HoverSource" Value="{x:Static local:HackButtonDemoSources.Hover}" />
+                            <Setter Property="ActiveSource" Value="{x:Static local:HackButtonDemoSources.Active}" />
+                            <Setter Property="FocusSource" Value="{x:Static local:HackButtonDemoSources.Focus}" />
+                            <Setter Property="DisabledSource" Value="{x:Static local:HackButtonDemoSources.Disabled}" />
+                            <Setter Property="HackThickness" Value="3" />
+                            <Setter Property="TransitionDuration" Value="0:0:0.15" />
+                            <Setter Property="Foreground" Value="White" />
+                            <Setter Property="Padding" Value="14,6" />
+                            <Setter Property="MinWidth" Value="120" />
+                            <Setter Property="Margin" Value="0,0,8,8" />
+                            <Setter Property="Cursor" Value="Hand" />
+                        </Style>
+                        <Style x:Key="DemoHackToggleButton" TargetType="{x:Type pt:HackToggleButton}">
+                            <Setter Property="NormalSource" Value="{x:Static local:HackButtonDemoSources.Normal}" />
+                            <Setter Property="HoverSource" Value="{x:Static local:HackButtonDemoSources.Hover}" />
+                            <Setter Property="ActiveSource" Value="{x:Static local:HackButtonDemoSources.Active}" />
+                            <Setter Property="FocusSource" Value="{x:Static local:HackButtonDemoSources.Focus}" />
+                            <Setter Property="DisabledSource" Value="{x:Static local:HackButtonDemoSources.Disabled}" />
+                            <Setter Property="HackThickness" Value="3" />
+                            <Setter Property="TransitionDuration" Value="0:0:0.15" />
+                            <Setter Property="Foreground" Value="White" />
+                            <Setter Property="Padding" Value="14,6" />
+                            <Setter Property="MinWidth" Value="120" />
+                            <Setter Property="Margin" Value="0,0,8,8" />
+                            <Setter Property="Cursor" Value="Hand" />
+                        </Style>
+                        <Style x:Key="DemoHackButtonNormalOnly" TargetType="{x:Type pt:HackButton}">
+                            <Setter Property="NormalSource" Value="{x:Static local:HackButtonDemoSources.Normal}" />
+                            <Setter Property="HackThickness" Value="3" />
+                            <Setter Property="TransitionDuration" Value="0:0:0.15" />
+                            <Setter Property="Foreground" Value="White" />
+                            <Setter Property="Padding" Value="14,6" />
+                            <Setter Property="MinWidth" Value="120" />
+                            <Setter Property="Margin" Value="0,0,8,8" />
+                            <Setter Property="Cursor" Value="Hand" />
+                        </Style>
+                    </StackPanel.Resources>
+                <TextBlock TextWrapping="Wrap" Foreground="Gray" Margin="0,0,0,8"
+                           Text="Convenience controls, deliberately not part of the theme: you hand each one five bitmaps plus a HackThickness, and it picks between them from IsMouseOver / IsPressed / IsKeyboardFocused / IsEnabled. The art below is the one WpfApplicationTest uses — PNGFILE1150_1 through PNGFILE1154_1, 109x24 with a 3 pixel border — so HackThickness=&quot;3&quot; leaves the rounded corners alone while the middle stretches. Hover, press, Tab onto and disable them: the image swaps, and a missing state falls back to the one before it. TransitionDuration is 0.15s here, so the swap is a cross-fade through the same HackImageTransitions code the attached properties use; set it to zero for an instant swap. HackToggleButton carries five more — CheckedNormal / CheckedHover / CheckedActive / CheckedFocus / CheckedDisabled — used only while IsChecked is true; leave them unset and it falls back to the plain five, with a checked button resting on ActiveSource. Once any Checked* is set, the checked state uses its own set: a missing checked variant falls back to CheckedNormal, never to the unchecked image of that state." />
+                <WrapPanel>
+                    <pt:HackButton Style="{StaticResource DemoHackButton}" Content="HackButton" />
+                    <pt:HackButton Style="{StaticResource DemoHackButton}" Content="disabled" IsEnabled="False" />
+                    <pt:HackRepeatButton Style="{StaticResource DemoHackRepeatButton}" Content="HackRepeatButton" />
+                    <pt:HackToggleButton Style="{StaticResource DemoHackToggleButton}" Content="toggle, unchecked" />
+                    <pt:HackToggleButton Style="{StaticResource DemoHackToggleButton}" Content="toggle, checked" IsChecked="True" />
+                </WrapPanel>
+                <WrapPanel>
+                    <pt:HackButton Style="{StaticResource DemoHackButton}" Content="stretched — the 3px border stays 3px" />
+                    <pt:HackButton Style="{StaticResource DemoHackButton}" Content="taller" Padding="14,14" />
+                    <pt:HackButton Style="{StaticResource DemoHackButtonNormalOnly}" Content="normal only — no hover image to fall back to" />
+                </WrapPanel>
+
+                </StackPanel>
                 </Border>
 
                 <TextBlock Text="Window borders / content (ControlTemplates)" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,6" />

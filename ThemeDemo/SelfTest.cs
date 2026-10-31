@@ -602,7 +602,11 @@ namespace ThemeDemo
         private static HackImage FindHackImage(DependencyObject root, bool requireDuration)
         {
             var hack = root as HackImage;
-            if (hack != null && hack.Source != null
+
+            // An art that follows a ThemeDescriptorSource is the inner image of a HackBorder; its
+            // descriptors belong to the container, so writing a state on it would be read straight
+            // back from the container and nothing would change.  Skip those.
+            if (hack != null && hack.Source != null && hack.ThemeDescriptorSource == null
                 && (!requireDuration || ThemeImage.GetTransitionDuration(hack) > TimeSpan.Zero))
                 return hack;
 

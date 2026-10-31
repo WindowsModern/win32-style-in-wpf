@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -30,6 +30,13 @@ namespace System.Windows.Controls
 		public BitmapScalingMode ScalingMode { get { return (BitmapScalingMode)GetValue (ScalingModeProperty); } set { SetValue (ScalingModeProperty, value); } }
 		private static void OnScalingModeChanged (DependencyObject d, DependencyPropertyChangedEventArgs e) { ((HackImage)d).ApplyScalingMode (); }
 		private void ApplyScalingMode () { RenderOptions.SetBitmapScalingMode (this, ScalingMode); }
+		public static readonly DependencyProperty ThemeDescriptorSourceProperty = DependencyProperty.Register (nameof (ThemeDescriptorSource), typeof (DependencyObject), typeof (HackImage), new FrameworkPropertyMetadata (null));
+		/// <summary>
+		/// 描述符来源：不为 null 时，ThemeImage 的 Class/SubClass/Part/State 等附加属性从该对象读取，
+		/// 而不是从这个元素读取。用于"容器承载描述符、本元素负责加载"的组合场景（如 HackBorder）。
+		/// 为 null 时行为与之前完全一致。
+		/// </summary>
+		public DependencyObject ThemeDescriptorSource { get { return (DependencyObject)GetValue (ThemeDescriptorSourceProperty); } set { SetValue (ThemeDescriptorSourceProperty, value); } }
 		/// <summary>直接设置 9 片（TL, T, TR, L, C, R, BL, B, BR），用于动画等外部切片场景。</summary>
 		public void SetSliceImages (BitmapSource [] slices)
 		{

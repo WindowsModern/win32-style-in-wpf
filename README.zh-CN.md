@@ -270,6 +270,36 @@ images-cached-after-close=0        # 关闭 + GC 后缓存归零
   `Image`。
 - 过渡只对 `HackImage` 生效（`Image` 没有中间缓冲）；`TransitionDuration` 为 0 时立即切换。
 
+## HackBorder 与便捷控件
+
+`HackBorder` 继承自 `Border`，`Background`、`BorderBrush`、`BorderThickness`、`CornerRadius`、
+`Padding` 全部按 `Border` 的语义工作；主题部件画在边框线内侧、按圆角裁剪，唯一的子节点放在
+`Padding` 内。描述符直接写在边框上即可，内部那张图会跟着它走：
+
+```xml
+<pt:HackBorder th:ThemeImage.Class="TaskBar" th:ThemeImage.Part="1"
+               th:ThemeImage.TransitionDuration="0:0:0.15"
+               CornerRadius="4" Padding="6">
+  <TextBlock Text="inside the part" />
+</pt:HackBorder>
+```
+
+`HackButton`、`HackRepeatButton`、`HackToggleButton` 是"每个状态一张图"的便捷封装：不使用
+`ControlTemplate`，也不属于主题，图片由使用者自己提供。
+
+| 控件 | 图片来源属性 |
+|---|---|
+| `HackButton`、`HackRepeatButton` | `NormalSource`、`HoverSource`、`ActiveSource`、`FocusSource`、`DisabledSource` |
+| `HackToggleButton` | 上述五个，外加 `CheckedNormalSource`、`CheckedHoverSource`、`CheckedActiveSource`、`CheckedFocusSource`、`CheckedDisabledSource` |
+
+- 三者都用同一个 `HackThickness`：以图像像素为单位的九宫格切片。
+- 优先级为 禁用 > 按下 > 悬停 > 焦点 > 常态；缺哪一张就退回静止态，所以只给 `NormalSource`
+  也能用。
+- 只要提供了任意一张 `Checked*`，勾选态就使用自己那一套，缺失的那张退回
+  `CheckedNormalSource`，**不会**借用该状态未勾选的图。
+- `TransitionDuration` / `TransitionEasing` 走与附加属性完全相同的 `HackImageTransitions`
+  路径做交叉淡入；为 0 时立即切换。
+
 ## 诊断接口
 
 ```csharp
