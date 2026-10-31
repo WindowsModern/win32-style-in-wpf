@@ -16,6 +16,11 @@ namespace Microsoft.Windows.Themes
     /// </summary>
     public static class ThemeColors
     {
+        static ThemeColors()
+        {
+            ThemeResourceRefresher.EnsureInitialized();
+        }
+
         // Windows SDK TMT_* values.
         private const int TmtTextColor = 3803;
         private const int TmtTextColorHint = 3824;

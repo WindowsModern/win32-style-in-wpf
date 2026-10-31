@@ -60,6 +60,7 @@
     <Compile Include="ThemeHackImage.cs" />
     <Compile Include="ThemeImage.cs" />
   <Compile Include="ThemeResourceKeys.cs" />
+    <Compile Include="ThemeResourceRefresher.cs" />
     <Compile Include="ScrollBarThumbLengthConverter.cs" />
     <Compile Include="ThemePart.cs" />
     <Compile Include="ThemeProgress.cs" />

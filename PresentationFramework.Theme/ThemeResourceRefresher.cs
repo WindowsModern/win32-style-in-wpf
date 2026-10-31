@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Threading;
+using Microsoft.Win32;
 
 namespace Microsoft.Windows.Themes
 {
@@ -10,12 +12,37 @@ namespace Microsoft.Windows.Themes
     /// visual-style or system-color change. The values are normally created by
     /// <c>x:Static</c> at dictionary load, so replacing the dictionary entries
     /// is what makes existing <c>DynamicResource</c> consumers update.
+    /// <para xml:lang="zh-CN">视觉样式或系统颜色变化后刷新主题画刷、字号和度量资源。资源值通常在字典加载时由 <c>x:Static</c> 固化，因此只有替换字典项，现有的 <c>DynamicResource</c> 使用方才会更新。</para>
     /// </summary>
     public static class ThemeResourceRefresher
     {
+        private static bool initialized;
+
+        /// <summary>
+        /// Subscribes to system preference changes once. Called automatically when
+        /// <see cref="ThemeColors"/> is first used; applications do not need to call it.
+        /// <para xml:lang="zh-CN">只订阅一次系统首选项变化。首次使用 <see cref="ThemeColors"/> 时自动调用，应用无需手动调用。</para>
+        /// </summary>
+        internal static void EnsureInitialized()
+        {
+            if (initialized)
+                return;
+
+            initialized = true;
+            try
+            {
+                SystemEvents.UserPreferenceChanged += OnUserPreferenceChanged;
+            }
+            catch (InvalidOperationException)
+            {
+                // SystemEvents needs a message pump; design-time or service hosts may not have one.
+            }
+        }
+
         /// <summary>
         /// Refreshes every known theme resource in the application resources.
         /// Returns the number of dictionary entries that changed.
+        /// <para xml:lang="zh-CN">刷新应用程序资源中所有已知的主题资源，返回发生变化的字典项数量。</para>
         /// </summary>
         public static int Refresh()
         {
@@ -27,6 +54,10 @@ namespace Microsoft.Windows.Themes
             foreach (ResourceDictionary dictionary in Enumerate(application.Resources))
             {
                 changed += RefreshBrush(dictionary, ThemeResourceKeys.TaskbarForeground, ThemeColors.TaskbarForeground);
+                // GlobalForegroundBrush is often overridden by applications; only
+                // replace it in the library dictionary, identified by TaskbarForeground.
+                if (dictionary.Contains(ThemeResourceKeys.TaskbarForeground))
+                    changed += RefreshBrush(dictionary, ThemeResourceKeys.GlobalForeground, ThemeColors.TaskbarForeground);
                 changed += RefreshBrush(dictionary, ThemeResourceKeys.TrayNotifyForeground, ThemeColors.TrayNotifyForeground);
                 changed += RefreshBrush(dictionary, ThemeResourceKeys.NormalWindowForeground, ThemeColors.NormalWindowForeground);
                 changed += RefreshBrush(dictionary, ThemeResourceKeys.ToolWindowForeground, ThemeColors.ToolWindowForeground);
@@ -41,6 +72,53 @@ namespace Microsoft.Windows.Themes
                 changed += RefreshThickness(dictionary, ThemeResourceKeys.ToolWindowContentMargin, ThemeWindowMetrics.ToolWindowContentMargin);
             }
             return changed;
+        }
+
+        private static void OnUserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+        {
+            if (e.Category != UserPreferenceCategory.VisualStyle &&
+                e.Category != UserPreferenceCategory.Color)
+                return;
+
+            RefreshFromSystemEvent();
+        }
+
+        private static void RefreshFromSystemEvent()
+        {
+            Application application = Application.Current;
+            if (application == null)
+                return;
+
+            Dispatcher dispatcher = application.Dispatcher;
+            if (dispatcher == null || dispatcher.HasShutdownStarted)
+                return;
+
+            if (dispatcher.CheckAccess())
+            {
+                SafeRefresh();
+                return;
+            }
+
+            try
+            {
+                dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(SafeRefresh));
+            }
+            catch (InvalidOperationException)
+            {
+                // The dispatcher started shutting down between the checks above.
+            }
+        }
+
+        private static void SafeRefresh()
+        {
+            try
+            {
+                Refresh();
+            }
+            catch (InvalidOperationException)
+            {
+                // The application may be shutting down or replacing its resources.
+            }
         }
 
         private static IEnumerable<ResourceDictionary> Enumerate(ResourceDictionary root)
