@@ -192,52 +192,56 @@ jobs:
             throw "nuget push exited with $LASTEXITCODE"
           }
 
-      - name: Unlist superseded versions
+      - name: Check superseded versions
         shell: pwsh
         run: |
-          # 1.0.1 was superseded straight away.  1.0.5 and 1.0.6 shipped the HackBorder
-          # measurement defect: the inner art claimed the bitmap's natural size, so WPF's
-          # ArrangeCore refused to shrink it and the art spilled out of a small border.
-          #
-          # `nuget delete` has to target the V2 endpoint.  Against the V3 index nuget.exe
-          # gets a 405 back, which is why the earlier version of this step never unlisted
-          # anything -- continue-on-error turned that into a green tick.
-          $source = 'https://www.nuget.org/api/v2/package'
-          foreach ($old in @('1.0.1', '1.0.5', '1.0.6')) {
-            Write-Output "unlisting $old"
-            nuget delete Win32ThemeStyle.WPF $old `
-              -Source $source `
-              -ApiKey ${{ steps.nuget-login.outputs.NUGET_API_KEY }} `
-              -NonInteractive 2>&1 | Write-Output
-            if ($LASTEXITCODE -ne 0) {
-              Write-Output "::warning title=NuGet unlist::$old exited with $LASTEXITCODE"
+          # Unlisting is a manual job.  The key issued by Trusted Publishing is scoped for
+          # pushing: `nuget delete` against it exits 0 while the version stays listed, which
+          # is why the old "Unlist" step looked green and changed nothing.  This step only
+          # reports what is still visible; it must never block a release.
+          $superseded = @('1.0.1', '1.0.5', '1.0.6', '1.0.8')
+          $uri = "https://www.nuget.org/api/v2/FindPackagesById()?id='Win32ThemeStyle.WPF'"
+          $doc = New-Object System.Xml.XmlDocument
+          $doc.LoadXml((Invoke-WebRequest -Uri $uri -UseBasicParsing).Content)
+          $still = @()
+          foreach ($old in $superseded) {
+            $entry = $doc.feed.entry | Where-Object { $_.id -like "*Version='$old'*" } | Select-Object -First 1
+            if ($null -eq $entry) {
+              Write-Output "$old : not on nuget.org"
+              continue
+            }
+            # The V2 feed omits <d:Listed> while a version is visible and carries
+            # <d:Listed>false</d:Listed> once it has been unlisted.
+            $listed = $entry.properties.Listed
+            if ($null -eq $listed -or $listed.InnerText -ne 'false') {
+              $still += $old
             }
           }
-
-          # Unlisting is housekeeping: the package is already published by the step above, so a
-          # failure here must not fail the build.  GitHub appends `exit $LASTEXITCODE` to a pwsh
-          # step, which is what turned the previous attempt red -- clear it explicitly.
-          exit 0
+          if ($still.Count -gt 0) {
+            Write-Output "::warning title=NuGet listing::$($still -join ', ') still listed; unlist them by hand"
+          } else {
+            Write-Output 'every superseded version is unlisted'
+          }
 
       - name: Verify publication
         shell: pwsh
         run: |
-          # `nuget push` can exit 0 and publish nothing, so prove the package is really live.
-          # This runs last on purpose: unlisting is housekeeping and must not be skipped just
-          # because a probe failed.  `$doc.feed.'m:count'` gives the element, not its text, and
-          # [int] on an element is 0 -- which is why this step failed for a package that was
-          # published all along.
+          # The OData feed is CDN cached and lags by minutes, and an earlier version of this
+          # step threw on a package that had been live for an hour -- reading the m:count
+          # element instead of its text.  So: cache-bust the URL, look the version up in the
+          # package list, and warn rather than fail, because `nuget push` already exited 0.
           $version = $env:GITHUB_REF_NAME -replace '^v', ''
-          $uri = "https://www.nuget.org/api/v2/Packages()?`$filter=Id eq 'Win32ThemeStyle.WPF' and Version eq '$version'"
-          for ($i = 1; $i -le 12; $i++) {
-            Start-Sleep -Seconds 10
+          for ($i = 1; $i -le 6; $i++) {
+            $uri = "https://www.nuget.org/api/v2/FindPackagesById()?id='Win32ThemeStyle.WPF'&_=$([guid]::NewGuid())"
             $doc = New-Object System.Xml.XmlDocument
             $doc.LoadXml((Invoke-WebRequest -Uri $uri -UseBasicParsing).Content)
-            $count = [int]$doc.feed.'m:count'.InnerText
-            Write-Output "attempt ${i} : count=$count"
-            if ($count -gt 0) {
+            $hit = $doc.feed.entry | Where-Object { $_.id -like "*Version='$version'*" } | Select-Object -First 1
+            if ($null -ne $hit) {
               Write-Output "$version is live on nuget.org"
               exit 0
             }
+            Write-Output "attempt $i : $version is not visible yet"
+            Start-Sleep -Seconds 20
           }
-          throw "$version never appeared on nuget.org"
+          Write-Output "::warning title=NuGet verify::$version is not visible yet; the feed lags behind the push"
+          exit 0

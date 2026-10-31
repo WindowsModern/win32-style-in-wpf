@@ -237,18 +237,13 @@ namespace System.Windows.Controls
 
             _art.Arrange (new Rect (left, top, width, height));
 
-            // Clip to the rounded inner rect so the part cannot spill past CornerRadius.
+            // Always clip to the inner rect.  In the normal case the art is arranged exactly
+            // there, so this is a no-op; it just keeps a part from spilling if the bitmap ever
+            // arrives with a size the arrange pass did not expect.  CornerRadius rounds it.
             double radius = Math.Max (0.0, Math.Max (CornerRadius.TopLeft, Math.Max (CornerRadius.TopRight, Math.Max (CornerRadius.BottomLeft, CornerRadius.BottomRight))));
-            if (radius > 0.0)
-            {
-                RectangleGeometry clip = new RectangleGeometry (new Rect (left, top, width, height), radius, radius);
-                clip.Freeze ();
-                _art.Clip = clip;
-            }
-            else
-            {
-                _art.Clip = null;
-            }
+            RectangleGeometry clip = new RectangleGeometry (new Rect (left, top, width, height), radius, radius);
+            clip.Freeze ();
+            _art.Clip = clip;
 
             return result;
         }
