@@ -322,6 +322,71 @@ namespace ThemeDemo
             Say ("");
             Say ("  => corners stay at the slice thickness in both; edges and centre absorb the rest.");
 
+            Say ("");
+            Say ("minimum size -- the only floor is the slice border, plus whatever MinHeight/MaxHeight do");
+            string[] labels = new string[]
+            {
+                "thickness 3, no child", "thickness 0, no child", "thickness 3 + 10 px child",
+                "thickness 3 + MinHeight 40", "thickness 3 + MaxHeight 4"
+            };
+            for (int i = 0; i < labels.Length; i++)
+            {
+                HackBorder probe = new HackBorder ();
+                probe.UseLayoutRounding = true;
+                probe.HackThickness = new Thickness (i == 1 ? 0.0 : 3.0);
+                if (i == 2)
+                    probe.Child = new TextBlock { Text = "x", Height = 10 };
+                if (i == 3)
+                    probe.MinHeight = 40;
+                if (i == 4)
+                    probe.MaxHeight = 4;
+
+                probe.Measure (new Size (400, double.PositiveInfinity));
+                Say ("  {0, -27} desired {1}", labels [i], Format (probe.DesiredSize));
+            }
+
+            Say ("");
+            Say ("shrink the border -- does the inner art follow the arranged height?");
+            var stack = new StackPanel ();
+            var probes = new List<HackBorder> ();
+            double[] heights = new double [] { 40, 20, 12, 8, 4 };
+            for (int i = 0; i < heights.Length; i++)
+            {
+                HackBorder box = CreateBorder (MakeArt (40, 40), new Thickness (0), null);
+                box.HackThickness = new Thickness (3);
+                box.Height = heights [i];
+                box.Background = Brushes.WhiteSmoke;
+                box.Margin = new Thickness (0, 0, 0, 6);
+                probes.Add (box);
+                stack.Children.Add (box);
+            }
+
+            Border host = new Border { Width = 200, Padding = new Thickness (8), Child = stack };
+            host.Measure (new Size (200, double.PositiveInfinity));
+            host.Arrange (new Rect (0, 0, 200, host.DesiredSize.Height));
+            host.UpdateLayout ();
+            for (int i = 0; i < probes.Count; i++)
+            {
+                HackImage probeArt = GetArt (probes [i]);
+                Say ("  Height {0, -3} -> border {1}, art render {2}, art desired {3}",
+                    Format (heights [i]), Format (probes [i].ActualHeight),
+                    Format (probeArt.RenderSize.Height), Format (probeArt.DesiredSize.Height));
+            }
+
+            HackImage standalone = new HackImage ();
+            standalone.Source = MakeArt (40, 40);
+            standalone.Measure (new Size (double.PositiveInfinity, double.PositiveInfinity));
+            Size wantedInfinity = standalone.DesiredSize;
+            standalone.Measure (new Size (0, 0));
+            Size wantedZero = standalone.DesiredSize;
+            standalone.Arrange (new Rect (0, 0, 20, 8));
+            Say ("");
+            Say ("art on its own: desired(infinity) {0}, desired(0) {1}, arranged 20x8 -> render {2}",
+                Format (wantedInfinity), Format (wantedZero), Format (standalone.RenderSize));
+            standalone.Measure (new Size (double.PositiveInfinity, double.PositiveInfinity));
+            standalone.Arrange (new Rect (0, 0, 20, 8));
+            Say ("  re-measured at infinity then arranged 20x8 -> render {0}", Format (standalone.RenderSize));
+
             return 0;
         }
     }

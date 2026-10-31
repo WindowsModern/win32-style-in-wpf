@@ -201,6 +201,13 @@ namespace System.Windows.Controls
             _art.Measure (new Size (double.PositiveInfinity, double.PositiveInfinity));
             _artNatural = _art.DesiredSize;
 
+            // WPF's ArrangeCore never arranges an element smaller than its DesiredSize while
+            // ClipToBounds is false, and HackImage hands the bitmap size back when it is measured
+            // with an infinite constraint -- so an un-reset desired size would pin the art at its
+            // natural height and make it spill out of a shrunken border.  Collapse it again; the
+            // natural size above is already captured for diagnostics.
+            _art.Measure (new Size (0.0, 0.0));
+
             Size content = base.MeasureOverride (constraint);
 
             // Slice9Image is a Grid whose outer tracks are the slice thickness, so its desired size

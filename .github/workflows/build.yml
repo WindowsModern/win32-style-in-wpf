@@ -153,14 +153,23 @@ jobs:
         with:
           user: ${{ secrets.NUGET_USER }}
 
-      - name: Unlist 1.0.1
+      - name: Unlist superseded versions
         continue-on-error: true
         shell: pwsh
         run: |
-          nuget delete Win32ThemeStyle.WPF 1.0.1 `
-            -Source https://api.nuget.org/v3/index.json `
-            -ApiKey ${{ steps.nuget-login.outputs.NUGET_API_KEY }} `
-            -NonInteractive
+          # 1.0.1 was superseded straight away.  1.0.5 and 1.0.6 shipped the HackBorder
+          # measurement defect: the inner art claimed the bitmap's natural size, so WPF's
+          # ArrangeCore refused to shrink it and the art spilled out of a small border.
+          # Unlisting keeps them installable by exact version but hides them from search
+          # and from "latest".
+          $superseded = @('1.0.1', '1.0.5', '1.0.6')
+          foreach ($old in $superseded) {
+            Write-Output "unlisting $old"
+            nuget delete Win32ThemeStyle.WPF $old `
+              -Source https://api.nuget.org/v3/index.json `
+              -ApiKey ${{ steps.nuget-login.outputs.NUGET_API_KEY }} `
+              -NonInteractive
+          }
 
       - name: Push to nuget.org
         shell: pwsh
