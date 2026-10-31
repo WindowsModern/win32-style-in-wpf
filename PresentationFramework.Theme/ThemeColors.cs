@@ -26,6 +26,11 @@ namespace Microsoft.Windows.Themes
         private const int TmtTextColorHint = 3824;
         private const int TmtFillColor = 3802;
         private const int TmtFillColorHint = 3821;
+        private const int TmtEdgeFillColor = 3808;
+        private const int TmtEdgeLightColor = 3804;
+        private const int TmtEdgeHighlightColor = 3805;
+        private const int TmtEdgeShadowColor = 3806;
+        private const int TmtEdgeDkShadowColor = 3807;
 
         /// <summary>
         /// Foreground color for taskbar text, from
@@ -146,6 +151,72 @@ namespace Microsoft.Windows.Themes
 
                 return SystemColors.WindowTextColor;
             }
+        }
+
+        /// <summary>
+        /// Border fill color for the ToolTip Balloon part, from
+        /// <c>Tooltip</c> part 3 (Balloon), normal state, <c>TMT_EDGEFILLCOLOR</c>.
+        /// Falls back to <c>SystemColors.InfoColor</c> when no theme is active.
+        /// <para xml:lang="zh-CN">ToolTip Balloon 部件的边框填充色，来自 <c>Tooltip</c> 部件 3（Balloon）普通状态的 <c>TMT_EDGEFILLCOLOR</c>；无主题时回退到 <c>SystemColors.InfoColor</c>。</para>
+        /// </summary>
+        public static Color ToolTipEdgeFill
+        {
+            get { return GetToolTipEdgeColor(TmtEdgeFillColor, SystemColors.InfoColor); }
+        }
+
+        /// <summary>
+        /// Light border color for the ToolTip Balloon part, from
+        /// <c>Tooltip</c> part 3 (Balloon), normal state, <c>TMT_EDGELIGHTCOLOR</c>.
+        /// <para xml:lang="zh-CN">ToolTip Balloon 部件的浅边框色，来自 <c>Tooltip</c> 部件 3（Balloon）普通状态的 <c>TMT_EDGELIGHTCOLOR</c>。</para>
+        /// </summary>
+        public static Color ToolTipEdgeLight
+        {
+            get { return GetToolTipEdgeColor(TmtEdgeLightColor, SystemColors.ControlLightLightColor); }
+        }
+
+        /// <summary>
+        /// Highlight border color for the ToolTip Balloon part, from
+        /// <c>Tooltip</c> part 3 (Balloon), normal state, <c>TMT_EDGEHIGHLIGHTCOLOR</c>.
+        /// <para xml:lang="zh-CN">ToolTip Balloon 部件的高亮边框色，来自 <c>Tooltip</c> 部件 3（Balloon）普通状态的 <c>TMT_EDGEHIGHLIGHTCOLOR</c>。</para>
+        /// </summary>
+        public static Color ToolTipEdgeHighlight
+        {
+            get { return GetToolTipEdgeColor(TmtEdgeHighlightColor, SystemColors.ControlLightLightColor); }
+        }
+
+        /// <summary>
+        /// Shadow border color for the ToolTip Balloon part, from
+        /// <c>Tooltip</c> part 3 (Balloon), normal state, <c>TMT_EDGESHADOWCOLOR</c>.
+        /// <para xml:lang="zh-CN">ToolTip Balloon 部件的阴影边框色，来自 <c>Tooltip</c> 部件 3（Balloon）普通状态的 <c>TMT_EDGESHADOWCOLOR</c>。</para>
+        /// </summary>
+        public static Color ToolTipEdgeShadow
+        {
+            get { return GetToolTipEdgeColor(TmtEdgeShadowColor, SystemColors.ControlDarkColor); }
+        }
+
+        /// <summary>
+        /// Dark shadow border color for the ToolTip Balloon part, from
+        /// <c>Tooltip</c> part 3 (Balloon), normal state, <c>TMT_EDGEDKSHADOWCOLOR</c>.
+        /// <para xml:lang="zh-CN">ToolTip Balloon 部件的深阴影边框色，来自 <c>Tooltip</c> 部件 3（Balloon）普通状态的 <c>TMT_EDGEDKSHADOWCOLOR</c>。</para>
+        /// </summary>
+        public static Color ToolTipEdgeDarkShadow
+        {
+            get { return GetToolTipEdgeColor(TmtEdgeDkShadowColor, SystemColors.ControlDarkDarkColor); }
+        }
+
+        private static Color GetToolTipEdgeColor(int propertyId, Color fallback)
+        {
+            using (VisualStyleContext context = new VisualStyleContext())
+            using (VisualStyle theme = context.Open("Tooltip"))
+            {
+                Color color;
+                if (theme != null &&
+                    (TryReadColor(theme, 3, 1, propertyId, out color) ||
+                     TryReadColor(theme, 1, 1, propertyId, out color)))
+                    return color;
+            }
+
+            return fallback;
         }
 
         private static bool TryGetTextColor(string className, string subClass, int[] parts, out Color color)

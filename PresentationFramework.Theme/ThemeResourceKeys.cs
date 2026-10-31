@@ -132,6 +132,54 @@ namespace Microsoft.Windows.Themes
         public const string TrayNotifyForeground = "ThemeTrayNotifyForegroundBrush";
 
         /// <summary>
+        /// ToolTip Balloon border fill brush, from <c>Tooltip</c> part 3.
+        /// <para xml:lang="zh-CN">ToolTip Balloon 边框填充色画刷，来自 <c>Tooltip</c> 部件 3。</para>
+        /// </summary>
+        public const string ToolTipEdgeFill = "ThemeToolTipEdgeFillBrush";
+
+        /// <summary>
+        /// ToolTip Balloon light border brush, from <c>Tooltip</c> part 3.
+        /// <para xml:lang="zh-CN">ToolTip Balloon 浅边框色画刷，来自 <c>Tooltip</c> 部件 3。</para>
+        /// </summary>
+        public const string ToolTipEdgeLight = "ThemeToolTipEdgeLightBrush";
+
+        /// <summary>
+        /// ToolTip Balloon highlight border brush, from <c>Tooltip</c> part 3.
+        /// <para xml:lang="zh-CN">ToolTip Balloon 高亮边框色画刷，来自 <c>Tooltip</c> 部件 3。</para>
+        /// </summary>
+        public const string ToolTipEdgeHighlight = "ThemeToolTipEdgeHighlightBrush";
+
+        /// <summary>
+        /// ToolTip Balloon shadow border brush, from <c>Tooltip</c> part 3.
+        /// <para xml:lang="zh-CN">ToolTip Balloon 阴影边框色画刷，来自 <c>Tooltip</c> 部件 3。</para>
+        /// </summary>
+        public const string ToolTipEdgeShadow = "ThemeToolTipEdgeShadowBrush";
+
+        /// <summary>
+        /// ToolTip Balloon dark shadow border brush, from <c>Tooltip</c> part 3.
+        /// <para xml:lang="zh-CN">ToolTip Balloon 深阴影边框色画刷，来自 <c>Tooltip</c> 部件 3。</para>
+        /// </summary>
+        public const string ToolTipEdgeDarkShadow = "ThemeToolTipEdgeDarkShadowBrush";
+
+        /// <summary>
+        /// ToolTip Close normal image, alpha reconstructed.
+        /// <para xml:lang="zh-CN">ToolTip 关闭按钮普通状态图片，已重建像素透明。</para>
+        /// </summary>
+        public const string ToolTipCloseNormalImage = "ThemeToolTipCloseNormalImage";
+
+        /// <summary>
+        /// ToolTip Close hot image, opaque.
+        /// <para xml:lang="zh-CN">ToolTip 关闭按钮热状态图片，不透明。</para>
+        /// </summary>
+        public const string ToolTipCloseHotImage = "ThemeToolTipCloseHotImage";
+
+        /// <summary>
+        /// ToolTip Close pressed image, opaque.
+        /// <para xml:lang="zh-CN">ToolTip 关闭按钮按下状态图片，不透明。</para>
+        /// </summary>
+        public const string ToolTipClosePressedImage = "ThemeToolTipClosePressedImage";
+
+        /// <summary>
         /// Active normal-window border template.
         /// <para xml:lang="zh-CN">有焦点的普通窗口边框模板。</para>
         /// </summary>

@@ -89,6 +89,19 @@ xmlns:th="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.
 | `WindowContentForeground` | `ThemeWindowContentForegroundBrush` | `SolidColorBrush` |
 | `GlobalFlyoutForeground` | `GlobalFlyoutForegroundBrush` | `SolidColorBrush` |
 
+### ToolTip 气泡
+
+| 常量 | XAML 键 | 类型 |
+| --- | --- | --- |
+| `ToolTipEdgeFill` | `ThemeToolTipEdgeFillBrush` | `SolidColorBrush` |
+| `ToolTipEdgeLight` | `ThemeToolTipEdgeLightBrush` | `SolidColorBrush` |
+| `ToolTipEdgeHighlight` | `ThemeToolTipEdgeHighlightBrush` | `SolidColorBrush` |
+| `ToolTipEdgeShadow` | `ThemeToolTipEdgeShadowBrush` | `SolidColorBrush` |
+| `ToolTipEdgeDarkShadow` | `ThemeToolTipEdgeDarkShadowBrush` | `SolidColorBrush` |
+| `ToolTipCloseNormalImage` | `ThemeToolTipCloseNormalImage` | `BitmapSource`（像素透明） |
+| `ToolTipCloseHotImage` | `ThemeToolTipCloseHotImage` | `BitmapSource`（像素透明） |
+| `ToolTipClosePressedImage` | `ThemeToolTipClosePressedImage` | `BitmapSource`（像素透明） |
+
 ### 窗口尺寸与标题字号
 
 | 常量 | XAML 键 | 类型 | 含义 |

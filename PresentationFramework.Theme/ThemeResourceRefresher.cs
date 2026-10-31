@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Microsoft.Win32;
 
@@ -59,6 +60,14 @@ namespace Microsoft.Windows.Themes
                 if (dictionary.Contains(ThemeResourceKeys.TaskbarForeground))
                     changed += RefreshBrush(dictionary, ThemeResourceKeys.GlobalForeground, ThemeColors.TaskbarForeground);
                 changed += RefreshBrush(dictionary, ThemeResourceKeys.TrayNotifyForeground, ThemeColors.TrayNotifyForeground);
+                changed += RefreshBrush(dictionary, ThemeResourceKeys.ToolTipEdgeFill, ThemeColors.ToolTipEdgeFill);
+                changed += RefreshBrush(dictionary, ThemeResourceKeys.ToolTipEdgeLight, ThemeColors.ToolTipEdgeLight);
+                changed += RefreshBrush(dictionary, ThemeResourceKeys.ToolTipEdgeHighlight, ThemeColors.ToolTipEdgeHighlight);
+                changed += RefreshBrush(dictionary, ThemeResourceKeys.ToolTipEdgeShadow, ThemeColors.ToolTipEdgeShadow);
+                changed += RefreshBrush(dictionary, ThemeResourceKeys.ToolTipEdgeDarkShadow, ThemeColors.ToolTipEdgeDarkShadow);
+                changed += RefreshImage(dictionary, ThemeResourceKeys.ToolTipCloseNormalImage, () => ThemeToolTipCloseImage.CreateImage(1, true));
+                changed += RefreshImage(dictionary, ThemeResourceKeys.ToolTipCloseHotImage, () => ThemeToolTipCloseImage.CreateImage(2, true));
+                changed += RefreshImage(dictionary, ThemeResourceKeys.ToolTipClosePressedImage, () => ThemeToolTipCloseImage.CreateImage(3, true));
                 changed += RefreshBrush(dictionary, ThemeResourceKeys.NormalWindowForeground, ThemeColors.NormalWindowForeground);
                 changed += RefreshBrush(dictionary, ThemeResourceKeys.ToolWindowForeground, ThemeColors.ToolWindowForeground);
                 changed += RefreshBrush(dictionary, ThemeResourceKeys.WindowContentForeground, ThemeColors.WindowContentForeground);
@@ -142,6 +151,15 @@ namespace Microsoft.Windows.Themes
             var brush = new SolidColorBrush(color);
             brush.Freeze();
             dictionary[key] = brush;
+            return 1;
+        }
+
+        private static int RefreshImage(ResourceDictionary dictionary, string key, Func<BitmapSource> factory)
+        {
+            if (!dictionary.Contains(key))
+                return 0;
+
+            dictionary[key] = factory();
             return 1;
         }
 

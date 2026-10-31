@@ -57,6 +57,7 @@
     <Compile Include="ThemeDibRenderer.cs" />
     <Compile Include="ThemeCalendar.cs" />
     <Compile Include="ThemeColors.cs" />
+    <Compile Include="ThemeToolTipCloseImageExtension.cs" />
     <Compile Include="ThemeHackImage.cs" />
     <Compile Include="ThemeImage.cs" />
   <Compile Include="ThemeResourceKeys.cs" />

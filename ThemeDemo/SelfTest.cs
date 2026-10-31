@@ -528,6 +528,12 @@ namespace ThemeDemo
             log.Add("taskbar-resource=" + DescribeBrush(window.TryFindResource(ThemeResourceKeys.TaskbarForeground)));
             log.Add("flyout-foreground-resource=" + DescribeBrush(window.TryFindResource(ThemeResourceKeys.GlobalFlyoutForeground)));
             log.Add("window-content-foreground-resource=" + DescribeBrush(window.TryFindResource(ThemeResourceKeys.WindowContentForeground)));
+            log.Add("tooltip-edge-fill-resource=" + DescribeBrush(window.TryFindResource(ThemeResourceKeys.ToolTipEdgeFill)));
+            log.Add("tooltip-edge-light-resource=" + DescribeBrush(window.TryFindResource(ThemeResourceKeys.ToolTipEdgeLight)));
+            log.Add("tooltip-edge-highlight-resource=" + DescribeBrush(window.TryFindResource(ThemeResourceKeys.ToolTipEdgeHighlight)));
+            log.Add("tooltip-edge-shadow-resource=" + DescribeBrush(window.TryFindResource(ThemeResourceKeys.ToolTipEdgeShadow)));
+            log.Add("tooltip-edge-darkshadow-resource=" + DescribeBrush(window.TryFindResource(ThemeResourceKeys.ToolTipEdgeDarkShadow)));
+            LogToolTipCloseImage(window, log);
             foreach (TextBlock text in FindVisualChildren<TextBlock>(window))
             {
                 if (!string.Equals(text.Text, "Taskbar foreground", StringComparison.Ordinal))
@@ -536,6 +542,48 @@ namespace ThemeDemo
                 log.Add("taskbar-textblock-foreground=" + DescribeBrush(text.Foreground));
                 log.Add("taskbar-textblock-background=" + DescribeBrush(text.Background));
             }
+        }
+
+        private static void LogToolTipCloseImage(FrameworkElement window, List<string> log)
+        {
+            LogToolTipCloseImage(window, log, "normal", ThemeResourceKeys.ToolTipCloseNormalImage);
+            LogToolTipCloseImage(window, log, "hot", ThemeResourceKeys.ToolTipCloseHotImage);
+            LogToolTipCloseImage(window, log, "pressed", ThemeResourceKeys.ToolTipClosePressedImage);
+        }
+
+        private static void LogToolTipCloseImage(FrameworkElement window, List<string> log, string label, string key)
+        {
+            var image = window.TryFindResource(key) as BitmapSource;
+            if (image == null)
+            {
+                log.Add("tooltip-close-" + label + "-image=null");
+                return;
+            }
+
+            int minAlpha = 255;
+            int maxAlpha = 255;
+            bool hasAlpha = image.Format == PixelFormats.Bgra32 || image.Format == PixelFormats.Pbgra32;
+            if (hasAlpha)
+            {
+                int stride = image.PixelWidth * 4;
+                byte[] pixels = new byte[stride * image.PixelHeight];
+                image.CopyPixels(pixels, stride, 0);
+                maxAlpha = 0;
+                for (int i = 3; i < pixels.Length; i += 4)
+                {
+                    if (pixels[i] < minAlpha)
+                        minAlpha = pixels[i];
+                    if (pixels[i] > maxAlpha)
+                        maxAlpha = pixels[i];
+                }
+            }
+
+            log.Add("tooltip-close-" + label + "-image=" + image.PixelWidth.ToString(CultureInfo.InvariantCulture)
+                + "x" + image.PixelHeight.ToString(CultureInfo.InvariantCulture)
+                + ";format=" + image.Format
+                + ";alpha=" + (hasAlpha
+                    ? minAlpha.ToString(CultureInfo.InvariantCulture) + ".." + maxAlpha.ToString(CultureInfo.InvariantCulture)
+                    : "opaque"));
         }
 
         private static void LogStyleColor(List<string> log, string label, VisualStyle style, int part, int state, int property)

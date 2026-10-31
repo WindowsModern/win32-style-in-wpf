@@ -467,6 +467,56 @@
                 </StackPanel>
                 </Border>
 
+                <TextBlock Text="ToolTip balloon (public resource keys)" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,6" />
+                <Border BorderBrush="#FFB8B8B8" BorderThickness="1" Padding="12" Margin="0,0,0,14">
+                    <StackPanel>
+                        <TextBlock TextWrapping="Wrap" Foreground="Gray" Margin="0,0,0,10" Text="The five edge colors are read from Tooltip part 3 (Balloon), normal state; the Close images are Tooltip part 5, states 1/2/3. Normal, Hot and Pressed all keep reconstructed pixel alpha; the preview backgrounds only make that alpha visible. These are theme resources, so the swatches change with the active visual style." />
+                        <WrapPanel>
+                            <StackPanel Margin="0,0,12,8">
+                                <TextBlock Text="Edge fill / TMT_EDGEFILLCOLOR 3808" FontSize="10" Foreground="Gray" />
+                                <Border Width="140" Height="28" BorderBrush="#FF808080" BorderThickness="1" Background="{DynamicResource {x:Static th:ThemeResourceKeys.ToolTipEdgeFill}}" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,8">
+                                <TextBlock Text="Edge light / TMT_EDGELIGHTCOLOR 3804" FontSize="10" Foreground="Gray" />
+                                <Border Width="140" Height="28" BorderBrush="#FF808080" BorderThickness="1" Background="{DynamicResource {x:Static th:ThemeResourceKeys.ToolTipEdgeLight}}" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,8">
+                                <TextBlock Text="Edge highlight / TMT_EDGEHIGHLIGHTCOLOR 3805" FontSize="10" Foreground="Gray" />
+                                <Border Width="140" Height="28" BorderBrush="#FF808080" BorderThickness="1" Background="{DynamicResource {x:Static th:ThemeResourceKeys.ToolTipEdgeHighlight}}" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,8">
+                                <TextBlock Text="Edge shadow / TMT_EDGESHADOWCOLOR 3806" FontSize="10" Foreground="Gray" />
+                                <Border Width="140" Height="28" BorderBrush="#FF808080" BorderThickness="1" Background="{DynamicResource {x:Static th:ThemeResourceKeys.ToolTipEdgeShadow}}" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,8">
+                                <TextBlock Text="Edge dark shadow / TMT_EDGEDKSHADOWCOLOR 3807" FontSize="10" Foreground="Gray" />
+                                <Border Width="140" Height="28" BorderBrush="#FF808080" BorderThickness="1" Background="{DynamicResource {x:Static th:ThemeResourceKeys.ToolTipEdgeDarkShadow}}" />
+                            </StackPanel>
+                        </WrapPanel>
+                        <TextBlock Text="Close button / Tooltip part 5" FontWeight="SemiBold" Margin="0,8,0,4" />
+                        <WrapPanel>
+                            <StackPanel Margin="0,0,12,8">
+                                <Border Width="64" Height="48" BorderBrush="#FF808080" BorderThickness="1" Background="#FFFFF0C0" HorizontalAlignment="Left">
+                                    <Image Source="{DynamicResource {x:Static th:ThemeResourceKeys.ToolTipCloseNormalImage}}" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <TextBlock Text="Normal (alpha)" FontSize="10" Foreground="Gray" HorizontalAlignment="Center" Margin="0,2,0,0" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,8">
+                                <Border Width="64" Height="48" BorderBrush="#FF808080" BorderThickness="1" Background="{DynamicResource {x:Static th:ThemeResourceKeys.ToolTipEdgeFill}}" HorizontalAlignment="Left">
+                                    <Image Source="{DynamicResource {x:Static th:ThemeResourceKeys.ToolTipCloseHotImage}}" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <TextBlock Text="Hot" FontSize="10" Foreground="Gray" HorizontalAlignment="Center" Margin="0,2,0,0" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,8">
+                                <Border Width="64" Height="48" BorderBrush="#FF808080" BorderThickness="1" Background="{DynamicResource {x:Static th:ThemeResourceKeys.ToolTipEdgeFill}}" HorizontalAlignment="Left">
+                                    <Image Source="{DynamicResource {x:Static th:ThemeResourceKeys.ToolTipClosePressedImage}}" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <TextBlock Text="Pressed" FontSize="10" Foreground="Gray" HorizontalAlignment="Center" Margin="0,2,0,0" />
+                            </StackPanel>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
                 <TextBlock Text="Window borders / content (ControlTemplates)" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,6" />
                 <Border BorderBrush="#FFB8B8B8" BorderThickness="1" Padding="12" Margin="0,0,0,14">
                     <WrapPanel>

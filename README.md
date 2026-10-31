@@ -98,6 +98,19 @@ xmlns:th="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.
 | `WindowContentForeground` | `ThemeWindowContentForegroundBrush` | `SolidColorBrush` |
 | `GlobalFlyoutForeground` | `GlobalFlyoutForegroundBrush` | `SolidColorBrush` |
 
+### ToolTip balloon
+
+| Constant | XAML key | Type |
+| --- | --- | --- |
+| `ToolTipEdgeFill` | `ThemeToolTipEdgeFillBrush` | `SolidColorBrush` |
+| `ToolTipEdgeLight` | `ThemeToolTipEdgeLightBrush` | `SolidColorBrush` |
+| `ToolTipEdgeHighlight` | `ThemeToolTipEdgeHighlightBrush` | `SolidColorBrush` |
+| `ToolTipEdgeShadow` | `ThemeToolTipEdgeShadowBrush` | `SolidColorBrush` |
+| `ToolTipEdgeDarkShadow` | `ThemeToolTipEdgeDarkShadowBrush` | `SolidColorBrush` |
+| `ToolTipCloseNormalImage` | `ThemeToolTipCloseNormalImage` | `BitmapSource` (alpha) |
+| `ToolTipCloseHotImage` | `ThemeToolTipCloseHotImage` | `BitmapSource` (alpha) |
+| `ToolTipClosePressedImage` | `ThemeToolTipClosePressedImage` | `BitmapSource` (alpha) |
+
 ### Window metrics and title font
 
 | Constant | XAML key | Type | Meaning |
