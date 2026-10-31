@@ -153,6 +153,26 @@ jobs:
         with:
           user: ${{ secrets.NUGET_USER }}
 
+      - name: Inspect package
+        shell: pwsh
+        run: |
+          # A push that exits 0 but publishes nothing usually means the server treated the
+          # upload as a duplicate, so check what the package really declares first.
+          $version = $env:GITHUB_REF_NAME -replace '^v', ''
+          $package = ".\artifacts\nuget\Win32ThemeStyle.WPF.$version.nupkg"
+          $dir = Join-Path $env:RUNNER_TEMP 'nupkg'
+          New-Item -ItemType Directory -Force $dir | Out-Null
+          Expand-Archive -Path $package -DestinationPath $dir -Force
+          $nuspec = Get-ChildItem $dir -Filter *.nuspec | Select-Object -First 1
+          [xml]$spec = (Get-Content $nuspec.FullName -Raw)
+          $inner = $spec.package.metadata.version
+          Write-Output "tag version   : $version"
+          Write-Output "nuspec version: $inner"
+          Write-Output "package size  : $((Get-Item $package).Length)"
+          if ($inner -ne $version) {
+            throw "nuspec declares $inner but the tag says $version"
+          }
+
       - name: Push to nuget.org
         shell: pwsh
         run: |
