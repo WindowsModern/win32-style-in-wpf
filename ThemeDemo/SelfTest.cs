@@ -430,6 +430,7 @@ namespace ThemeDemo
             log.Add("window-offscreen-left=" + window.Left.ToString("R", CultureInfo.InvariantCulture));
             log.Add("window-offscreen-top=" + window.Top.ToString("R", CultureInfo.InvariantCulture));
             LogWindowTitleMetrics(window, log);
+            LogTaskbarForeground(window, log);
         }
 
         private static void LogWindowTitleMetrics(Window window, List<string> log)
@@ -492,6 +493,65 @@ namespace ThemeDemo
                     ";actual=" + text.ActualWidth.ToString("R", CultureInfo.InvariantCulture) +
                     "x" + text.ActualHeight.ToString("R", CultureInfo.InvariantCulture));
             }
+        }
+
+        private static void LogTaskbarForeground(Window window, List<string> log)
+        {
+            log.Add("taskbar-foreground=" + FormatColor(ThemeColors.TaskbarForeground));
+            log.Add("tray-foreground=" + FormatColor(ThemeColors.TrayNotifyForeground));
+
+            using (var context = new VisualStyleContext())
+            {
+                using (var taskbar = context.Open("Toolbar", "TaskBar"))
+                {
+                    log.Add("taskbar-style=" + (taskbar == null ? "null" : "open"));
+                    if (taskbar != null)
+                    {
+                        LogStyleColor(log, "taskbar-text", taskbar, 1, 1, 3803);
+                        LogStyleColor(log, "taskbar-text-hint", taskbar, 1, 1, 3824);
+                        LogStyleColor(log, "taskbar-fill", taskbar, 1, 1, 3802);
+                        LogStyleColor(log, "taskbar-fill0", taskbar, 0, 0, 3802);
+                    }
+                }
+
+                using (var toolbar = context.Open("Toolbar"))
+                {
+                    log.Add("toolbar-style=" + (toolbar == null ? "null" : "open"));
+                    if (toolbar != null)
+                    {
+                        LogStyleColor(log, "toolbar-text", toolbar, 1, 1, 3803);
+                        LogStyleColor(log, "toolbar-fill", toolbar, 1, 1, 3802);
+                    }
+                }
+            }
+
+            log.Add("taskbar-resource=" + DescribeBrush(window.TryFindResource(ThemeResourceKeys.TaskbarForeground)));
+            foreach (TextBlock text in FindVisualChildren<TextBlock>(window))
+            {
+                if (!string.Equals(text.Text, "Taskbar foreground", StringComparison.Ordinal))
+                    continue;
+
+                log.Add("taskbar-textblock-foreground=" + DescribeBrush(text.Foreground));
+                log.Add("taskbar-textblock-background=" + DescribeBrush(text.Background));
+            }
+        }
+
+        private static void LogStyleColor(List<string> log, string label, VisualStyle style, int part, int state, int property)
+        {
+            System.Drawing.Color color;
+            log.Add(label + "=" + (style.TryGetColor(part, state, property, out color) ? color.ToString() : "missing"));
+        }
+
+        private static string DescribeBrush(object value)
+        {
+            if (value == null)
+                return "null";
+
+            var brush = value as SolidColorBrush;
+            if (brush != null)
+                return FormatColor(brush.Color) + ";opacity=" + brush.Opacity.ToString("R", CultureInfo.InvariantCulture);
+
+            return value.GetType().FullName;
         }
 
         private static void LogThemeColor(List<string> log, string label, VisualStyle style, int part, int property)

@@ -10,8 +10,8 @@ namespace Microsoft.Windows.Themes
     /// Theme-derived shell colors.
     /// <para xml:lang="zh-CN">
     /// 从当前 UXTHEME 主题中读取的外壳颜色。任务栏前景来自
-    /// <c>Toolbar [TaskBar]</c> 的 <c>TMT_TEXTCOLOR</c>，托盘图标区域前景来自
-    /// <c>TrayNotify [TrayNotifyHoriz]</c> 的 <c>TMT_TEXTCOLOR</c>。
+    /// <c>Toolbar [TaskBar]</c> 按钮部件（part 1，normal 状态）的 <c>TMT_TEXTCOLOR</c>，
+    /// 托盘图标区域前景来自 <c>TrayNotify [TrayNotifyHoriz]</c> 的 <c>TMT_TEXTCOLOR</c>。
     /// </para>
     /// </summary>
     public static class ThemeColors
@@ -23,15 +23,20 @@ namespace Microsoft.Windows.Themes
         private const int TmtFillColorHint = 3821;
 
         /// <summary>
-        /// Foreground color for taskbar text, from <c>Toolbar [TaskBar]</c>.
-        /// <para xml:lang="zh-CN">任务栏文字前景色，来自 <c>Toolbar [TaskBar]</c>。</para>
+        /// Foreground color for taskbar text, from
+        /// <c>Toolbar [TaskBar]</c> button (part 1, normal state)
+        /// <c>TMT_TEXTCOLOR</c>. Falls back to the base <c>Toolbar</c> class
+        /// when the subclass does not publish it.
+        /// <para xml:lang="zh-CN">任务栏文字前景色，来自 <c>Toolbar [TaskBar]</c> 按钮部件（part 1，normal 状态）的 <c>TMT_TEXTCOLOR</c>；子类未发布时再回退到基础 <c>Toolbar</c> 类。</para>
         /// </summary>
         public static Color TaskbarForeground
         {
             get
             {
                 Color color;
-                if (TryGetTextColor("Toolbar", "TaskBar", new[] { 0, 1 }, out color))
+                if (TryGetTextColor("Toolbar", "TaskBar", 1, 1, out color))
+                    return color;
+                if (TryGetTextColor("Toolbar", null, 1, 1, out color))
                     return color;
 
                 Color background;
@@ -140,6 +145,18 @@ namespace Microsoft.Windows.Themes
 
         private static bool TryGetTextColor(string className, string subClass, int[] parts, out Color color)
         {
+            foreach (int part in parts)
+            {
+                if (TryGetTextColor(className, subClass, part, 0, out color))
+                    return true;
+            }
+
+            color = default(Color);
+            return false;
+        }
+
+        private static bool TryGetTextColor(string className, string subClass, int part, int state, out Color color)
+        {
             color = default(Color);
             using (VisualStyleContext context = new VisualStyleContext())
             using (VisualStyle theme = context.Open(className, subClass))
@@ -147,15 +164,9 @@ namespace Microsoft.Windows.Themes
                 if (theme == null)
                     return false;
 
-                foreach (int part in parts)
-                {
-                    if (TryReadColor(theme, part, 0, TmtTextColor, out color) ||
-                        TryReadColor(theme, part, 0, TmtTextColorHint, out color))
-                        return true;
-                }
+                return TryReadColor(theme, part, state, TmtTextColor, out color) ||
+                       TryReadColor(theme, part, state, TmtTextColorHint, out color);
             }
-
-            return false;
         }
 
         private static bool TryGetBackgroundColor(string className, string subClass, int[] parts, out Color color)

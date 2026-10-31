@@ -199,7 +199,7 @@ jobs:
           # pushing: `nuget delete` against it exits 0 while the version stays listed, which
           # is why the old "Unlist" step looked green and changed nothing.  This step only
           # reports what is still visible; it must never block a release.
-          $superseded = @('1.0.1', '1.0.5', '1.0.6', '1.0.8')
+          $superseded = @('1.0.1', '1.0.5', '1.0.6', '1.0.8', '1.0.9')
           $uri = "https://www.nuget.org/api/v2/FindPackagesById()?id='Win32ThemeStyle.WPF'"
           $doc = New-Object System.Xml.XmlDocument
           $doc.LoadXml((Invoke-WebRequest -Uri $uri -UseBasicParsing).Content)
