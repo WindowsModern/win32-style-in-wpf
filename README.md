@@ -64,6 +64,26 @@ Reference these assemblies: `PresentationFramework.Theme.dll`, `ThemeExplorer.Co
 > Merge the dictionary before creating windows/controls. Replacing it at runtime only affects
 > controls created afterwards.
 
+## Hack* components
+
+`HackImage`, `HackBorder` and the `Hack*` buttons turn a UxTheme part or a nine-patch bitmap into
+regular WPF elements. They are the building blocks behind the custom templates in this library.
+
+| Component | Base | Purpose |
+| --- | --- | --- |
+| [`HackImage`](docs/hack-components.md#hackimage) | `FrameworkElement` | Nine-patch image with no child or chrome. |
+| [`HackBorder`](docs/hack-components.md#hackborder) | `Border` | Border surface drawn from a theme part, with normal Border layout. |
+| [`HackImageTransitions`](docs/hack-components.md#hackimagetransitions) | attached properties | Declarative cross-fade driven by `To`/`Duration`/`Easing`. |
+| [`HackImageTransition`](docs/hack-components.md#hackimagetransition-manual-api) | `IDisposable` | Manual transition object behind the attached API. |
+| [`HackButton`](docs/hack-components.md#hackbutton-and-hackrepeatbutton) / `HackRepeatButton` | `Button` / `RepeatButton` | One bitmap per state, no `ControlTemplate`. |
+| [`HackToggleButton`](docs/hack-components.md#hacktogglebutton) | `ToggleButton` | Five state images plus optional checked images. |
+
+`HackImage` and `HackBorder` can load parts through `ThemeImage.Class/Part/State`; the buttons take
+explicit image sources and are independent of the theme. See the full guide for properties,
+measurement rules, state fallback tables, recipes and limitations:
+
+[English guide](docs/hack-components.md) | [简体中文文档](docs/hack-components.zh-CN.md)
+
 ## Public resource keys
 
 Use the constants on `Microsoft.Windows.Themes.ThemeResourceKeys`; the XAML key is the string

@@ -56,6 +56,25 @@ TabControl / ScrollBar / StatusBar / ToolTip / ContextMenu：
 
 > 请在创建窗口/控件之前合并字典；运行中替换字典只影响之后创建的控件。
 
+## Hack* 组件
+
+`HackImage`、`HackBorder` 和 `Hack*` 按钮把 UxTheme 部件或九宫格位图变成普通的 WPF 元素，
+也是本库自定义模板的基础。
+
+| 组件 | 基类 | 作用 |
+| --- | --- | --- |
+| [`HackImage`](docs/hack-components.zh-CN.md#hackimage) | `FrameworkElement` | 无子节点、无控件外观的九宫格图片。 |
+| [`HackBorder`](docs/hack-components.zh-CN.md#hackborder) | `Border` | 以主题部件为表面、布局与 Border 一致的边框。 |
+| [`HackImageTransitions`](docs/hack-components.zh-CN.md#hackimagetransitions) | 附加属性 | 由 `To`/`Duration`/`Easing` 驱动的声明式交叉淡入。 |
+| [`HackImageTransition`](docs/hack-components.zh-CN.md#hackimagetransition手动-api) | `IDisposable` | 附加属性背后的手动过渡对象。 |
+| [`HackButton`](docs/hack-components.zh-CN.md#hackbutton-与-hackrepeatbutton) / `HackRepeatButton` | `Button` / `RepeatButton` | 每个状态一张图，不使用 `ControlTemplate`。 |
+| [`HackToggleButton`](docs/hack-components.zh-CN.md#hacktogglebutton) | `ToggleButton` | 五张状态图，外加可选的勾选态图。 |
+
+`HackImage` 和 `HackBorder` 可以通过 `ThemeImage.Class/Part/State` 加载主题部件；
+`Hack*` 按钮使用显式图片源，与主题无关。属性、测量规则、状态回退表、示例和限制见完整文档：
+
+[English guide](docs/hack-components.md) | [简体中文文档](docs/hack-components.zh-CN.md)
+
 ## 公开资源键
 
 资源常量在 `Microsoft.Windows.Themes.ThemeResourceKeys` 中，常量值就是 XAML 资源键。
